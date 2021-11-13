@@ -9,8 +9,6 @@
     "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
   },
   "dependencies": {
-    "@taquito/signer": "^10.2.1",
-    "@taquito/taquito": "^10.2.1",
     "@types/request-promise": "^4.1.48",
     "apollo-server": "^3.3.0",
     "apollo-server-express": "^3.3.0",
