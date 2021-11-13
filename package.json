@@ -1,0 +1,43 @@
+{
+  "name": "fxhash-indexer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "prod": "tsc && node dist/app.js",
+    "build": "tsc",
+    "start": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node --transpile-only\" src/index.ts"
+  },
+  "dependencies": {
+    "@taquito/signer": "^10.2.1",
+    "@taquito/taquito": "^10.2.1",
+    "@types/request-promise": "^4.1.48",
+    "apollo-server": "^3.3.0",
+    "apollo-server-express": "^3.3.0",
+    "class-validator": "^0.13.1",
+    "cors": "^2.8.5",
+    "dataloader": "^2.0.0",
+    "dotenv": "^10.0.0",
+    "eventsource": "^1.1.0",
+    "express": "^4.17.1",
+    "graphql": "^15.6.1",
+    "graphql-type-json": "^0.3.2",
+    "ipfs-core": "^0.11.1",
+    "pg": "^8.7.1",
+    "reflect-metadata": "^0.1.13",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "slugify": "^1.6.2",
+    "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.38",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/eventsource": "^1.1.7",
+    "@types/node": "^16.10.3",
+    "@types/uuid": "^8.3.1",
+    "nodemon": "^2.0.13",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  }
+}
