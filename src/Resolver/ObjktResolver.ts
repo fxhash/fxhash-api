@@ -53,7 +53,7 @@ export class ObjktResolver {
 	): Promise<Objkt[]> {
 		return Objkt.find({
 			order: {
-				createdAt: "ASC"
+				id: "ASC"
 			},
 			skip,
 			take,

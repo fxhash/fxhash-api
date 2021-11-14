@@ -22,7 +22,7 @@ const batchGenTokObjkt = async (genIds) => {
 			issuer: In(genIds)
 		},
     order: {
-      createdAt: "DESC"
+      id: "DESC"
     }
 	})
 	return genIds.map((id: number) => objkts.filter(objkt => objkt.issuer?.id === id))
@@ -36,7 +36,7 @@ const batchGenTokLatestObjkt = async (genIds) => {
 			issuer: In(genIds)
 		},
     order: {
-      createdAt: "DESC"
+      id: "DESC"
     },
 		take: 6
 	})

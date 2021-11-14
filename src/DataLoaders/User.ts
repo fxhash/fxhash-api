@@ -24,7 +24,7 @@ const batchUsersObjkt = async (userIds) => {
 			owner: In(userIds)
 		},
 		order: {
-			createdAt: "DESC"
+			id: "DESC"
 		}
 	})
 	return userIds.map((id: string) => objkts.filter(objkt => objkt.owner?.id === id))
@@ -38,7 +38,7 @@ const batchUsersGenTok = async (userIds) => {
 			author: In(userIds)
 		},
 		order: {
-			createdAt: "DESC"
+			id: "DESC"
 		}
 	})
 	return userIds.map((id: string) => tokens.filter(token => token.author?.id === id))

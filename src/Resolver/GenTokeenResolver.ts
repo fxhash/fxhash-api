@@ -52,7 +52,7 @@ export class GenTokenResolver {
 	): Promise<GenerativeToken[]> {
 		return GenerativeToken.find({
 			order: {
-				createdAt: "DESC"
+				id: "DESC"
 			},
 			skip,
 			take,
