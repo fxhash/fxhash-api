@@ -57,3 +57,18 @@ const batchGenTokActions = async (ids) => {
 	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
 }
 export const createGenTokActionsLoader = () => new DataLoader(batchGenTokActions)
+
+const batchGenTokLatestActions = async (ids) => {
+	const actions = await Action.find({
+    relations: [ "token" ],
+		where: {
+			token: In(ids)
+		},
+    order: {
+      createdAt: "DESC"
+    },
+		take: 20
+	})
+	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
+}
+export const createGenTokLatestActionsLoader = () => new DataLoader(batchGenTokLatestActions)

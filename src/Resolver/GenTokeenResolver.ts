@@ -6,6 +6,7 @@ import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
+import { sleep } from "../Utils/Helpers"
 import { PaginationArgs } from "./Arguments/Pagination"
 
 @Resolver(GenerativeToken)
@@ -38,12 +39,30 @@ export class GenTokenResolver {
 	}
 
 	@FieldResolver(returns => [Action])
-	actions(
+	latestActions(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext
 	) {
 		if (token.actions) return token.actions
-		return ctx.genTokActionsLoader.load(token.id)
+		return ctx.genTokLatestActionsLoader.load(token.id)
+	}
+
+	@FieldResolver(returns => [Action])
+	actions(
+		@Root() token: GenerativeToken,
+		@Args() { skip, take }: PaginationArgs
+	): Promise<Action[]> {
+		return Action.find({
+			where: {
+				token: token.id
+			},
+			order: {
+				createdAt: "DESC",
+				type: "DESC"
+			},
+			skip: skip,
+			take: take
+		})
 	}
   
   @Query(returns => [GenerativeToken])
