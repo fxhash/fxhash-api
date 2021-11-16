@@ -8,13 +8,7 @@ import { ResolverCollection } from './Resolver/Collection'
 import { createServer } from './Server/Http'
 import { ApolloServer } from 'apollo-server-express'
 import { createContext } from './Utils/Context'
-import { Action } from './Entity/Action'
-import { Offer } from './Entity/Offer'
-import { Objkt } from './Entity/Objkt'
-import { GenerativeToken } from './Entity/GenerativeToken'
-import { User } from './Entity/User'
-import { Level } from './Entity/Level'
-import { GentkAssign } from './Entity/GentkAssign'
+import { routeGraphiql } from './routes/graphiql'
 
 
 const main = async () => {
@@ -46,6 +40,7 @@ const main = async () => {
 	const server = new ApolloServer({
 		schema: schema,
 		context: ({ req, res }) => createContext(req, res),
+		introspection: true
 	})
 	await server.start()
 	server.applyMiddleware({ 
@@ -56,6 +51,9 @@ const main = async () => {
 			origin: process.env.CORS_ALLOWED_ORIGINS,
 		}
 	})
+
+	// graphql interface
+	routeGraphiql(app)
 	
 	httpServer.listen(process.env.PORT, async () => {
 		console.log(`--------`)
