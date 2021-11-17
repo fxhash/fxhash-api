@@ -6,6 +6,7 @@ import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs } from "./Arguments/Pagination"
 import { GenTokenResolver } from "./GenTokeenResolver"
+import { In } from "typeorm"
 
 @Resolver(Offer)
 export class OfferResolver {
@@ -35,12 +36,27 @@ export class OfferResolver {
 	): Promise<Offer[]> {
 		return Offer.find({
 			order: {
-				createdAt: "ASC"
+				createdAt: "DESC"
 			},
 			skip,
 			take,
 		})
 	}
+	
+  @Query(returns => [Offer], { nullable: true })
+	async offersByIds(
+		@Arg("ids", type => [Number]) ids: number[]
+	): Promise<GenerativeToken[]> {
+		const offers = await Offer.find({
+			where: {
+				id: In(ids)
+			},
+			take: 100
+		})
+		// @ts-ignore
+		return ids.map(id => offers.find(offer => offer.id == id)).filter(offer => !!offer)
+	}
+
 
 	@Query(returns => [Offer])
 	async searchOffers(

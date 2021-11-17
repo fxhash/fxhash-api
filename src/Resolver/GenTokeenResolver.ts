@@ -1,12 +1,11 @@
 import { ApolloError } from "apollo-server-errors"
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { In } from "typeorm"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
-import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
-import { sleep } from "../Utils/Helpers"
 import { PaginationArgs } from "./Arguments/Pagination"
 
 @Resolver(GenerativeToken)
@@ -76,6 +75,20 @@ export class GenTokenResolver {
 			skip,
 			take,
 		})
+	}
+
+  @Query(returns => [GenerativeToken], { nullable: true })
+	async generativeTokensByIds(
+		@Arg("ids", type => [Number]) ids: number[]
+	): Promise<GenerativeToken[]> {
+		const tokens = await GenerativeToken.find({
+			where: {
+				id: In(ids)
+			},
+			take: 100
+		})
+		// @ts-ignore
+		return ids.map(id => tokens.find(tok => tok.id == id)).filter(tok => !!tok)
 	}
 
 	@Query(returns => GenerativeToken, { nullable: true })
