@@ -1,7 +1,7 @@
 import DataLoader from "dataloader"
 import { In } from "typeorm"
 import { Action } from "../Entity/Action"
-import { GenerativeToken } from "../Entity/GenerativeToken"
+import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
@@ -34,9 +34,13 @@ export const createUsersObjktLoader = () => new DataLoader(batchUsersObjkt)
 const batchUsersGenTok = async (userIds) => {
 	const tokens = await GenerativeToken.find({
     relations: [ "author" ],
-		where: {
+		where: [{
+			flag: GenTokFlag.CLEAN,
 			author: In(userIds)
-		},
+		},{
+			flag: GenTokFlag.NONE,
+			author: In(userIds)
+		}],
 		order: {
 			id: "DESC"
 		}

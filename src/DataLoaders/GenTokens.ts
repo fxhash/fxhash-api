@@ -3,6 +3,7 @@ import { In } from "typeorm"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
+import { Report } from "../Entity/Report"
 
 
 const batchGenTokens = async (ids) => {
@@ -57,6 +58,19 @@ const batchGenTokActions = async (ids) => {
 	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
 }
 export const createGenTokActionsLoader = () => new DataLoader(batchGenTokActions)
+
+const batchGenTokReports = async (genIds) => {
+	const reports = await Report.find({
+		where: {
+			token: In(genIds)
+		},
+    order: {
+      id: "DESC"
+    }
+	})
+	return genIds.map((id: number) => reports.filter(report => report.tokenId === id))
+}
+export const createGenTokReportsLoader = () => new DataLoader(batchGenTokReports)
 
 const batchGenTokLatestActions = async (ids) => {
 	const actions = await Action.find({

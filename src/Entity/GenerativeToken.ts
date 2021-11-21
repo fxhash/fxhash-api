@@ -1,11 +1,26 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
-import { Field, ObjectType } from 'type-graphql'
+import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, RelationId } from 'typeorm'
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { Objkt } from './Objkt'
+import { Report } from './Report'
 import { User } from './User'
+
+
+export enum GenTokFlag {
+  NONE              = "NONE",
+  CLEAN             = "CLEAN",
+  REPORTED          = "REPORTED",
+  AUTO_DETECT_COPY  = "AUTO_DETECT_COPY",
+  MALICIOUS         = "MALICIOUS",
+}
+
+registerEnumType(GenTokFlag, {
+  name: "GenTokFlag", // this one is mandatory
+  description: "Flag state of Generative Token", // this one is optional
+})
 
 @Entity()
 @ObjectType()
@@ -17,6 +32,17 @@ export class GenerativeToken extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   slug?: string
+  
+  @Field(() => GenTokFlag)
+  @Column({
+    type: "enum",
+    enum: GenTokFlag,
+    default: GenTokFlag.NONE
+  })
+  flag: GenTokFlag
+
+  @OneToMany(() => Report, report => report.token)
+  reports: Report[]
 
   @ManyToOne(() => User, user => user.generativeTokens)
   author?: User
