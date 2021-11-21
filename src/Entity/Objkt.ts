@@ -1,6 +1,7 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
 import { createUnionType, Field, ObjectType } from 'type-graphql'
+import { Filter } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToOne, OneToMany, RelationId } from 'typeorm'
 import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
@@ -39,6 +40,7 @@ export class Objkt extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
+  @Filter(["eq"])
   assigned?: boolean
 
   @Field({ nullable: true })
@@ -84,11 +86,17 @@ export class Objkt extends BaseEntity {
 
   @Field()
   @CreateDateColumn({ type: 'timestamptz' })
+  @Filter(["lt", "gt"])
   createdAt: Date
 
   @Field()
   @UpdateDateColumn({ type: 'timestamptz', nullable: true })
   updatedAt: Date
+
+  @Field({ nullable: true })
+  @Column({ type: "timestamptz" })
+  @Filter(["gt"])
+  assignedAt: Date
 
   static async findOrCreate(id: number, createdAt: string): Promise<Objkt> {
     let objkt = await Objkt.findOne(id, { relations: [ "owner", "issuer" ]})

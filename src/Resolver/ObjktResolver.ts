@@ -1,10 +1,12 @@
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { generateFilterType } from "type-graphql-filter"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
+import { processFilters } from "../Utils/Filters"
 import { PaginationArgs } from "./Arguments/Pagination"
 import { GenTokenResolver } from "./GenTokeenResolver"
 
@@ -49,11 +51,16 @@ export class ObjktResolver {
   
   @Query(returns => [Objkt])
 	objkts(
-		@Args() { skip, take }: PaginationArgs
+		@Args() { skip, take }: PaginationArgs,
+		@Arg("filters", generateFilterType(Objkt), { nullable: true }) filters: any
 	): Promise<Objkt[]> {
+		console.log(filters)
+		console.log(processFilters(filters))
+
 		return Objkt.find({
+			where: processFilters(filters),
 			order: {
-				id: "ASC"
+				id: "DESC"
 			},
 			skip,
 			take,
