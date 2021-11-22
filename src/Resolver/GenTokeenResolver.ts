@@ -1,9 +1,10 @@
 import { ApolloError } from "apollo-server-errors"
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
-import { In } from "typeorm"
+import { Equal, In, Not } from "typeorm"
 import { Action } from "../Entity/Action"
-import { GenerativeToken } from "../Entity/GenerativeToken"
+import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
+import { Report } from "../Entity/Report"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs } from "./Arguments/Pagination"
@@ -17,6 +18,15 @@ export class GenTokenResolver {
 	) {
 		if (token.objkts) return token.objkts
 		return ctx.genTokObjktsLoader.load(token.id)
+	}
+
+	@FieldResolver(returns => [Report])
+	reports(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext
+	) {
+		if (token.reports) return token.reports
+		return ctx.genTokReportsLoader.load(token.id)
 	}
 
 	@FieldResolver(returns => [Objkt])
@@ -69,8 +79,33 @@ export class GenTokenResolver {
 		@Args() { skip, take }: PaginationArgs
 	): Promise<GenerativeToken[]> {
 		return GenerativeToken.find({
+			where: [{
+				flag: GenTokFlag.CLEAN
+			},{
+				flag: GenTokFlag.NONE
+			}],
 			order: {
-				id: "DESC"
+				id: "DESC",
+			},
+			skip,
+			take,
+		})
+	}
+  
+  @Query(returns => [GenerativeToken])
+	reportedGenerativeTokens(
+		@Args() { skip, take }: PaginationArgs
+	): Promise<GenerativeToken[]> {
+		return GenerativeToken.find({
+			where: [{
+				flag: GenTokFlag.AUTO_DETECT_COPY
+			},{
+				flag: GenTokFlag.REPORTED
+			},{
+				flag: GenTokFlag.MALICIOUS
+			}],
+			order: {
+				id: "DESC",
 			},
 			skip,
 			take,
@@ -82,9 +117,13 @@ export class GenTokenResolver {
 		@Arg("ids", type => [Number]) ids: number[]
 	): Promise<GenerativeToken[]> {
 		const tokens = await GenerativeToken.find({
-			where: {
-				id: In(ids)
-			},
+			where: [{
+				id: In(ids),
+				flag: Equal(GenTokFlag.CLEAN)
+			},{
+				id: In(ids),
+				flag: Equal(GenTokFlag.NONE)
+			}],
 			take: 100
 		})
 		// @ts-ignore
@@ -114,22 +153,11 @@ export class GenTokenResolver {
 		const tok = await GenerativeToken.createQueryBuilder()
 			.select("*")
 			.from(GenerativeToken, "token")
+			.where("token.flag = :flag", { flag: GenTokFlag.CLEAN })
+			.orWhere("token.flag = :flag", { flag: GenTokFlag.NONE })
 			.orderBy("RANDOM()")
 			.limit(1)
 			.execute()
 		return tok[0] || null
-	}
-
-	@Query(returns => [GenerativeToken])
-	async searchGenerativeTokens(
-		@Arg('search') search: string
-	): Promise<GenerativeToken[]> {
-		const formattedQuery = search.trim().replace(/ /g, ' & ');
-		const tokens = await GenerativeToken.createQueryBuilder('token')
-			.leftJoinAndSelect('token.author', 'auth')
-			.where(`to_tsvector(token.name) @@ to_tsquery(:search)`, { search: `${formattedQuery}` })
-			.orWhere(`to_tsvector(auth.name) @@ to_tsquery(:search)`, { search: `${formattedQuery}` })
-			.getMany()
-		return tokens
 	}
 }

@@ -1,11 +1,24 @@
 import { GraphQLString } from 'graphql'
 import { GraphQLJSONObject } from 'graphql-type-json'
-import { Field, ObjectType } from 'type-graphql'
+import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany } from 'typeorm'
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
 import { Objkt } from './Objkt'
 import { Offer } from './Offer'
+import { Report } from './Report'
+
+
+export enum UserRole {
+  USER              = "USER",
+  MODERATOR         = "MODERATOR",
+  ADMIN             = "ADMIN",
+}
+
+registerEnumType(UserRole, {
+  name: "UserRole", // this one is mandatory
+  description: "Role of the user", // this one is optional
+})
 
 @Entity()
 @ObjectType()
@@ -17,6 +30,14 @@ export class User extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   name?: string
+ 
+  @Field(() => UserRole)
+  @Column({
+    type: "enum",
+    enum: UserRole,
+    default: UserRole.USER
+  })
+  role: UserRole
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Column({ type: "jsonb", nullable: true })
@@ -48,6 +69,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Offer, offer => offer.issuer)
   offers: Offer[]
+
+  @OneToMany(() => Report, report => report.user)
+  reports: Report[]
 
   @Field()
   @Column({ type: "timestamptz" })
