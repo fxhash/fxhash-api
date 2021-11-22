@@ -16,9 +16,7 @@ export const processFilters = (filters: any) => {
   let typeormFilters: Record<string, any> = {}
 
   for (const [filterKey, value] of Object.entries(filters)) {
-    const [field, operator] = filterKey.split("_");
-
-    console.log({ field, operator })
+    const [field, operator] = filterKey.split("_")
     typeormFilters[field] = mapFilterOperatorTypeorm(operator as FilterOperator)(value)
   }
 

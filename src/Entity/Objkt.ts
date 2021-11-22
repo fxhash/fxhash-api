@@ -101,7 +101,6 @@ export class Objkt extends BaseEntity {
   static async findOrCreate(id: number, createdAt: string): Promise<Objkt> {
     let objkt = await Objkt.findOne(id, { relations: [ "owner", "issuer" ]})
     if (!objkt) {
-      console.log(`creating objkt ${id}`)
       objkt = Objkt.create({ id, createdAt })
     }
     return objkt

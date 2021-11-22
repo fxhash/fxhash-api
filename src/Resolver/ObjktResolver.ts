@@ -54,9 +54,6 @@ export class ObjktResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Arg("filters", generateFilterType(Objkt), { nullable: true }) filters: any
 	): Promise<Objkt[]> {
-		console.log(filters)
-		console.log(processFilters(filters))
-
 		return Objkt.find({
 			where: processFilters(filters),
 			order: {
