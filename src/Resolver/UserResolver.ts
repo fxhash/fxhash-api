@@ -12,28 +12,74 @@ export class UserResolver {
   @FieldResolver(returns => [Objkt])
 	objkts(
 		@Root() user: User,
+		@Args() { skip, take }: PaginationArgs,
 		@Ctx() ctx: RequestContext
 	) {
-		if (user.objkts) return user.objkts
-		return ctx.userObjktsLoader.load(user.id)
+		return Objkt.createQueryBuilder("objkt")
+			.leftJoinAndSelect("objkt.offer", "offer")
+			.leftJoinAndSelect("offer.issuer", "issuer")
+			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
+			.orWhere("issuer.id = :userId", { userId: user.id })
+			.offset(skip)
+			.limit(take)
+			.orderBy("objkt.id", "DESC")
+			.getMany()
 	}
 
   @FieldResolver(returns => [GenerativeToken])
 	generativeTokens(
 		@Root() user: User,
-		@Ctx() ctx: RequestContext
+		@Ctx() ctx: RequestContext,
+		@Args() { skip, take }: PaginationArgs
 	) {
-		if (user.generativeTokens) return user.generativeTokens
-		return ctx.userGenToksLoader.load(user.id)
+		return GenerativeToken.find({
+			where: {
+				author: user.id
+			},
+			order: {
+				id: "DESC"
+			},
+			skip,
+			take
+		})
 	}
 
   @FieldResolver(returns => [Offer])
 	offers(
 		@Root() user: User,
-		@Ctx() ctx: RequestContext
+		@Ctx() ctx: RequestContext,
+		@Args() { skip, take }: PaginationArgs
 	) {
-		if (user.offers) return user.offers
-		return ctx.userOffersLoader.load(user.id)
+		return Offer.find({
+			where: {
+				issuer: user.id
+			},
+			order: {
+				id: "DESC"
+			},
+			skip,
+			take
+		})
+	}
+
+	@FieldResolver(returns => [Action])
+	actions(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+		@Args() { skip, take }: PaginationArgs
+	) {
+		return Action.find({
+			where: [{
+				issuer: user.id
+			},{
+				target: user.id
+			}],
+			order: {
+				createdAt: "DESC"
+			},
+			skip,
+			take
+		})
 	}
 
   @FieldResolver(returns => [Action])
