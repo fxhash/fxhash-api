@@ -24,7 +24,7 @@ export class Offer extends BaseEntity {
 	objktId: number
 
   @Field()
-  @Column({ default: 0 })
+  @Column()
   price: number = 0
 
   @Field()

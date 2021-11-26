@@ -7,6 +7,7 @@ import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs } from "./Arguments/Pagination"
 import { GenTokenResolver } from "./GenTokeenResolver"
 import { In } from "typeorm"
+import { OffersSortArgs } from "./Arguments/Sort"
 
 @Resolver(Offer)
 export class OfferResolver {
@@ -32,12 +33,11 @@ export class OfferResolver {
   
   @Query(returns => [Offer])
 	async offers(
-		@Args() { skip, take }: PaginationArgs
+		@Args() { skip, take }: PaginationArgs,
+		@Args() sortArgs: OffersSortArgs
 	): Promise<Offer[]> {
 		return Offer.find({
-			order: {
-				createdAt: "DESC"
-			},
+			order: sortArgs,
 			skip,
 			take,
 		})
@@ -45,31 +45,17 @@ export class OfferResolver {
 	
   @Query(returns => [Offer], { nullable: true })
 	async offersByIds(
-		@Arg("ids", type => [Number]) ids: number[]
-	): Promise<GenerativeToken[]> {
+		@Arg("ids", type => [Number]) ids: number[],
+		@Args() sortArgs: OffersSortArgs
+	): Promise<Offer[]> {
 		const offers = await Offer.find({
 			where: {
 				id: In(ids)
 			},
+			order: sortArgs,
 			take: 100
 		})
-		// @ts-ignore
-		return ids.map(id => offers.find(offer => offer.id == id)).filter(offer => !!offer)
-	}
 
-
-	@Query(returns => [Offer])
-	async searchOffers(
-		@Arg('search') search: string
-	): Promise<Offer[]> {
-		const formattedQuery = search.trim().replace(/ /g, ' & ');
-		const offers = await Offer.createQueryBuilder('offer')
-			.leftJoinAndSelect('offer.issuer', 'issuer')
-			.leftJoinAndSelect('offer.objkt', 'objkt')
-			.where(`to_tsvector(token.name) @@ to_tsquery(:search)`, { search: `${formattedQuery}` })
-			.orWhere(`to_tsvector(issuer.name) @@ to_tsquery(:search)`, { search: `${formattedQuery}` })
-			.orWhere(`to_tsvector(objkt.name) @@ to_tsquery(:search)`, { search: `${formattedQuery}` })
-			.getMany()
 		return offers
 	}
 }
