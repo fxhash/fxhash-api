@@ -5,7 +5,6 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
 import { GenerativeTokenMarketStats } from "../GraphQL/MarketplaceStats"
-import { processFilters } from "../Utils/Filters"
 
 
 const batchGenTokens = async (ids) => {
