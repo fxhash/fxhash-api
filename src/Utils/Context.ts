@@ -1,4 +1,4 @@
-import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
+import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
 import { createObjktActionsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createOffersLoader } from '../DataLoaders/Offer'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
@@ -29,6 +29,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     genTokActionsLoader: createGenTokActionsLoader(),
 		genTokLatestActionsLoader: createGenTokLatestActionsLoader(),
 		genTokReportsLoader: createGenTokReportsLoader(),
+		genTokMarketStatsLoader: createGenTokMarketStatsLoader(),
 
     // OFFERS loaders
     offersLoader: createOffersLoader(),

@@ -2,7 +2,7 @@ import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graph
 import { generateFilterType } from "type-graphql-filter"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
-import { Objkt } from "../Entity/Objkt"
+import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
@@ -52,7 +52,7 @@ export class ObjktResolver {
   @Query(returns => [Objkt])
 	objkts(
 		@Args() { skip, take }: PaginationArgs,
-		@Arg("filters", generateFilterType(Objkt), { nullable: true }) filters: any
+		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any
 	): Promise<Objkt[]> {
 		return Objkt.find({
 			where: processFilters(filters),

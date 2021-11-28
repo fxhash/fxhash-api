@@ -1,5 +1,5 @@
 import { Request as ExpressRequest } from "express"
-import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
+import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
 import { createObjktActionsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createOffersLoader } from "../DataLoaders/Offer"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersOffersLoader, createUsersIssuerActionssLoader, 
@@ -32,6 +32,7 @@ export interface RequestContext extends ExpressRequest {
   genTokActionsLoader: ReturnType<typeof createGenTokActionsLoader>,
   genTokLatestActionsLoader: ReturnType<typeof createGenTokLatestActionsLoader>,
   genTokReportsLoader: ReturnType<typeof createGenTokReportsLoader>,
+  genTokMarketStatsLoader: ReturnType<typeof createGenTokMarketStatsLoader>,
 
   // OFFERS loaders
   offersLoader: ReturnType<typeof createOffersLoader>,

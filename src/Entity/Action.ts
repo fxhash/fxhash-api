@@ -1,6 +1,7 @@
 import { GraphQLObjectType } from 'graphql'
 import { GraphQLJSONObject } from 'graphql-type-json'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
+import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, BaseEntity, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm'
 import { HistoryMetadata } from '../types/Metadata'
 import { GenerativeToken } from './GenerativeToken'
@@ -38,6 +39,7 @@ export class Action extends BaseEntity {
     enum: TokenActionType,
     default: TokenActionType.NONE
   })
+  @Filter(["in", "eq"])
   type: TokenActionType
 
   @ManyToOne(() => User, user => user.actionsAsIssuer)
@@ -72,3 +74,6 @@ export class Action extends BaseEntity {
   @Column({ type: 'timestamptz' })
   createdAt: Date
 }
+
+// the filters for the Action entity
+export const FiltersAction = generateFilterType(Action)

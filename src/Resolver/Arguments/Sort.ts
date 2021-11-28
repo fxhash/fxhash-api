@@ -12,3 +12,19 @@ export class OffersSortArgs {
   @IsIn(["ASC", "DESC"])
   createdAt?: "ASC" | "DESC"
 }
+
+
+@ArgsType()
+export class ObjktsSortArgs {
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  id?: "ASC" | "DESC"
+  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  offerPrice?: "ASC" | "DESC"
+  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  offerCreatedAt?: "ASC" | "DESC"
+}

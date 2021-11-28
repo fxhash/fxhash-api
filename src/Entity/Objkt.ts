@@ -1,7 +1,7 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
 import { createUnionType, Field, ObjectType } from 'type-graphql'
-import { Filter } from 'type-graphql-filter'
+import { generateFilterType, Filter } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToOne, OneToMany, RelationId } from 'typeorm'
 import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
@@ -76,6 +76,7 @@ export class Objkt extends BaseEntity {
   royalties: number = 0
 
   @OneToOne(() => Offer, offer => offer.objkt, { onDelete: "CASCADE" })
+  @Filter(["ne"])
   offer?: Offer|null
 
   @RelationId((obj: Objkt) => obj.offer)
@@ -133,3 +134,6 @@ export class Objkt extends BaseEntity {
     }
   }
 }
+
+// the Type for the filters of the GraphQL query for Objkt
+export const FiltersObjkt = generateFilterType(Objkt)

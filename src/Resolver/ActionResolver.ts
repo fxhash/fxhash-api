@@ -1,10 +1,11 @@
-import { Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
-import { Action } from "../Entity/Action"
+import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
+import { processFilters } from "../Utils/Filters"
 import { PaginationArgs } from "./Arguments/Pagination"
 import { GenTokenResolver } from "./GenTokeenResolver"
 
@@ -52,9 +53,11 @@ export class ActionResolver {
   
   @Query(returns => [Action])
 	async actions(
-		@Args() { skip, take }: PaginationArgs
+		@Args() { skip, take }: PaginationArgs,
+		@Arg("filters", FiltersAction, { nullable: true}) filters: any
 	): Promise<Action[]> {
 		return Action.find({
+			where: processFilters(filters),
 			order: {
 				createdAt: "ASC"
 			},

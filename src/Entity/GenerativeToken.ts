@@ -2,6 +2,7 @@ import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, RelationId } from 'typeorm'
+import { GenerativeTokenMarketStats } from '../GraphQL/MarketplaceStats'
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { Objkt } from './Objkt'
@@ -99,6 +100,9 @@ export class GenerativeToken extends BaseEntity {
   @Field()
   @UpdateDateColumn({ type: 'timestamptz', nullable: true })
   updatedAt: Date
+
+  @Field()
+  marketStats: GenerativeTokenMarketStats
 
   static async findOrCreate(id: number, createdAt: string): Promise<GenerativeToken> {
     let token = await GenerativeToken.findOne(id)
