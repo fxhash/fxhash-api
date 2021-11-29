@@ -29,20 +29,22 @@ const batchGenTokObjkt = async (genIds) => {
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
 	
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query
-	if (filters.offer_ne === null) {
+	if (filters && filters.offer_ne === null) {
 		query = query.innerJoin("objkt.offer", "offer")
 	}
 
 	// add sorting
-	for (const sort in sorts) {
-		if (sort === "offerPrice") {
-			query = query.addOrderBy("offer.price", sorts[sort])
-		}
-		else if (sort === "offerCreatedAt") {
-			query = query.addOrderBy("offer.createdAt", sorts[sort])
-		}
-		else {
-			query = query.addOrderBy(`objkt.${sort}`, sorts[sort])
+	if (sorts) {
+		for (const sort in sorts) {
+			if (sort === "offerPrice") {
+				query = query.addOrderBy("offer.price", sorts[sort])
+			}
+			else if (sort === "offerCreatedAt") {
+				query = query.addOrderBy("offer.createdAt", sorts[sort])
+			}
+			else {
+				query = query.addOrderBy(`objkt.${sort}`, sorts[sort])
+			}
 		}
 	}
 
