@@ -48,6 +48,9 @@ const batchGenTokObjkt = async (genIds) => {
 		}
 	}
 
+	// add a 1 min cache to the query
+	query = query.cache(60000)
+
 	const objkts = await query.getMany()
 
 	return ids.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
@@ -126,6 +129,7 @@ const batchGenTokMarketStats = async (genIds): Promise<GenerativeTokenMarketStat
 			issuer: In(genIds)
 		})
 		.groupBy("token.id")
+		.cache(60000) // add a 1 min cache for the Token
 		.getRawMany()
 
 	// query to get the actions, to compute more tricky values
