@@ -4,11 +4,11 @@ import { generateFilterType } from "type-graphql-filter"
 import { Equal, In, Not } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
+import { MarketStats } from "../Entity/MarketStats"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { Report } from "../Entity/Report"
 import { User } from "../Entity/User"
-import { GenerativeTokenMarketStats } from "../GraphQL/MarketplaceStats"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs } from "./Arguments/Pagination"
@@ -83,11 +83,11 @@ export class GenTokenResolver {
 		})
 	}
 
-	@FieldResolver(returns => GenerativeTokenMarketStats)
+	@FieldResolver(returns => MarketStats)
 	async marketStats(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext
-	): Promise<GenerativeTokenMarketStats> {
+	): Promise<MarketStats> {
 		if (token.marketStats) return token.marketStats
 		return ctx.genTokMarketStatsLoader.load(token.id)
 	}
