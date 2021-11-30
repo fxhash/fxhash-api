@@ -25,6 +25,11 @@ const batchGenTokObjkt = async (genIds) => {
 	const filters = genIds[0].filters
 	const sorts = genIds[0].sort
 
+	// if there is not sort, add ID desc
+	if (Object.keys(sorts).length === 0) {
+		sorts.id = "DESC"
+	}
+
 	let query = Objkt.createQueryBuilder("objkt")
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
 	
