@@ -1,4 +1,5 @@
 import DataLoader from "dataloader"
+import { performance } from "perf_hooks"
 import { In } from "typeorm"
 import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
@@ -126,6 +127,8 @@ class MarketStatsWithRecompute extends MarketStats {
 }
 
 const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
+	const start = performance.now()
+
 	// first grab the marketplace stats for each token
 	const stats = await MarketStats.find({
 		where: {
@@ -250,6 +253,9 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 			computed.push(stat)
 		}
 	}
+
+	const time = performance.now() - start
+	console.log(`⏲️  mapping stats took ${time|0}ms`)
 
 	return genIds.map((id: number) => computed.find(stat => stat.tokenId === id))
 }
