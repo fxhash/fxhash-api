@@ -6,8 +6,6 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
-import { Metrics } from "../Utils/Metrics"
-
 
 const batchGenTokens = async (ids) => {
 	const tokens = await GenerativeToken.find({
@@ -128,9 +126,6 @@ class MarketStatsWithRecompute extends MarketStats {
 }
 
 const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
-	const m1 = Metrics.start("get market stats")
-	console.log(genIds)
-
 	// first grab the marketplace stats for each token
 	const stats = await MarketStats.find({
 		where: {
@@ -163,7 +158,6 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 	// determine if the stats should be computed or not
 	for (const id of genIds) {
 		const stat = stats.find(stat => stat.tokenId === id)
-		console.log(stat)
 		// if nothing was found, we need to create a new one
 		if (!stat) {
 			const nStat = new MarketStats()
@@ -183,14 +177,11 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		computed.push(stat)
 	}
 
-	// console.log({ recompute, computed })
 
 	// only if there is something to recompute, we recompute
 	if (recompute.length > 0) {
 		// build a list of IDs to recompute
 		const recomputeIDs: number[] = recompute.map(stat => stat.tokenId)
-
-		const m2 = Metrics.start(`recompute ${recompute.length} queries`)
 
 		// query to compute minimum, median, and count on the offers
 		const computeStats = await Objkt.createQueryBuilder("objkt")
@@ -218,7 +209,6 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		// turn the price of actions into integers
 		actions.forEach(act => { act.metadata.price = parseInt(act.metadata.price) })
 
-		// console.log({ computeStats, actions })
 
 		// some variables used during the loop
 		let filtActions: Action[]
@@ -226,8 +216,6 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		let filtActionsSc: Action[]
 		let computeStat: any
 		const lastDay = new Date().getTime() - (24*3600*1000)
-
-		const m3 = Metrics.start("stats loop")
 
 		// go through each "recompute" entry, and find / compute the values
 		for (const stat of recompute) {
@@ -261,12 +249,7 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 			await stat.save()
 			computed.push(stat)
 		}
-
-		m3.end()
-		m2.end()
 	}
-
-	m1.end()
 
 	return genIds.map((id: number) => computed.find(stat => stat.tokenId === id))
 }
