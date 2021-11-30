@@ -6,6 +6,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
+import { Metrics } from "../Utils/Metrics"
 
 
 const batchGenTokens = async (ids) => {
@@ -127,7 +128,7 @@ class MarketStatsWithRecompute extends MarketStats {
 }
 
 const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
-	const start = performance.now()
+	const m1 = Metrics.start("get market stats")
 
 	// first grab the marketplace stats for each token
 	const stats = await MarketStats.find({
@@ -185,6 +186,8 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		// build a list of IDs to recompute
 		const recomputeIDs: number[] = recompute.map(stat => stat.tokenId)
 
+		const m2 = Metrics.start(`recompute ${recompute.length} queries`)
+
 		// query to compute minimum, median, and count on the offers
 		const computeStats = await Objkt.createQueryBuilder("objkt")
 			.select("MIN(offer.price)", "floor")
@@ -220,6 +223,8 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		let computeStat: any
 		const lastDay = new Date().getTime() - (24*3600*1000)
 
+		const m3 = Metrics.start("stats loop")
+
 		// go through each "recompute" entry, and find / compute the values
 		for (const stat of recompute) {
 			// find if there is an entry in the recompute stats
@@ -252,10 +257,12 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 			await stat.save()
 			computed.push(stat)
 		}
+
+		m3.end()
+		m2.end()
 	}
 
-	const time = performance.now() - start
-	console.log(`⏲️  mapping stats took ${time|0}ms`)
+	m1.end()
 
 	return genIds.map((id: number) => computed.find(stat => stat.tokenId === id))
 }
