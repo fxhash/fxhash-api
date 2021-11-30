@@ -162,6 +162,7 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 	// determine if the stats should be computed or not
 	for (const id of genIds) {
 		const stat = stats.find(stat => stat.tokenId === id)
+		console.log(stat)
 		// if nothing was found, we need to create a new one
 		if (!stat) {
 			const nStat = new MarketStats()
