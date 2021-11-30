@@ -129,6 +129,7 @@ class MarketStatsWithRecompute extends MarketStats {
 
 const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 	const m1 = Metrics.start("get market stats")
+	console.log(genIds)
 
 	// first grab the marketplace stats for each token
 	const stats = await MarketStats.find({
@@ -167,6 +168,8 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		if (!stat) {
 			const nStat = new MarketStats()
 			nStat.id = nStat.tokenId = id
+			// @ts-ignore
+			nStat.token = { id }
 			nStat.requiresUpdate = true
 			recompute.push(nStat)
 			continue
