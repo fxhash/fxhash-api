@@ -54,8 +54,8 @@ const batchGenTokObjkt = async (genIds) => {
 	}
 
 	// add a 1 min cache to the query
-	// query = query.cache(60000)
-	query = query.limit(5)
+	query = query.cache(60000)
+	// query = query.limit(5)
 
 	const objkts = await query.getMany()
 
