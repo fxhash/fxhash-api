@@ -182,7 +182,6 @@ export class GenTokenResolver {
 			.from(GenerativeToken, "token")
 			.where("token.flag = :flag", { flag: GenTokFlag.CLEAN })
 			.orWhere("token.flag = :flag", { flag: GenTokFlag.NONE })
-			.orderBy("RANDOM()")
 			.limit(1)
 			.execute()
 		return tok[0] || null
