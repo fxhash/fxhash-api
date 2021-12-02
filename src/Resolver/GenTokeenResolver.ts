@@ -21,10 +21,11 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+		@Args() { skip, take }: PaginationArgs,
 		@Args() sort: ObjktsSortArgs
 	) {
 		if (token.objkts) return token.objkts
-		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort })
+		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
 	}
 
 	@FieldResolver(returns => Number)

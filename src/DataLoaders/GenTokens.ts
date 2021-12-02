@@ -1,5 +1,4 @@
 import DataLoader from "dataloader"
-import { performance } from "perf_hooks"
 import { In } from "typeorm"
 import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
@@ -17,13 +16,18 @@ const batchGenTokens = async (ids) => {
 }
 export const createGenTokLoader = () => new DataLoader(batchGenTokens)
 
-
+/**
+ * Get the Objkts of a Generative Token, with some filters and sorting options,
+ * as well as a skip/take limit
+ */
 const batchGenTokObjkt = async (genIds) => {
 	// extract the IDs from the params
 	const ids = genIds.map(id => id.id)
 	// extract the filters from the params
 	const filters = genIds[0].filters
 	const sorts = genIds[0].sort
+	const take = genIds[0].take
+	const skip = genIds[0].skip
 
 	// if there is not sort, add ID desc
 	if (Object.keys(sorts).length === 0) {
@@ -32,7 +36,9 @@ const batchGenTokObjkt = async (genIds) => {
 
 	let query = Objkt.createQueryBuilder("objkt")
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
-	
+		.take(take)
+		.skip(skip)
+
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query
 	if (filters && filters.offer_ne === null) {
 		query = query.innerJoin("objkt.offer", "offer")
