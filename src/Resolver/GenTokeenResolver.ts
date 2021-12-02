@@ -177,13 +177,23 @@ export class GenTokenResolver {
 
 	@Query(returns => GenerativeToken, { nullable: true })
 	async randomGenerativeToken(): Promise<GenerativeToken|undefined> {
-		const tok = await GenerativeToken.createQueryBuilder()
-			.select("*")
-			.from(GenerativeToken, "token")
-			.where("token.flag = :flag", { flag: GenTokFlag.CLEAN })
-			.orWhere("token.flag = :flag", { flag: GenTokFlag.NONE })
+		const highest = await GenerativeToken.createQueryBuilder("token")
+			.orderBy("token.id", "DESC")
 			.limit(1)
-			.execute()
-		return tok[0] || null
+			.getOne()
+		const count = highest?.id
+		let token: GenerativeToken|undefined = undefined
+		if (count) {
+			let id: number
+			let i = 0
+			while (!token || (token.flag !== GenTokFlag.CLEAN && token.flag !== GenTokFlag.NONE && token.flag !== undefined)) {
+				id = (Math.random()*count)|0
+				token = await GenerativeToken.findOne(id)
+				if (++i > 4) {
+					return undefined
+				}
+			}
+		}
+		return token
 	}
 }
