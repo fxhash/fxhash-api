@@ -78,6 +78,24 @@ const batchGenTokLatestObjkt = async (genIds) => {
 }
 export const createGenTokLatestObjktsLoader = () => new DataLoader(batchGenTokLatestObjkt)
 
+// Get the number of objkts the token has
+const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
+	const counts = await Objkt.createQueryBuilder("objkt")
+		.select("COUNT(objkt)", "count")
+		.addSelect("objkt.issuerId", "issuerId")
+		.where({
+			issuer: In(genIds)
+		})
+		.groupBy("objkt.issuerId")
+		.getRawMany()
+	
+	return genIds.map((id: number) => {
+		const f = counts.find(count => count.issuerId === id)
+		return f ? parseInt(f.count) : 0
+	})
+}
+export const createGenTokObjktsCountLoader = () => new DataLoader(batchGenTokObjktsCount)
+
 const batchGenTokActions = async (ids) => {
 	const actions = await Action.find({
     relations: [ "token" ],

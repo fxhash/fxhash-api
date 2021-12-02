@@ -27,6 +27,14 @@ export class GenTokenResolver {
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort })
 	}
 
+	@FieldResolver(returns => Number)
+	async objktsCount(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.genTokObjktsCountLoader.load(token.id)
+	}
+
 	@FieldResolver(returns => [Report])
 	reports(
 		@Root() token: GenerativeToken,
