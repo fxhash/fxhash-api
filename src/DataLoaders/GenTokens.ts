@@ -36,8 +36,6 @@ const batchGenTokObjkt = async (genIds) => {
 
 	let query = Objkt.createQueryBuilder("objkt")
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
-		.take(take)
-		.skip(skip)
 
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query
 	if (filters && filters.offer_ne === null) {
@@ -59,8 +57,16 @@ const batchGenTokObjkt = async (genIds) => {
 		}
 	}
 
+	// todo: why is it not working when there are sorting filters ?
+	// if (filters.offer_ne !== null) {
+		query = query.limit(take)
+		query = query.skip(skip)
+	// }
+
+	// console.log(query.getSql())
+
 	// add a 1 min cache to the query
-	query = query.cache(60000)
+	// query = query.cache(60000)
 	// query = query.limit(5)
 
 	const objkts = await query.getMany()
