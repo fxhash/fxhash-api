@@ -107,6 +107,9 @@ export class GenerativeToken extends BaseEntity {
   @Field()
   objktsCount: number
 
+  @Field(type => [Objkt], { nullable: true })
+  offers: Objkt[]
+
   static async findOrCreate(id: number, createdAt: string): Promise<GenerativeToken> {
     let token = await GenerativeToken.findOne(id)
     if (!token) {

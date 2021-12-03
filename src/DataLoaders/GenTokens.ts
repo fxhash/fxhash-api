@@ -39,7 +39,7 @@ const batchGenTokObjkt = async (genIds) => {
 
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query
 	if (filters && filters.offer_ne === null) {
-		query = query.innerJoin("objkt.offer", "offer")
+		query = query.innerJoinAndSelect("objkt.offer", "offer")
 	}
 
 	// add sorting
@@ -57,19 +57,11 @@ const batchGenTokObjkt = async (genIds) => {
 		}
 	}
 
-	// todo: why is it not working when there are sorting filters ?
-	if (!filters || filters.offer_ne !== null) {
-		query = query.limit(take)
-		query = query.skip(skip)
-	}
+	// pagination
+	query = query.take(take)
+	query = query.skip(skip)
 
-	// console.log(query.getSql())
-
-	// add a 1 min cache to the query
-	// query = query.cache(60000)
-	// query = query.limit(5)
-
-	const objkts = await query.getMany()
+	const	objkts = await query.getMany()
 
 	return ids.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
 }
