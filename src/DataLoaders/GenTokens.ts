@@ -58,7 +58,7 @@ const batchGenTokObjkt = async (genIds) => {
 	}
 
 	// todo: why is it not working when there are sorting filters ?
-	if (filters.offer_ne !== null) {
+	if (!filters || filters.offer_ne !== null) {
 		query = query.limit(take)
 		query = query.skip(skip)
 	}
