@@ -7,6 +7,7 @@ import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } fro
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
 import { Offer } from './Offer'
+import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
 
@@ -86,18 +87,18 @@ export class Objkt extends BaseEntity {
   actions: Action[]
 
   @Field()
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: 'timestamptz', transformer: DateTransformer })
   @Filter(["lt", "gt"])
-  createdAt: Date
+  createdAt: string
 
   @Field()
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
-  updatedAt: Date
+  @UpdateDateColumn({ type: 'timestamptz', nullable: true, transformer: DateTransformer })
+  updatedAt: string
 
   @Field({ nullable: true })
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamptz", transformer: DateTransformer })
   @Filter(["gt", "lt"])
-  assignedAt: Date
+  assignedAt: string
 
   static async findOrCreate(id: number, createdAt: string): Promise<Objkt> {
     let objkt = await Objkt.findOne(id, { relations: [ "owner", "issuer" ]})

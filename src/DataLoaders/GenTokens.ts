@@ -10,7 +10,8 @@ const batchGenTokens = async (ids) => {
 	const tokens = await GenerativeToken.find({
 		where: {
 			id: In(ids)
-		}
+		},
+		cache: 10000
 	})
 	return ids.map(id => tokens.find(token => token.id === id))
 }
@@ -143,7 +144,8 @@ const batchGenTokLatestActions = async (ids) => {
     order: {
       createdAt: "DESC"
     },
-		take: 20
+		take: 20,
+		cache: 10000
 	})
 	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
 }
@@ -200,7 +202,7 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 			continue
 		}
 		// if a recompute criteria is met we set the record to null for the ID
-		if (stat.requiresUpdate || now - stat.updatedAt.getTime() > 3600000) {
+		if (stat.requiresUpdate || (now - new Date(stat.updatedAt).getTime()) > 3600000) {
 			recompute.push(stat)
 			continue
 		}

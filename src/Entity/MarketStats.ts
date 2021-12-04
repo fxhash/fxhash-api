@@ -1,6 +1,7 @@
 import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, OneToOne, JoinColumn, RelationId } from 'typeorm'
 import { GenerativeToken } from './GenerativeToken'
+import { DateTransformer } from './Transformers/DateTransformer'
 
 @Entity()
 @ObjectType()
@@ -59,6 +60,6 @@ export class MarketStats extends BaseEntity {
 	secVolumeNb24: number|null
 
   @Field()
-  @UpdateDateColumn({ type: "timestamptz" })
-  updatedAt: Date
+  @UpdateDateColumn({ type: "timestamptz", transformer: DateTransformer })
+  updatedAt: string
 }

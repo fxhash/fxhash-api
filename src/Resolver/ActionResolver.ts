@@ -2,12 +2,10 @@ import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graph
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
-import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs } from "./Arguments/Pagination"
-import { GenTokenResolver } from "./GenTokeenResolver"
 
 @Resolver(Action)
 export class ActionResolver {

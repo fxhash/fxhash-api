@@ -7,6 +7,7 @@ import { Action } from './Action'
 import { MarketStats } from './MarketStats'
 import { Objkt } from './Objkt'
 import { Report } from './Report'
+import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
 
@@ -97,11 +98,11 @@ export class GenerativeToken extends BaseEntity {
   marketStats: MarketStats
 
   @Field()
-  @CreateDateColumn({ type: 'timestamptz' })
+  @CreateDateColumn({ type: 'timestamptz', transformer: DateTransformer })
   createdAt: string
 
   @Field()
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
+  @UpdateDateColumn({ type: 'timestamptz', nullable: true, transformer: DateTransformer })
   updatedAt: string
 
   @Field()

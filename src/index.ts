@@ -9,7 +9,6 @@ import { createServer } from './Server/Http'
 import { ApolloServer } from 'apollo-server-express'
 import { createContext } from './Utils/Context'
 import { routeGraphiql } from './routes/graphiql'
-import Redis from "ioredis"
 
 
 const main = async () => {
@@ -22,9 +21,6 @@ const main = async () => {
 		entities: [ process.env.TYPEORM_ENTITIES ],
 		cache: {
 			type: "ioredis",
-			options: {
-				url: ""
-			}
 		},
 		ssl: {
 			rejectUnauthorized: false

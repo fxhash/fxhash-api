@@ -1,6 +1,7 @@
 import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, BaseEntity, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm'
 import { GenerativeToken } from './GenerativeToken'
+import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
 
@@ -24,6 +25,6 @@ export class Report extends BaseEntity {
 	tokenId: number
 
   @Field()
-  @Column({ type: 'timestamptz' })
-  createdAt: Date
+  @Column({ type: 'timestamptz', transformer: DateTransformer })
+  createdAt: string
 }

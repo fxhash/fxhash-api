@@ -1,11 +1,9 @@
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
 import { Offer } from "../Entity/Offer"
-import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs } from "./Arguments/Pagination"
-import { GenTokenResolver } from "./GenTokeenResolver"
 import { In } from "typeorm"
 import { OffersSortArgs } from "./Arguments/Sort"
 

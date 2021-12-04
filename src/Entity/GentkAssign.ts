@@ -31,10 +31,10 @@ export class GentkAssign extends BaseEntity {
   state: AssignationState
 
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date
+  createdAt: string
 
   @Column({ type: 'timestamptz', nullable: true })
-  assignedAt: Date
+  assignedAt: string
 
   static async findOrCreate(id: number): Promise<GentkAssign> {
     let gentk = await GentkAssign.findOne(id)
@@ -46,7 +46,7 @@ export class GentkAssign extends BaseEntity {
 
   async assigned() {
     this.state = AssignationState.ASSIGNED
-    this.assignedAt = new Date()
+    this.assignedAt = (new Date()).toISOString()
     await this.save()
   }
 }

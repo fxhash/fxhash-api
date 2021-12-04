@@ -70,7 +70,8 @@ export class UserResolver {
 				id: "DESC"
 			},
 			skip,
-			take
+			take,
+			cache: 10000
 		})
 	}
 
@@ -88,17 +89,18 @@ export class UserResolver {
 				id: "DESC"
 			},
 			skip,
-			take
+			take,
+			cache: 10000
 		})
 	}
 
 	@FieldResolver(returns => [Action])
-	actions(
+	async actions(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
 		@Args() { skip, take }: PaginationArgs
 	) {
-		return Action.find({
+		const ret = await Action.find({
 			where: [{
 				issuer: user.id
 			},{
@@ -108,8 +110,10 @@ export class UserResolver {
 				createdAt: "DESC"
 			},
 			skip,
-			take
+			take,
+			cache: 10000
 		})
+		return ret
 	}
 
   @FieldResolver(returns => [Action])

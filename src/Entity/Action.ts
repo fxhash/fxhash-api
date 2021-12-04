@@ -1,4 +1,3 @@
-import { GraphQLObjectType } from 'graphql'
 import { GraphQLJSONObject } from 'graphql-type-json'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
@@ -6,6 +5,7 @@ import { Entity, Column, BaseEntity, ManyToOne, PrimaryGeneratedColumn, Relation
 import { HistoryMetadata } from '../types/Metadata'
 import { GenerativeToken } from './GenerativeToken'
 import { Objkt } from './Objkt'
+import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
 
@@ -24,7 +24,7 @@ export enum TokenActionType {
 registerEnumType(TokenActionType, {
   name: "TokenActionType", // this one is mandatory
   description: "The type of the action", // this one is optional
-});
+})
 
 @Entity()
 @ObjectType()
@@ -71,8 +71,8 @@ export class Action extends BaseEntity {
   metadata: HistoryMetadata
 
   @Field()
-  @Column({ type: 'timestamptz' })
-  createdAt: Date
+  @Column({ type: 'timestamptz', transformer: DateTransformer })
+  createdAt: string
 }
 
 // the filters for the Action entity

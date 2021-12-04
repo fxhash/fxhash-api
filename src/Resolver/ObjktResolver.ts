@@ -1,5 +1,4 @@
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
-import { generateFilterType } from "type-graphql-filter"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
@@ -8,7 +7,6 @@ import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs } from "./Arguments/Pagination"
-import { GenTokenResolver } from "./GenTokeenResolver"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -61,6 +59,7 @@ export class ObjktResolver {
 			},
 			skip,
 			take,
+			cache: 10000
 		})
 	}
 
@@ -76,7 +75,8 @@ export class ObjktResolver {
 		if (!(hash == null)) args.generationHash = hash
 		if (!(slug == null)) args.slug = slug
 		return Objkt.findOne({
-			where: args
+			where: args,
+			cache: 10000
 		})
 	}
 }

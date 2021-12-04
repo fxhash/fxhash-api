@@ -1,6 +1,7 @@
 import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, OneToOne, JoinColumn, RelationId } from 'typeorm'
 import { Objkt } from './Objkt'
+import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
 @Entity()
@@ -32,10 +33,10 @@ export class Offer extends BaseEntity {
   royalties: number = 0
 
   @Field()
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date
+  @CreateDateColumn({ type: 'timestamptz', transformer: DateTransformer })
+  createdAt: string
 
   @Field()
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
-  updatedAt: Date
+  @UpdateDateColumn({ type: 'timestamptz', nullable: true, transformer: DateTransformer })
+  updatedAt: string
 }

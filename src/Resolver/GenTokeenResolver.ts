@@ -100,7 +100,8 @@ export class GenTokenResolver {
 				type: "DESC"
 			},
 			skip: skip,
-			take: take
+			take: take,
+			cache: 10000
 		})
 	}
 
@@ -149,6 +150,7 @@ export class GenTokenResolver {
 			},
 			skip,
 			take,
+			cache: 60000
 		})
 	}
 

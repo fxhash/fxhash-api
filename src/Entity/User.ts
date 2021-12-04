@@ -7,6 +7,7 @@ import { GenerativeToken } from './GenerativeToken'
 import { Objkt } from './Objkt'
 import { Offer } from './Offer'
 import { Report } from './Report'
+import { DateTransformer } from './Transformers/DateTransformer'
 
 
 export enum UserRole {
@@ -74,12 +75,12 @@ export class User extends BaseEntity {
   reports: Report[]
 
   @Field()
-  @Column({ type: "timestamptz" })
-  createdAt: Date
+  @Column({ type: "timestamptz", transformer: DateTransformer })
+  createdAt: string
 
   @Field()
-  @Column({ type: "timestamptz" })
-  updatedAt: Date
+  @Column({ type: "timestamptz", transformer: DateTransformer })
+  updatedAt: string
 
   static async findOrCreate(id: string, createdAt: string): Promise<User> {
     let user = await User.findOne(id)
