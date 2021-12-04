@@ -27,4 +27,16 @@ export class ObjktsSortArgs {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   offerCreatedAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  createdAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  rarity?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  iteration?: "ASC" | "DESC"
 }
