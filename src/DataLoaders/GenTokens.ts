@@ -61,6 +61,9 @@ const batchGenTokObjkt = async (genIds) => {
 	query = query.take(take)
 	query = query.skip(skip)
 
+	// cache it
+	query = query.cache(10000)
+
 	const	objkts = await query.getMany()
 
 	return ids.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
@@ -76,7 +79,8 @@ const batchGenTokLatestObjkt = async (genIds) => {
     order: {
       id: "DESC"
     },
-		take: 6
+		take: 6,
+		cache: 10000
 	})
 	return genIds.map((id: number) => objkts.filter(objkt => objkt.issuer?.id === id))
 }
@@ -91,6 +95,7 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
 			issuer: In(genIds)
 		})
 		.groupBy("objkt.issuerId")
+		.cache(10000)
 		.getRawMany()
 	
 	return genIds.map((id: number) => {
@@ -108,7 +113,8 @@ const batchGenTokActions = async (ids) => {
 		},
     order: {
       createdAt: "DESC"
-    }
+    },
+		cache: 10000
 	})
 	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
 }
@@ -121,7 +127,8 @@ const batchGenTokReports = async (genIds) => {
 		},
     order: {
       id: "DESC"
-    }
+    },
+		cache: 10000
 	})
 	return genIds.map((id: number) => reports.filter(report => report.tokenId === id))
 }
@@ -153,7 +160,8 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 	const stats = await MarketStats.find({
 		where: {
 			token: In(genIds)
-		}
+		},
+		cache: 10000
 	})
 
 	// in: 

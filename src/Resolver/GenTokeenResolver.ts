@@ -128,6 +128,7 @@ export class GenTokenResolver {
 			},
 			skip,
 			take,
+			cache: 10000
 		})
 	}
   

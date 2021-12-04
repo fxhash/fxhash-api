@@ -98,11 +98,11 @@ export class GenerativeToken extends BaseEntity {
 
   @Field()
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date
+  createdAt: string
 
   @Field()
   @UpdateDateColumn({ type: 'timestamptz', nullable: true })
-  updatedAt: Date
+  updatedAt: string
 
   @Field()
   objktsCount: number

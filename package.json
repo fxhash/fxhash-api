@@ -20,6 +20,7 @@
     "express": "^4.17.1",
     "graphql": "^15.6.1",
     "graphql-type-json": "^0.3.2",
+    "ioredis": "^4.28.2",
     "ipfs-core": "^0.11.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@types/eventsource": "^1.1.7",
+    "@types/ioredis": "^4.28.2",
     "@types/node": "^16.10.3",
     "@types/uuid": "^8.3.1",
     "nodemon": "^2.0.13",

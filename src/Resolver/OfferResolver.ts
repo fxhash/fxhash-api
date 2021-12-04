@@ -40,6 +40,7 @@ export class OfferResolver {
 			order: sortArgs,
 			skip,
 			take,
+			cache: 10000
 		})
 	}
 	
