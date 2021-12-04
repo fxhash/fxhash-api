@@ -21,7 +21,9 @@ const main = async () => {
 		entities: [ process.env.TYPEORM_ENTITIES ],
 		cache: {
 			type: "ioredis",
-			port: process.env.REDIS_URL
+			options: {
+				port: process.env.REDIS_URL
+			}
 		},
 		ssl: {
 			rejectUnauthorized: false
