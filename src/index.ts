@@ -19,10 +19,9 @@ const main = async () => {
 		logging: process.env.TYPEORM_LOGGING === "true",
 		synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
 		entities: [ process.env.TYPEORM_ENTITIES ],
-		// rediss://:pbc2b7aaa28ce524b4a77d244a610b176d9ff54e2de1efdd12028236d52ea1b2f@ec2-34-252-125-239.eu-west-1.compute.amazonaws.com:10429
 		cache: {
 			type: "ioredis",
-			options: process.env.REDIS_URL
+			options: process.env.NODE_ENV === "dev" ? undefined : process.env.REDIS_URL
 		},
 		ssl: {
 			rejectUnauthorized: false

@@ -257,7 +257,7 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 			// if we have some values, then we can populate the stat to recompute
 			if (computeStat) {
 				stat.floor = parseInt(computeStat.floor)
-				stat.median = computeStat.median
+				stat.median = parseInt(computeStat.median)
 				stat.totalListing = parseInt(computeStat.totalListing)
 			}
 			// use the actions to compute the more tricky values
