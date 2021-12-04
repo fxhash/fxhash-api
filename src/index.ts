@@ -20,9 +20,9 @@ const main = async () => {
 		synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
 		entities: [ process.env.TYPEORM_ENTITIES ],
 		cache: {
-			type: "ioredis",
+			type: "redis",
 			options: {
-				port: process.env.REDIS_URL
+				url: process.env.REDIS_URL
 			}
 		},
 		ssl: {
