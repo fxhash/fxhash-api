@@ -1,29 +1,59 @@
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
-import { Objkt } from "../Entity/Objkt"
+import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
+import { processFilters } from "../Utils/Filters"
 import { PaginationArgs } from "./Arguments/Pagination"
+import { ObjktsSortArgs } from "./Arguments/Sort"
 
 @Resolver(User)
 export class UserResolver {
   @FieldResolver(returns => [Objkt])
-	objkts(
+	async objkts(
 		@Root() user: User,
 		@Args() { skip, take }: PaginationArgs,
-		@Ctx() ctx: RequestContext
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+		@Args() sorts: ObjktsSortArgs
 	) {
-		return Objkt.createQueryBuilder("objkt")
-			.leftJoinAndSelect("objkt.offer", "offer")
-			.leftJoinAndSelect("offer.issuer", "issuer")
+		let query = Objkt.createQueryBuilder("objkt")
+
+		if (filters && filters.offer_ne === null) {
+			query = query.innerJoinAndSelect("objkt.offer", "offer")
+		}
+		else {
+			query = query.leftJoinAndSelect("objkt.offer", "offer")
+		}
+
+		query = query.leftJoinAndSelect("offer.issuer", "issuer")
 			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
 			.orWhere("issuer.id = :userId", { userId: user.id })
+			// .orWhere(processFilters(filters),)
 			.offset(skip)
 			.limit(take)
-			.orderBy("objkt.id", "DESC")
-			.getMany()
+		
+		// add sorting
+		if (sorts && Object.keys(sorts).length > 0) {
+			for (const sort in sorts) {
+				if (sort === "offerPrice") {
+					query = query.addOrderBy("offer.price", sorts[sort])
+				}
+				else if (sort === "offerCreatedAt") {
+					query = query.addOrderBy("offer.createdAt", sorts[sort])
+				}
+				else {
+					query = query.addOrderBy(`objkt.${sort}`, sorts[sort])
+				}
+			}
+		}
+		else {
+			query = query.addOrderBy(`objkt.id`, "DESC")
+		}
+
+		return query.getMany()
 	}
 
   @FieldResolver(returns => [GenerativeToken])

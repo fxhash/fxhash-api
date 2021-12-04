@@ -96,7 +96,7 @@ export class Objkt extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ type: "timestamptz" })
-  @Filter(["gt"])
+  @Filter(["gt", "lt"])
   assignedAt: Date
 
   static async findOrCreate(id: number, createdAt: string): Promise<Objkt> {
