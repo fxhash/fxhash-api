@@ -36,7 +36,7 @@ export class UserResolver {
 			.limit(take)
 		
 		// add sorting
-		if (sorts) {
+		if (sorts && Object.keys(sorts).length > 0) {
 			for (const sort in sorts) {
 				if (sort === "offerPrice") {
 					query = query.addOrderBy("offer.price", sorts[sort])
@@ -48,6 +48,9 @@ export class UserResolver {
 					query = query.addOrderBy(`objkt.${sort}`, sorts[sort])
 				}
 			}
+		}
+		else {
+			query = query.addOrderBy(`objkt.id`, "DESC")
 		}
 
 		return query.getMany()
