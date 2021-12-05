@@ -1,6 +1,7 @@
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { Not } from "typeorm"
 import { Action } from "../Entity/Action"
-import { GenerativeToken } from "../Entity/GenerativeToken"
+import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
@@ -64,7 +65,8 @@ export class UserResolver {
 	) {
 		return GenerativeToken.find({
 			where: {
-				author: user.id
+				author: user.id,
+				flag: Not(GenTokFlag.MALICIOUS)
 			},
 			order: {
 				id: "DESC"
