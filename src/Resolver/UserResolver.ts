@@ -66,7 +66,7 @@ export class UserResolver {
 		return GenerativeToken.find({
 			where: {
 				author: user.id,
-				flag: Not(GenTokFlag.MALICIOUS)
+				flag: Not(GenTokFlag.HIDDEN)
 			},
 			order: {
 				id: "DESC"

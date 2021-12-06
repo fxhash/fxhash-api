@@ -20,6 +20,9 @@ const main = async () => {
 		synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
 		entities: [ process.env.TYPEORM_ENTITIES ],
 		cache: {
+			// todo: when ready, use REDIS instead of IOREDIS
+			// doesn't work currently because of 
+			// https://github.com/typeorm/typeorm/issues/8420
 			type: "ioredis",
 			options: process.env.NODE_ENV === "dev" ? undefined : process.env.REDIS_URL
 		},
