@@ -51,6 +51,10 @@ export class Objkt extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   generationHash?: string
+  
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  duplicate: boolean
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Column({ type: "json", nullable: true })
