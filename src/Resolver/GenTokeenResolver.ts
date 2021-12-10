@@ -28,6 +28,15 @@ export class GenTokenResolver {
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
 	}
 
+  @FieldResolver(returns => [Objkt])
+	async entireCollection(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext
+	) {
+		if (token.objkts) return token.objkts
+		return ctx.genTokObjktsLoader.load({ id: token.id })
+	}
+
 	@FieldResolver(returns => [Objkt])
 	async offers(
 		@Root() token: GenerativeToken,

@@ -26,7 +26,7 @@ const batchGenTokObjkt = async (genIds) => {
 	const ids = genIds.map(id => id.id)
 	// extract the filters from the params
 	const filters = genIds[0].filters
-	const sorts = genIds[0].sort
+	const sorts = genIds[0].sort || {}
 	const take = genIds[0].take
 	const skip = genIds[0].skip
 
@@ -59,8 +59,12 @@ const batchGenTokObjkt = async (genIds) => {
 	}
 
 	// pagination
-	query = query.take(take)
-	query = query.skip(skip)
+	if (take !== null && take !== undefined) {
+		query = query.take(take)
+	}
+	if (skip !== null && skip !== undefined) {
+		query = query.skip(skip)
+	}
 
 	// cache it
 	query = query.cache(10000)
