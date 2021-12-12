@@ -16,9 +16,21 @@ export enum UserRole {
   ADMIN             = "ADMIN",
 }
 
+export enum UserFlag {
+  NONE          = "NONE",
+  REVIEW        = "REVIEW",
+  SUSPICIOUS    = "SUSPICIOUS",
+  MALICIOUS     = "MALICIOUS", 
+}
+
 registerEnumType(UserRole, {
   name: "UserRole", // this one is mandatory
   description: "Role of the user", // this one is optional
+})
+
+registerEnumType(UserFlag, {
+  name: "UserFlag", // this one is mandatory
+  description: "Flag of the user", // this one is optional
 })
 
 @Entity()
@@ -39,6 +51,14 @@ export class User extends BaseEntity {
     default: UserRole.USER
   })
   role: UserRole
+  
+  @Field(() => UserFlag)
+  @Column({
+    type: "enum",
+    enum: UserFlag,
+    default: UserFlag.NONE
+  })
+  flag: UserFlag
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Column({ type: "jsonb", nullable: true })
