@@ -4,11 +4,11 @@ import { ArgsType, Field, Int } from "type-graphql"
 
 @ArgsType()
 export class PaginationArgs {
-	@Field(type => Int, { defaultValue: 0 })
+	@Field(type => Int, { nullable: false })
 	@Min(0)
 	skip: number
 
-	@Field(type => Int, { defaultValue: 20 })
+	@Field(type => Int, { nullable: false })
 	@Min(1)
 	@Max(50)
 	take: number
