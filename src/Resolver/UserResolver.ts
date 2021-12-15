@@ -7,7 +7,7 @@ import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
-import { PaginationArgs } from "./Arguments/Pagination"
+import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { ObjktsSortArgs } from "./Arguments/Sort"
 
 @Resolver(User)
@@ -20,6 +20,8 @@ export class UserResolver {
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
 		@Args() sorts: ObjktsSortArgs
 	) {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		
 		let query = Objkt.createQueryBuilder("objkt")
 
 		if (filters && filters.offer_ne === null) {
@@ -63,6 +65,7 @@ export class UserResolver {
 		@Ctx() ctx: RequestContext,
 		@Args() { skip, take }: PaginationArgs
 	) {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return GenerativeToken.find({
 			where: {
 				author: user.id,
@@ -83,6 +86,7 @@ export class UserResolver {
 		@Ctx() ctx: RequestContext,
 		@Args() { skip, take }: PaginationArgs
 	) {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return Offer.find({
 			where: {
 				issuer: user.id
@@ -102,6 +106,7 @@ export class UserResolver {
 		@Ctx() ctx: RequestContext,
 		@Args() { skip, take }: PaginationArgs
 	) {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		const ret = await Action.find({
 			where: [{
 				issuer: user.id
@@ -140,6 +145,7 @@ export class UserResolver {
 	users(
 		@Args() { skip, take }: PaginationArgs
 	): Promise<User[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return User.find({
 			order: {
 				createdAt: "ASC"

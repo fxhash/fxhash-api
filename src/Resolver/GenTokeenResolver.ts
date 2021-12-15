@@ -11,7 +11,7 @@ import { Report } from "../Entity/Report"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
-import { PaginationArgs } from "./Arguments/Pagination"
+import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { ObjktsSortArgs } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
@@ -24,6 +24,7 @@ export class GenTokenResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Args() sort: ObjktsSortArgs
 	) {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		if (token.objkts) return token.objkts
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
 	}
@@ -45,6 +46,7 @@ export class GenTokenResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Args() sort: ObjktsSortArgs
 	) {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		if (token.objkts) return token.objkts
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
 	}
@@ -99,6 +101,7 @@ export class GenTokenResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Arg("filters", FiltersAction, { nullable: true}) filters: any
 	): Promise<Action[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return Action.find({
 			where: {
 				token: token.id,
@@ -127,6 +130,7 @@ export class GenTokenResolver {
 	generativeTokens(
 		@Args() { skip, take }: PaginationArgs
 	): Promise<GenerativeToken[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return GenerativeToken.find({
 			where: [{
 				flag: GenTokFlag.CLEAN
@@ -146,6 +150,7 @@ export class GenTokenResolver {
 	reportedGenerativeTokens(
 		@Args() { skip, take }: PaginationArgs
 	): Promise<GenerativeToken[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return GenerativeToken.find({
 			where: [{
 				flag: GenTokFlag.AUTO_DETECT_COPY

@@ -3,7 +3,7 @@ import { Offer } from "../Entity/Offer"
 import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
-import { PaginationArgs } from "./Arguments/Pagination"
+import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { In } from "typeorm"
 import { OffersSortArgs } from "./Arguments/Sort"
 
@@ -34,6 +34,7 @@ export class OfferResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Args() sortArgs: OffersSortArgs
 	): Promise<Offer[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return Offer.find({
 			order: sortArgs,
 			skip,

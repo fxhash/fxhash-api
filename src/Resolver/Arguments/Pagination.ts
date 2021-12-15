@@ -13,3 +13,11 @@ export class PaginationArgs {
 	@Max(50)
 	take: number
 }
+
+export function useDefaultValues(inputs: any[], defaults: any[]) {
+	const outputs: any[] = []
+	for (let i = 0; i < inputs.length; i++) {
+		outputs[i] = inputs[i] ?? defaults[i]
+	}
+	return outputs
+}

@@ -6,7 +6,7 @@ import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
-import { PaginationArgs } from "./Arguments/Pagination"
+import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -52,6 +52,7 @@ export class ObjktResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any
 	): Promise<Objkt[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return Objkt.find({
 			where: processFilters(filters),
 			order: {
