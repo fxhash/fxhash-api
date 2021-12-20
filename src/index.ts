@@ -41,6 +41,12 @@ const main = async () => {
 		logging: process.env.TYPEORM_LOGGING === "true",
 		synchronize: false,
 		entities: [ process.env.TYPEORM_ENTITIES_METRICS ],
+		ssl: {
+			rejectUnauthorized: false
+		},
+		extra: {
+			rejectUnauthorized: false
+		}
 	}])
 
 	// now bootstrap the rest of the server (gQL API)
