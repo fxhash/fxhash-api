@@ -12,6 +12,7 @@
     "@types/request-promise": "^4.1.48",
     "apollo-server": "^3.3.0",
     "apollo-server-express": "^3.3.0",
+    "apollo-server-plugin-base": "^3.4.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
     "dataloader": "^2.0.0",

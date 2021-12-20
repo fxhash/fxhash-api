@@ -7,26 +7,18 @@ declare global {
 			FRONT_URL: string
 			CORS_ALLOWED_ORIGINS: string
 
-			DATABASE_URL: string
 			DATABASE_TYPE: "postgres"
+			DATABASE_URL: string
+			DATABASE_METRICS_URL: string
 
 			TYPEORM_SYNCHRONIZE: string
 			TYPEORM_LOGGING: string
 			TYPEORM_ENTITIES: string
+			TYPEORM_ENTITIES_METRICS: string
+
+			RECORD_METRICS: "0"|"1"
 
 			REDIS_URL?: string
-
-			AWS_ACCESS_KEY_ID: string
-			AWS_ACCESS_KEY_SECRET: string
-			AWS_S3_REGION: string
-			AWS_S3_BUCKET: string
-
-			TZ_CT_ADDRESS_ISSUER: string 
-			TZ_CT_ADDRESS_MARKETPLACE: string 
-			TZ_CT_ADDRESS_OBJKT: string 
-			TZ_CT_ADDRESS_USERREGISTER: string
-
-			TZTK_API_ROOT: string
     }
   }
 }
