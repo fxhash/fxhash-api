@@ -32,5 +32,5 @@ DATABASE_METRICS_URL = postgres://fxhash:password@localhost:5432/fxhash_metrics
 
 RECORD_METRICS = 0
 
-REDIS_URL = rediss://:pbc2b7aaa28ce524b4a77d244a610b176d9ff54e2de1efdd12028236d52ea1b2f@ec2-34-252-125-239.eu-west-1.compute.amazonaws.com:10429
+REDIS_URL = 
 ```
