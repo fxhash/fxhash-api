@@ -31,9 +31,8 @@ export class UserResolver {
 			query = query.leftJoinAndSelect("objkt.offer", "offer")
 		}
 
-		query = query.leftJoinAndSelect("offer.issuer", "issuer")
+		query = query
 			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
-			.orWhere("issuer.id = :userId", { userId: user.id })
 			// .orWhere(processFilters(filters),)
 			.offset(skip)
 			.limit(take)

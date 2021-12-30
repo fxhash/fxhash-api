@@ -66,9 +66,6 @@ const batchGenTokObjkt = async (genIds) => {
 		query = query.skip(skip)
 	}
 
-	// cache it
-	query = query.cache(10000)
-
 	const	objkts = await query.getMany()
 
 	return ids.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))

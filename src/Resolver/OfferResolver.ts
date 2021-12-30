@@ -34,6 +34,9 @@ export class OfferResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Args() sortArgs: OffersSortArgs
 	): Promise<Offer[]> {
+		if (Object.keys(sortArgs).length === 0) {
+			sortArgs.createdAt = "DESC"
+		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return Offer.find({
 			order: sortArgs,
