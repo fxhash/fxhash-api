@@ -26,9 +26,9 @@ const main = async () => {
 			// doesn't work currently because of 
 			// https://github.com/typeorm/typeorm/issues/8420
 			type: "ioredis",
-			options: process.env.NODE_ENV === "dev" ? undefined : process.env.REDIS_URL
+			options: process.env.REDIS_URL
 		},
-		ssl: {
+		ssl: process.env.NODE_ENV === "dev" ? false : {
 			rejectUnauthorized: false
 		},
 		extra: {
@@ -41,9 +41,9 @@ const main = async () => {
 		logging: process.env.TYPEORM_LOGGING === "true",
 		synchronize: false,
 		entities: [ process.env.TYPEORM_ENTITIES_METRICS ],
-		ssl: {
-			rejectUnauthorized: false
-		},
+		  ssl: process.env.NODE_ENV === "dev" ? false : {
+			  rejectUnauthorized: false
+		  },
 		extra: {
 			rejectUnauthorized: false
 		}

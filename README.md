@@ -11,6 +11,16 @@ Not ready for contribution yet, please wait a little bit more.
 * write contribution doc
 * write list of features
 
+# development environment
+docker-compose is set up with a postgres and redis container alongside the api
+
+postgres is initialized with a dump from s3
+
+the api hits postgres from the container network, but it is on the local network at port `5444` to avoid collisions
+
+```shell
+docker-compose up -d
+```
 
 # .env
 

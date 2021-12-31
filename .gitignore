@@ -3,3 +3,4 @@ yarn-error.log
 .env
 dist/
 .ssl
+.idea
