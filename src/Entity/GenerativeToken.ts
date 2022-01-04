@@ -75,6 +75,10 @@ export class GenerativeToken extends BaseEntity {
 
   @Field()
   @Column({ default: 0 })
+  originalSupply: number = 0
+
+  @Field()
+  @Column({ default: 0 })
   supply: number = 0
 
   @Field()
@@ -88,6 +92,14 @@ export class GenerativeToken extends BaseEntity {
   @Field()
   @Column({ default: 0 })
   royalties: number = 0
+
+  @Field()
+  @Column({ default: 0 })
+  lockedSeconds: number = 0
+
+  @Field()
+  @Column({ type: "timestamptz", nullable: true })
+  lockEnd: Date
 
   @OneToMany(() => Objkt, objkt => objkt.issuer)
   objkts: Objkt[]

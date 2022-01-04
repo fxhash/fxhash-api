@@ -1,12 +1,10 @@
 import { ApolloError } from "apollo-server-errors"
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
-import { generateFilterType } from "type-graphql-filter"
-import { Equal, In, Not } from "typeorm"
+import { Equal, In, LessThanOrEqual, MoreThan } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
-import { Offer } from "../Entity/Offer"
 import { Report } from "../Entity/Report"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
@@ -133,12 +131,30 @@ export class GenTokenResolver {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		return GenerativeToken.find({
 			where: [{
-				flag: GenTokFlag.CLEAN
-			},{
-				flag: GenTokFlag.NONE
+				flag: In([GenTokFlag.CLEAN, GenTokFlag.NONE]),
+				lockEnd: LessThanOrEqual(new Date())
 			}],
 			order: {
 				id: "DESC",
+			},
+			skip,
+			take,
+			cache: 10000
+		})
+	}
+
+	@Query(returns => [GenerativeToken])
+	lockedGenerativeTokens(
+		@Args() { skip, take }: PaginationArgs
+	): Promise<GenerativeToken[]> {
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		return GenerativeToken.find({
+			where: [{
+				flag: In([GenTokFlag.CLEAN, GenTokFlag.NONE]),
+				lockEnd: MoreThan(new Date())
+			}],
+			order: {
+				id: "ASC",
 			},
 			skip,
 			take,

@@ -21,6 +21,7 @@ export enum UserFlag {
   REVIEW        = "REVIEW",
   SUSPICIOUS    = "SUSPICIOUS",
   MALICIOUS     = "MALICIOUS", 
+  VERIFIED      = "VERIFIED",
 }
 
 registerEnumType(UserRole, {

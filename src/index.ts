@@ -32,7 +32,8 @@ const main = async () => {
 			rejectUnauthorized: false
 		},
 		extra: {
-			rejectUnauthorized: false
+			rejectUnauthorized: false,
+			max: 40
 		}
 	},{
 		name: "metrics",
