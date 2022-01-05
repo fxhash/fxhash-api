@@ -135,7 +135,7 @@ export class GenTokenResolver {
 				lockEnd: LessThanOrEqual(new Date())
 			}],
 			order: {
-				lockEnd: "DESC",
+				id: "DESC",
 			},
 			skip,
 			take,
