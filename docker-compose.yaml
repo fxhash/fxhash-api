@@ -39,5 +39,3 @@ services:
       - "5444:5432"
   redis:
     image: redis:6-alpine
-    ports:
-      - "6379:6379"
