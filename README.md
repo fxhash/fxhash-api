@@ -29,7 +29,7 @@ The development environment was configured to be run with docker. Because the AP
 The setup works as following:
 
 * you run docker compose
-* docker sets up the environment for your
+* docker sets up the environment for you
 * docker will pull a snapshot of the database stored on S3 and populate your local database so that you can work on real data (takes a few minutes)
 * docker starts the local server and you can access it from your host
 
