@@ -1,6 +1,6 @@
 import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
-import { createObjktActionsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
-import { createOffersLoader } from '../DataLoaders/Offer'
+import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
+import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from '../DataLoaders/Offer'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
   createUsersOffersLoader, createUsersTargetActionssLoader } from '../DataLoaders/User'
 import { RequestContext } from '../types/RequestContext'
@@ -34,10 +34,15 @@ export const createContext = (req: any, res: any): RequestContext => {
 
     // OFFERS loaders
     offersLoader: createOffersLoader(),
+		offerObjktsLoader: createOfferObjktsLoader(),
+		offerIssuersLoader: createOfferIssuersLoader(),
 
     // OBJKTS loaders
 		objktsLoader: createObjktsLoader(),
     objktActionsLoader: createObjktActionsLoader(),
+    objktOwnersLoader: createObjktOwnersLoader(),
+    objktOffersLoader: createObjktOffersLoader(),
+    objktGenerativesLoader: createObjktGenerativesLoader(),
 
 		// // live session loaders
 		// liveSessionsLoader: createLiveSessionsLoader(),

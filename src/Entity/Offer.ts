@@ -1,4 +1,5 @@
-import { Field, ObjectType } from 'type-graphql'
+import { Field, Int, ObjectType } from 'type-graphql'
+import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, OneToOne, JoinColumn, RelationId } from 'typeorm'
 import { Objkt } from './Objkt'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -21,11 +22,9 @@ export class Offer extends BaseEntity {
   @JoinColumn()
   objkt: Objkt
 
-  @RelationId((offer: Offer) => offer.objkt)
-	objktId: number
-
   @Field()
   @Column()
+  @Filter([ "gte", "lte" ], type => Int)
   price: number = 0
 
   @Field()
@@ -39,4 +38,12 @@ export class Offer extends BaseEntity {
   @Field()
   @UpdateDateColumn({ type: 'timestamptz', nullable: true, transformer: DateTransformer })
   updatedAt: string
+
+  @Filter([ "eq" ], type => Boolean)
+  fullyMinted: boolean
+
+  @Filter([ "eq" ], type => Boolean)
+  authorVerified: Boolean
 }
+
+export const FiltersOffer = generateFilterType(Offer)

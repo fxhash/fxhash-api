@@ -36,6 +36,7 @@ const batchGenTokObjkt = async (genIds) => {
 	}
 
 	let query = Objkt.createQueryBuilder("objkt")
+		.select()
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
 
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query

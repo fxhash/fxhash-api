@@ -16,7 +16,7 @@ export class ObjktResolver {
 		@Ctx() ctx: RequestContext
 	) {
 		if (objkt.owner) return objkt.owner
-		return ctx.usersLoader.load(objkt.ownerId)
+		return ctx.objktOwnersLoader.load(objkt.id)
 	}
 
 	@FieldResolver(returns => GenerativeToken)
@@ -25,7 +25,7 @@ export class ObjktResolver {
 		@Ctx() ctx: RequestContext
 	) {
 		if (objkt.issuer) return objkt.issuer
-		return ctx.genTokLoader.load(objkt.issuerId)
+		return ctx.objktGenerativesLoader.load(objkt.id)
 	}
 
 	@FieldResolver(returns => Offer, { nullable: true })
@@ -33,9 +33,8 @@ export class ObjktResolver {
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
 	) {
-		if (objkt.offerId == null) return null
 		if (objkt.offer) return objkt.offer
-		return ctx.offersLoader.load(objkt.offerId)
+		return ctx.objktOffersLoader.load(objkt.id)
 	}
 
 	@FieldResolver(returns => [Action])

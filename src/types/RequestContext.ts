@@ -1,7 +1,7 @@
 import { Request as ExpressRequest } from "express"
 import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
-import { createObjktActionsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
-import { createOffersLoader } from "../DataLoaders/Offer"
+import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
+import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from "../DataLoaders/Offer"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersOffersLoader, createUsersIssuerActionssLoader, 
   createUsersTargetActionssLoader, createUsersLoader } from "../DataLoaders/User"
 
@@ -37,10 +37,15 @@ export interface RequestContext extends ExpressRequest {
 
   // OFFERS loaders
   offersLoader: ReturnType<typeof createOffersLoader>,
+  offerObjktsLoader: ReturnType<typeof createOfferObjktsLoader>,
+  offerIssuersLoader: ReturnType<typeof createOfferIssuersLoader>,
 
   // OBJKTS loaders
   objktsLoader: ReturnType<typeof createObjktsLoader>,
   objktActionsLoader: ReturnType<typeof createObjktActionsLoader>,
+  objktOwnersLoader: ReturnType<typeof createObjktOwnersLoader>,
+  objktOffersLoader: ReturnType<typeof createObjktOffersLoader>,
+  objktGenerativesLoader: ReturnType<typeof createObjktGenerativesLoader>,
 
 	// // room loaders
 	// roomsLiveSessionsLoader: ReturnType<typeof createRoomsLiveSessionsLoader>,
