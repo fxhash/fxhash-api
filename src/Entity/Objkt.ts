@@ -25,15 +25,12 @@ export class Objkt extends BaseEntity {
   @ManyToOne(() => GenerativeToken, token => token.objkts)
   issuer?: GenerativeToken
 
-  @RelationId((obj: Objkt) => obj.issuer)
+  @Column({ nullable: false })
 	issuerId: number
 
   @Field(() => User, { nullable: true })
   @ManyToOne(() => User, user => user.objkts)
   owner?: User|null
-
-  @RelationId((obj: Objkt) => obj.owner)
-	ownerId: number
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -83,9 +80,6 @@ export class Objkt extends BaseEntity {
   @OneToOne(() => Offer, offer => offer.objkt, { onDelete: "CASCADE" })
   @Filter(["ne"])
   offer?: Offer|null
-
-  @RelationId((obj: Objkt) => obj.offer)
-	offerId: number
 
   @OneToMany(() => Action, action => action.objkt)
   actions: Action[]
