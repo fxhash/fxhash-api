@@ -74,18 +74,15 @@ const batchGenTokObjkt = async (genIds) => {
 export const createGenTokObjktsLoader = () => new DataLoader(batchGenTokObjkt)
 
 const batchGenTokLatestObjkt = async (genIds) => {
-	const objkts = await Objkt.find({
-    relations: [ "issuer" ],
-		where: {
-			issuer: In(genIds)
-		},
-    order: {
-      id: "DESC"
-    },
-		take: 6,
-		cache: 10000
-	})
-	return genIds.map((id: number) => objkts.filter(objkt => objkt.issuer?.id === id))
+	const objkts = await Objkt.createQueryBuilder("objkt")
+		.select()
+		.where("objkt.issuerId IN (:...genIds)", { genIds })
+		.orderBy("id", "DESC")
+		.take(6)
+		.cache(10000)
+		.getMany()
+
+	return genIds.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
 }
 export const createGenTokLatestObjktsLoader = () => new DataLoader(batchGenTokLatestObjkt)
 
@@ -94,9 +91,7 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
 	const counts = await Objkt.createQueryBuilder("objkt")
 		.select("COUNT(objkt)", "count")
 		.addSelect("objkt.issuerId", "issuerId")
-		.where({
-			issuer: In(genIds)
-		})
+		.where("objkt.issuerId IN (:...genIds)", { genIds })
 		.groupBy("objkt.issuerId")
 		.cache(10000)
 		.getRawMany()
