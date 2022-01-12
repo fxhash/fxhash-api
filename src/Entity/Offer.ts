@@ -24,7 +24,7 @@ export class Offer extends BaseEntity {
 
   @Field()
   @Column()
-  @Filter([ "gte", "lte" ], type => Int)
+  @Filter([ "gte", "lte" ], type => String)
   price: number = 0
 
   @Field()
@@ -44,6 +44,9 @@ export class Offer extends BaseEntity {
 
   @Filter([ "eq" ], type => Boolean)
   authorVerified: Boolean
+
+  @Filter([ "eq" ], type => String)
+  searchQuery: string
 }
 
 export const FiltersOffer = generateFilterType(Offer)

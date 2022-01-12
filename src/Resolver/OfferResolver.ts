@@ -7,6 +7,7 @@ import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { In } from "typeorm"
 import { OffersSortArgs } from "./Arguments/Sort"
 import { processFilters, processOfferFilters } from "../Utils/Filters"
+import { searchIndexMarketplace } from "../Services/Search"
 
 @Resolver(Offer)
 export class OfferResolver {
@@ -32,7 +33,7 @@ export class OfferResolver {
 	async offers(
 		@Args() { skip, take }: PaginationArgs,
 		@Args() sortArgs: OffersSortArgs,
-		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+		@Arg("filters", FiltersOffer, { nullable: true }) filters: any
 	): Promise<Offer[]> {		
 		// default sort argument
 		if (Object.keys(sortArgs).length === 0) {
@@ -44,40 +45,51 @@ export class OfferResolver {
 		// start building the query
 		let query = Offer.createQueryBuilder("offer").select()
 
+		// if their is a search string, we first make a request to the search engine to get results
+		if (filters.searchQuery_eq) {
+			const searchResults = await searchIndexMarketplace.search(filters.searchQuery_eq, { 
+				hitsPerPage: 5000
+			})
+			const ids = searchResults.hits.map(hit => hit.objectID)
+			query = query.whereInIds(ids)
+		}
+
 		// add the sort arguments
 		for (const field in sortArgs) {
 			query = query.addOrderBy(`offer.${field}`, sortArgs[field])
 		}
 
 		// custom filters
-		// if there is a filter on fully minted issuer
-		if (filters?.fullyMinted_eq != null) {
+		if (filters?.fullyMinted_eq != null || filters?.authorVerified_eq != null) {
+			// in all cases, we want to join with these 2 tables
 			query = query.leftJoin("offer.objkt", "objkt")
 			query = query.leftJoin("objkt.issuer", "token")
-			if (filters.fullyMinted_eq === true) {
-				query = query.andWhere("token.balance = 0")
+			// if there is a filter on fully minted issuer
+			if (filters?.fullyMinted_eq != null) {
+				if (filters.fullyMinted_eq === true) {
+					query = query.andWhere("token.balance = 0")
+				}
+				else {
+					query = query.andWhere("token.balance > 0")
+				}
 			}
-			else {
-				query = query.andWhere("token.balance > 0")
-			}
-		}
-		
-		// filter for author of the offer verified
-		if (filters?.authorVerified_eq != null) {
-			query = query.leftJoin("offer.objkt", "objkt")
-			query = query.leftJoin("objkt.author", "author")
-			if (filters.authorVerified_eq === true) {
-				query = query.andWhere("author.verified = true")
-			}
-			else {
-				query = query.andWhere("author.verified = false")
+			
+			// filter for author of the offer verified
+			if (filters?.authorVerified_eq != null) {
+				query = query.leftJoin("token.author", "author")
+				if (filters.authorVerified_eq === true) {
+					query = query.andWhere("author.flag = 'VERIFIED'")
+				}
+				else {
+					query = query.andWhere("author.flag != 'VERIFIED'")
+				}
 			}
 		}
 
 		// add the where clauses
 		const processedFilters = processOfferFilters(filters)
-		if (Object.keys(processedFilters).length > 0) {
-			query = query.andWhere(processOfferFilters(filters))
+		for (const filter of processedFilters) {
+			query = query.andWhere(filter)
 		}
 
 		// add the pagination
