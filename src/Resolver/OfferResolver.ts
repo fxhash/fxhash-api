@@ -46,7 +46,7 @@ export class OfferResolver {
 		let query = Offer.createQueryBuilder("offer").select()
 
 		// if their is a search string, we first make a request to the search engine to get results
-		if (filters.searchQuery_eq) {
+		if (filters?.searchQuery_eq) {
 			const searchResults = await searchIndexMarketplace.search(filters.searchQuery_eq, { 
 				hitsPerPage: 5000
 			})
