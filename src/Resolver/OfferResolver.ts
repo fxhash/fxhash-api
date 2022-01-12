@@ -60,7 +60,8 @@ export class OfferResolver {
 		}
 
 		// custom filters
-		if (filters?.fullyMinted_eq != null || filters?.authorVerified_eq != null) {
+		if (filters?.fullyMinted_eq != null || filters?.authorVerified_eq != null
+			|| filters?.tokenSupply_lte != null || filters?.tokenSupply_gte != null) {
 			// in all cases, we want to join with these 2 tables
 			query = query.leftJoin("offer.objkt", "objkt")
 			query = query.leftJoin("objkt.issuer", "token")
@@ -83,6 +84,14 @@ export class OfferResolver {
 				else {
 					query = query.andWhere("author.flag != 'VERIFIED'")
 				}
+			}
+
+			// if we filter the size of the editions
+			if (filters?.tokenSupply_lte != null) {
+				query = query.andWhere("token.supply <= :sizeLte", { sizeLte: filters.tokenSupply_lte })
+			}
+			if (filters?.tokenSupply_gte != null) {
+				query = query.andWhere("token.supply >= :sizeGte", { sizeGte: filters.tokenSupply_gte })
 			}
 		}
 

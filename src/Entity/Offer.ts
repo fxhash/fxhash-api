@@ -39,8 +39,16 @@ export class Offer extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamptz', nullable: true, transformer: DateTransformer })
   updatedAt: string
 
+
+  //
+  // FILTERS FOR THE GQL ENDPOINT
+  //
+
   @Filter([ "eq" ], type => Boolean)
   fullyMinted: boolean
+
+  @Filter([ "gte", "lte" ], type => Number)
+  tokenSupply: number
 
   @Filter([ "eq" ], type => Boolean)
   authorVerified: Boolean
