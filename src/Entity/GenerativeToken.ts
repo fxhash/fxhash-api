@@ -1,6 +1,7 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
+import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, RelationId, OneToOne } from 'typeorm'
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
@@ -23,6 +24,17 @@ export enum GenTokFlag {
 registerEnumType(GenTokFlag, {
   name: "GenTokFlag", // this one is mandatory
   description: "Flag state of Generative Token", // this one is optional
+})
+
+export enum GenMintProgressFilter {
+  COMPLETED   = "COMPLETED",
+  ONGOING     = "ONGOING",
+  ALMOST      = "ALMOST",
+}
+
+registerEnumType(GenMintProgressFilter, {
+  name: "GenMintProgressFilter", // this one is mandatory
+  description: "Filter for the progress of the mint", // this one is optional
 })
 
 @Entity()
@@ -71,6 +83,7 @@ export class GenerativeToken extends BaseEntity {
 
   @Field()
   @Column({ default: 0 })
+  @Filter([ "lte", "gte" ], type => Number)
   price: number = 0
 
   @Field()
@@ -79,6 +92,7 @@ export class GenerativeToken extends BaseEntity {
 
   @Field()
   @Column({ default: 0 })
+  @Filter([ "lte", "gte" ], type => Number)
   supply: number = 0
 
   @Field()
@@ -158,4 +172,19 @@ export class GenerativeToken extends BaseEntity {
       }
     }
   }
+
+  //
+  // FILTERS FOR THE GQL ENDPOINT
+  //
+
+  @Filter([ "eq" ], type => GenMintProgressFilter)
+  mintProgress: "completed"|"ongoing"|"almost"
+
+  @Filter([ "eq" ], type => Boolean)
+  authorVerified: Boolean
+
+  @Filter([ "eq" ], type => String)
+  searchQuery: string
 }
+
+export const GenerativeFilters = generateFilterType(GenerativeToken)

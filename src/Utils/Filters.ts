@@ -29,13 +29,11 @@ export const processFilters = (filters: any) => {
 }
 
 
-const offerFiltersDbFields = [ "price" ]
-
 /**
- * This method processes the offer filters which can be run against the DB fields.
- * If a filter doesn't target a DB field, it will be ignored by this method
+ * Generic purpose method to process filters for an endpoint, only allowing a list of
+ * filters to go through the endpoint
  */
-export const processOfferFilters = (filters: any) => {
+export const processSelectiveFilters = (filters: Record<string, any>, allowed: string[] = []) => {
   if (!filters) return []
 
   let typeormFilters: Record<string, any>[] = []
@@ -43,7 +41,7 @@ export const processOfferFilters = (filters: any) => {
   for (const [filterKey, value] of Object.entries(filters)) {
     const [field, operator] = filterKey.split("_")
     // if the field is in the db fields allowed, add it
-    if (offerFiltersDbFields.includes(field)) {
+    if (allowed.includes(field)) {
       typeormFilters.push({
         [field]: mapFilterOperatorTypeorm(operator as FilterOperator)(value as any)
       })
@@ -51,4 +49,26 @@ export const processOfferFilters = (filters: any) => {
   }
 
   return typeormFilters
+}
+
+
+const offerFiltersDbFields = [ "price" ]
+
+/**
+ * This method processes the offer filters which can be run against the DB fields.
+ * If a filter doesn't target a DB field, it will be ignored by this method
+ */
+export const processOfferFilters = (filters: any) => {
+  return processSelectiveFilters(filters, offerFiltersDbFields)
+}
+
+
+const generativeFiltersDbFields = [ "price", "supply" ]
+
+/**
+ * This method processes the offer filters which can be run against the DB fields.
+ * If a filter doesn't target a DB field, it will be ignored by this method
+ */
+export const processGenerativeFilters = (filters: any) => {
+  return processSelectiveFilters(filters, generativeFiltersDbFields)
 }

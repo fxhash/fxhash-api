@@ -1,5 +1,5 @@
 import { IsIn } from "class-validator"
-import { ArgsType, Field } from "type-graphql"
+import { ArgsType, Field, InputType } from "type-graphql"
 
 
 @ArgsType()
@@ -39,4 +39,23 @@ export class ObjktsSortArgs {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   iteration?: "ASC" | "DESC"
+}
+
+@InputType()
+export class GenerativeSortInput {
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  lockEnd?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  price?: "ASC" | "DESC"
+  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  supply?: "ASC" | "DESC"
+  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  balance?: "ASC" | "DESC"
 }
