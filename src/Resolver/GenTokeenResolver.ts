@@ -2,15 +2,16 @@ import { ApolloError } from "apollo-server-errors"
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
 import { Equal, In, LessThanOrEqual, MoreThan } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
-import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
+import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
 import { User } from "../Entity/User"
+import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
-import { processFilters } from "../Utils/Filters"
+import { processFilters, processGenerativeFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ObjktsSortArgs } from "./Arguments/Sort"
+import { GenerativeSortInput, ObjktsSortArgs } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -125,22 +126,97 @@ export class GenTokenResolver {
 	}
   
   @Query(returns => [GenerativeToken])
-	generativeTokens(
-		@Args() { skip, take }: PaginationArgs
+	async generativeTokens(
+		@Args() { skip, take }: PaginationArgs,
+		@Arg("sort", { nullable: true }) sortArgs: GenerativeSortInput,
+		@Arg("filters", GenerativeFilters, { nullable: true }) filters: any
 	): Promise<GenerativeToken[]> {
+		// default arguments
+		if (!sortArgs || Object.keys(sortArgs).length === 0) {
+			sortArgs = {
+				lockEnd: "DESC"
+			}
+		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return GenerativeToken.find({
-			where: [{
-				flag: In([GenTokFlag.CLEAN, GenTokFlag.NONE]),
-				lockEnd: LessThanOrEqual(new Date())
-			}],
-			order: {
-				lockEnd: "DESC",
-			},
-			skip,
-			take,
-			cache: 10000
+
+		// TODO
+		// Because the mint_time wasn't transfered properly, the lock time is not a good
+		// sort option, especially in ASC order. in DESC, it works because new tokens
+		// cover the mistake, but the other way arround needs to be hacked with the
+		// ID instead, and so until data is transfered to new contracts again, and mistake
+		// is fixed.
+		if (sortArgs.lockEnd === "ASC") {
+			delete sortArgs.lockEnd
+			// @ts-ignore
+			sortArgs.id = "ASC"
+		}
+
+		let query = GenerativeToken.createQueryBuilder("token")
+			.select()
+
+		// if their is a search string, we first make a request to the search engine to get results
+		if (filters?.searchQuery_eq) {
+			const searchResults = await searchIndexGenerative.search(filters.searchQuery_eq, { 
+				hitsPerPage: 5000
+			})
+			const ids = searchResults.hits.map(hit => hit.objectID)
+			query = query.whereInIds(ids)
+		}
+		
+		// add the filter on the flags
+		query = query.andWhere(`token.flag IN('${GenTokFlag.CLEAN}', '${GenTokFlag.NONE}')`)
+		// add filter to only get unlocked tokens
+		query = query.andWhere({
+			lockEnd: LessThanOrEqual(new Date())
 		})
+
+		// CUSTOM FILTERS
+		// filter for the field author verified
+		if (filters?.authorVerified_eq != null) {
+			query = query.leftJoin("token.author", "author")
+			if (filters.authorVerified_eq === true) {
+				query = query.andWhere("author.flag = 'VERIFIED'")
+			}
+			else {
+				query = query.andWhere("author.flag != 'VERIFIED'")
+			}
+		}
+
+		// filter for the field mint progress
+		if (filters?.mintProgress_eq != null) {
+			// if we want to filter all completed collections
+			if (filters.mintProgress_eq === "COMPLETED") {
+				query = query.andWhere("token.balance = 0")
+			}
+			// if we want to filter all the ongoing collections
+			else if (filters.mintProgress_eq === "ONGOING") {
+				query = query.andWhere("token.balance > 0")
+			}
+			// if we want to filter all the collections close to be finished
+			else if (filters.mintProgress_eq === "ALMOST") {
+				query = query.andWhere("token.balance::decimal / token.supply < 0.1 AND token.balance > 0")
+			}
+		}
+
+		// add the where clauses
+		const processedFilters = processGenerativeFilters(filters)
+		for (const filter of processedFilters) {
+			query = query.andWhere(filter)
+		}
+
+		// add the sort arguments
+		for (const field in sortArgs) {
+			query = query.addOrderBy(`token.${field}`, sortArgs[field])
+		}
+
+		// add pagination
+		query = query.take(take)
+		query = query.skip(skip)
+
+		// cache
+		query = query.cache(10000)
+
+		return query.getMany()
 	}
 
 	@Query(returns => [GenerativeToken])
