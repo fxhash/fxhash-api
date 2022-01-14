@@ -1,23 +1,19 @@
 import { Field, ObjectType } from 'type-graphql'
-import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, OneToOne, JoinColumn, RelationId } from 'typeorm'
+import { Entity, Column, UpdateDateColumn, BaseEntity, ManyToOne, Index, PrimaryGeneratedColumn } from 'typeorm'
 import { GenerativeToken } from './GenerativeToken'
-import { DateTransformer } from './Transformers/DateTransformer'
 
-@Entity()
 @ObjectType()
-export class MarketStats extends BaseEntity {
-  @PrimaryColumn()
+@Entity()
+export class MarketStatsHistory extends BaseEntity {
+  @PrimaryGeneratedColumn()
   id: number
 
-  @OneToOne(() => GenerativeToken)
-  @JoinColumn()
+  @ManyToOne(() => GenerativeToken, token => token.marketStatsHistory, { onDelete: "CASCADE" })
   token: GenerativeToken
 
-  @RelationId((stats: MarketStats) => stats.token)
-	tokenId: number
-
-  @Column({ default: false })
-  requiresUpdate: boolean
+  @Index()
+  @Column()
+  tokenId: number
 
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
@@ -41,41 +37,29 @@ export class MarketStats extends BaseEntity {
   
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
-  primVolumeNb: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
   primVolumeTz: number|null
   
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
+  primVolumeNb: number|null
+  
+  // the volume (tezos) on the covered period
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
 	secVolumeTz: number|null
   
+  // the volume (number) on the covered period
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
 	secVolumeNb: number|null
   
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeTz24: number|null
+  // [from; to] defines the range covered by those stats
   
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeNb24: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeTz7d: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeNb7d: number|null
-
-  @Field()
-  @Column({ type: "timestamptz" })
+  @Field({ nullable: true })
+  @UpdateDateColumn({ type: "timestamptz" })
   from: Date
-
-  @Field()
-  @Column({ type: "timestamptz" })
+  
+  @Field({ nullable: true })
+  @UpdateDateColumn({ type: "timestamptz" })
   to: Date
 }

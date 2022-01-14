@@ -97,41 +97,6 @@ export class Objkt extends BaseEntity {
   @Column({ type: "timestamptz", transformer: DateTransformer })
   @Filter(["gt", "lt"])
   assignedAt: string
-
-  static async findOrCreate(id: number, createdAt: string): Promise<Objkt> {
-    let objkt = await Objkt.findOne(id, { relations: [ "owner", "issuer" ]})
-    if (!objkt) {
-      objkt = Objkt.create({ id, createdAt })
-    }
-    return objkt
-  }
-
-  /**
-   * Given a name, sets the slug on the entity (ensures that no other entity has the same slug)
-   */
-   async setSlugFromName(name: string) {
-    let appendix: number|null = null
-    while(true) {
-      let slug = slugify(`${name} ${appendix!==null?appendix:""}`, {
-        lower: true
-      })
-
-      // do we have an Entity with this slug already ?
-      const found = await Objkt.findOne({
-        where: {
-          slug
-        }
-      })
-      if (found) {
-        appendix = appendix === null ? 1 : appendix+1
-        continue
-      }
-      else {
-        this.slug = slug
-        break
-      }
-    }
-  }
 }
 
 // the Type for the filters of the GraphQL query for Objkt

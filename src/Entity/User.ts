@@ -102,12 +102,4 @@ export class User extends BaseEntity {
   @Field()
   @Column({ type: "timestamptz", transformer: DateTransformer })
   updatedAt: string
-
-  static async findOrCreate(id: string, createdAt: string): Promise<User> {
-    let user = await User.findOne(id)
-    if (!user) {
-      user = User.create({ id, createdAt, updatedAt: createdAt })
-    }
-    return user
-  }
 }

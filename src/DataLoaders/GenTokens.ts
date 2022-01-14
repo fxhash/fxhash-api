@@ -3,6 +3,7 @@ import { In } from "typeorm"
 import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
+import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
 
@@ -148,12 +149,9 @@ const batchGenTokLatestActions = async (ids) => {
 }
 export const createGenTokLatestActionsLoader = () => new DataLoader(batchGenTokLatestActions)
 
-
-// interface to extend the MarketStats with a key that tells if it should get updated
-class MarketStatsWithRecompute extends MarketStats {
-	_shouldRecompute: boolean
-}
-
+/**
+ * Given a list of Generator ids, outputs a list of pre-computed marketplace stats
+ */
 const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 	// first grab the marketplace stats for each token
 	const stats = await MarketStats.find({
@@ -163,124 +161,21 @@ const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
 		cache: 10000
 	})
 
-	// in: 
-	// - IDS of gentk
-	// - array of stats
-	//   - some needs to be recomputed
-	//	 - some needs to be created and then computed
-	//	 - some are OK
-	// constraints:
-	// - only 2 trips to the database allowed to compute the market stats
-	// out:
-	// - array of computed, ordered
-
-	// process:
-	// - create one array for what needs to be recomputed
-	// - create one array for those OK
-
-	// array for those which are OK
-	const computed: MarketStats[] = []
-	// array for those to (re)compute
-	const recompute: MarketStats[] = []
-
-	// used to know if we should recompute based on last computed time (1 hour)
-	const now = new Date().getTime()
-	// determine if the stats should be computed or not
-	for (const id of genIds) {
-		const stat = stats.find(stat => stat.tokenId === id)
-		// if nothing was found, we need to create a new one
-		if (!stat) {
-			const nStat = new MarketStats()
-			nStat.id = nStat.tokenId = id
-			// @ts-ignore
-			nStat.token = { id }
-			nStat.requiresUpdate = true
-			recompute.push(nStat)
-			continue
-		}
-		// if a recompute criteria is met we set the record to null for the ID
-		if (stat.requiresUpdate || (now - new Date(stat.updatedAt).getTime()) > 3600000) {
-			recompute.push(stat)
-			continue
-		}
-		// it doesn't need to be recomputed
-		computed.push(stat)
-	}
-
-
-	// only if there is something to recompute, we recompute
-	if (recompute.length > 0) {
-		// build a list of IDs to recompute
-		const recomputeIDs: number[] = recompute.map(stat => stat.tokenId)
-
-		// query to compute minimum, median, and count on the offers
-		const computeStats = await Objkt.createQueryBuilder("objkt")
-			.select("MIN(offer.price)", "floor")
-			.addSelect("PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY offer.price)", "median")
-			.addSelect("COUNT(offer)", "totalListing")
-			.addSelect("token.id", "id")
-			.leftJoin("objkt.issuer", "token")
-			.leftJoin("objkt.offer", "offer")
-			.where("offer is not null")
-			.andWhere({
-				issuer: In(recomputeIDs)
-			})
-			.groupBy("token.id")
-			.getRawMany()
-
-		// query to get the actions, to compute more tricky values
-		const actions = await Action.createQueryBuilder("action")
-			.where({
-				token: In(genIds),
-				type: In([TokenActionType.OFFER_ACCEPTED, TokenActionType.MINTED_FROM])
-			})
-			.getMany()
-
-		// turn the price of actions into integers
-		actions.forEach(act => { act.metadata.price = parseInt(act.metadata.price) })
-
-
-		// some variables used during the loop
-		let filtActions: Action[]
-		let filtActionsPr: Action[]
-		let filtActionsSc: Action[]
-		let computeStat: any
-		const lastDay = new Date().getTime() - (24*3600*1000)
-
-		// go through each "recompute" entry, and find / compute the values
-		for (const stat of recompute) {
-			// find if there is an entry in the recompute stats
-			computeStat = computeStats.find(s => s.id === stat.tokenId)
-			// if we have some values, then we can populate the stat to recompute
-			if (computeStat) {
-				stat.floor = parseInt(computeStat.floor)
-				stat.median = parseInt(computeStat.median)
-				stat.totalListing = parseInt(computeStat.totalListing)
-			}
-			// use the actions to compute the more tricky values
-			filtActions = actions.filter(act => act.tokenId === stat.tokenId)
-			filtActionsPr = filtActions.filter(act => act.type === TokenActionType.MINTED_FROM)
-			filtActionsSc = filtActions.filter(act => act.type === TokenActionType.OFFER_ACCEPTED)
-			// highest sold / lowest sold
-			stat.highestSold = filtActionsSc.reduce((acc, act) => act.metadata.price > acc ? act.metadata.price : acc, 0) || null
-			stat.lowestSold = filtActionsSc.reduce((acc, act) => act.metadata.price < acc ? act.metadata.price : acc, 9999999999999)
-			stat.lowestSold = stat.lowestSold === 9999999999999 ? null : stat.lowestSold 
-			// compute the prim total
-			stat.primTotal = filtActionsPr.reduce((acc, act) => acc + act.metadata.price, 0)
-			stat.secVolumeTz = filtActionsSc.reduce((acc, act) => acc + parseInt(act.metadata.price), 0)
-			stat.secVolumeNb = filtActionsSc.length
-			// filter the actions on the 24 last hours
-			filtActionsSc = filtActionsSc.filter(act => (new Date(act.createdAt).getTime() > lastDay))
-			stat.secVolumeTz24 = filtActionsSc.reduce((acc, act) => acc + parseInt(act.metadata.price), 0)
-			stat.secVolumeNb24 = filtActionsSc.length
-
-			// the stat is now properly computed, we can save it to the database
-			stat.requiresUpdate = false
-			await stat.save()
-			computed.push(stat)
-		}
-	}
-
-	return genIds.map((id: number) => computed.find(stat => stat.tokenId === id))
+	return genIds.map((id: number) => stats.find(stat => stat.tokenId === id))
 }
 export const createGenTokMarketStatsLoader = () => new DataLoader(batchGenTokMarketStats)
+
+/**
+ * Given a list of Generator IDs, returns a list of market place histories
+ */
+const batchGenTokMarketStatsHistory = async (ids): Promise<MarketStatsHistory[]> => {
+	const query = MarketStatsHistory.createQueryBuilder("hist")
+		.select()
+		.where("hist.tokenId IN (:...ids)", { ids })
+		.orderBy("hist.from", "ASC")
+	
+	const hists = await query.getMany()
+
+	return ids.map(id => hists.filter(hist => hist.tokenId === id))
+}
+export const createGenTokMarketStatsHistoryLoader = () => new DataLoader(batchGenTokMarketStatsHistory)
