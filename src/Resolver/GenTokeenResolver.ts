@@ -4,6 +4,7 @@ import { Equal, In, LessThanOrEqual, MoreThan } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
+import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
 import { User } from "../Entity/User"
@@ -116,7 +117,7 @@ export class GenTokenResolver {
 		})
 	}
 
-	@FieldResolver(returns => MarketStats)
+	@FieldResolver(returns => MarketStats, { nullable: true })
 	async marketStats(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext
@@ -124,6 +125,14 @@ export class GenTokenResolver {
 		if (token.marketStats) return token.marketStats
 		return ctx.genTokMarketStatsLoader.load(token.id)
 	}
+		
+	@FieldResolver(returns => [MarketStatsHistory])
+	async marketStatsHistory(	
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext
+	) {
+		return ctx.genTokMarketStatsHistoryLoader.load(token.id)
+	} 
   
   @Query(returns => [GenerativeToken])
 	async generativeTokens(

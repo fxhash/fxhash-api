@@ -6,6 +6,7 @@ import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDate
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { MarketStats } from './MarketStats'
+import { MarketStatsHistory } from './MarketStatsHistory'
 import { Objkt } from './Objkt'
 import { Report } from './Report'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -124,6 +125,9 @@ export class GenerativeToken extends BaseEntity {
   @OneToOne(() => MarketStats, stats => stats.token)
   marketStats: MarketStats
 
+  @OneToMany(() => MarketStatsHistory, stats => stats.token)
+  marketStatsHistory: MarketStatsHistory
+
   @Field()
   @CreateDateColumn({ type: 'timestamptz', transformer: DateTransformer })
   createdAt: string
@@ -137,41 +141,6 @@ export class GenerativeToken extends BaseEntity {
 
   @Field(type => [Objkt], { nullable: true })
   offers: Objkt[]
-
-  static async findOrCreate(id: number, createdAt: string): Promise<GenerativeToken> {
-    let token = await GenerativeToken.findOne(id)
-    if (!token) {
-      token = GenerativeToken.create({ id, createdAt })
-    }
-    return token
-  }
-
-  /**
-   * Given a name, sets the slug on the entity (ensures that no other entity has the same slug)
-   */
-   async setSlugFromName(name: string) {
-    let appendix: number|null = null
-    while(true) {
-      let slug = slugify(`${name} ${appendix!==null?appendix:""}`, {
-        lower: true
-      })
-
-      // do we have an Entity with this slug already ?
-      const found = await GenerativeToken.findOne({
-        where: {
-          slug
-        }
-      })
-      if (found) {
-        appendix = appendix === null ? 1 : appendix+1
-        continue
-      }
-      else {
-        this.slug = slug
-        break
-      }
-    }
-  }
 
   //
   // FILTERS FOR THE GQL ENDPOINT
