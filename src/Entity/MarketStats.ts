@@ -13,7 +13,7 @@ export class MarketStats extends BaseEntity {
   @JoinColumn()
   token: GenerativeToken
 
-  @RelationId((stats: MarketStats) => stats.token)
+  @Column()
 	tokenId: number
 
   @Column({ default: false })

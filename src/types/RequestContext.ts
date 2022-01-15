@@ -1,5 +1,6 @@
 import { Request as ExpressRequest } from "express"
 import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
+import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from "../DataLoaders/Offer"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersOffersLoader, createUsersIssuerActionssLoader, 
@@ -9,13 +10,6 @@ import { createUsersObjktLoader, createUsersGenTokLoader, createUsersOffersLoade
 
 export interface RequestContext extends ExpressRequest {
   req: any,
-
-	// user loaders
-	// usersLoader: ReturnType<typeof createUsersLoader>,
-  // usersLiveSessionsLoader: ReturnType<typeof createUsersLiveSessionsLoader>,
-  
-	// // theme loaders
-	// themesLiveSessionsLoader: ReturnType<typeof createThemesLiveSessionsLoader>,
 
 	// USER loaders
 	usersLoader: ReturnType<typeof createUsersLoader>,
@@ -48,21 +42,6 @@ export interface RequestContext extends ExpressRequest {
   objktOffersLoader: ReturnType<typeof createObjktOffersLoader>,
   objktGenerativesLoader: ReturnType<typeof createObjktGenerativesLoader>,
 
-	// // room loaders
-	// roomsLiveSessionsLoader: ReturnType<typeof createRoomsLiveSessionsLoader>,
-	// roomsRatingsLoader: ReturnType<typeof createRoomsRatingsLoader>,
-	// roomMessagesLoader: ReturnType<typeof createRoomMessagesLoader>,
-
-	// // live session loaders
-	// liveSessionsLoader: ReturnType<typeof createLiveSessionsLoader>,
-	// liveSessionsRoomsLoader: ReturnType<typeof createLiveSessionsRoomsLoader>,
-	// liveSessionsRatingsLoader: ReturnType<typeof createLiveSessionsRatingsLoader>,
-
-	// // rating loaders
-	// ratingsUsersLoader: ReturnType<typeof createRatingsAuthorsLoader>,
-	// ratingsRoomsLoader: ReturnType<typeof createRatingsRoomsLoader>,
-	// ratingsLiveSessionsLoader: ReturnType<typeof createRatingsLiveSessionsLoader>,
-
-	// // room message loaders
-	// roomMessagesUsersLoader: ReturnType<typeof createRoomMessagesUsersLoader>,
+	// MARKET STATS loaders
+	marketStatsGenTokLoader: ReturnType<typeof createMarketStatsGenTokLoader>,
 }
