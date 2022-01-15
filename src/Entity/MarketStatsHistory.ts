@@ -11,7 +11,6 @@ export class MarketStatsHistory extends BaseEntity {
   @ManyToOne(() => GenerativeToken, token => token.marketStatsHistory, { onDelete: "CASCADE" })
   token: GenerativeToken
 
-  @Index()
   @Column()
   tokenId: number
 
