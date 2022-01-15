@@ -1,4 +1,5 @@
 import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
+import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from '../DataLoaders/Offer'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
@@ -9,10 +10,6 @@ export const createContext = (req: any, res: any): RequestContext => {
 	// @ts-ignore
 	return ({
 		req,
-
-		// usersLiveSessionsLoader: createUsersLiveSessionsLoader(),
-		// themesLiveSessionsLoader: createThemesLiveSessionsLoader(),
-		// usersLoader: createUsersLoader(),
 
 		// USER loaders
     usersLoader: createUsersLoader(),
@@ -45,22 +42,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     objktOffersLoader: createObjktOffersLoader(),
     objktGenerativesLoader: createObjktGenerativesLoader(),
 
-		// // live session loaders
-		// liveSessionsLoader: createLiveSessionsLoader(),
-		// liveSessionsRoomsLoader: createLiveSessionsRoomsLoader(),
-		// liveSessionsRatingsLoader: createLiveSessionsRatingsLoader(),
-
-		// // room loaders
-		// roomsLiveSessionsLoader: createRoomsLiveSessionsLoader(),
-		// roomsRatingsLoader: createRoomsRatingsLoader(), 
-		// roomMessagesLoader: createRoomMessagesLoader(),
-
-		// // rating loaders 
-		// ratingsUsersLoader: createRatingsAuthorsLoader(),
-		// ratingsRoomsLoader: createRatingsRoomsLoader(),
-		// ratingsLiveSessionsLoader: createRatingsLiveSessionsLoader(),
-
-		// // room message loaders
-		// roomMessagesUsersLoader: createRoomMessagesUsersLoader(),
+		// MARKET STATS loaders
+		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
 	})
 }

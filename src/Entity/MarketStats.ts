@@ -13,7 +13,7 @@ export class MarketStats extends BaseEntity {
   @JoinColumn()
   token: GenerativeToken
 
-  @RelationId((stats: MarketStats) => stats.token)
+  @Column()
 	tokenId: number
 
   @Column({ default: false })
@@ -66,10 +66,18 @@ export class MarketStats extends BaseEntity {
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
 	secVolumeTz7d: number|null
-  
+
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
 	secVolumeNb7d: number|null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+	secVolumeTz30d: number|null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+	secVolumeNb30d: number|null
 
   @Field()
   @Column({ type: "timestamptz" })

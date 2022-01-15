@@ -152,16 +152,15 @@ export const createGenTokLatestActionsLoader = () => new DataLoader(batchGenTokL
 /**
  * Given a list of Generator ids, outputs a list of pre-computed marketplace stats
  */
-const batchGenTokMarketStats = async (genIds): Promise<MarketStats[]> => {
+const batchGenTokMarketStats = async (ids): Promise<MarketStats[]> => {
 	// first grab the marketplace stats for each token
-	const stats = await MarketStats.find({
-		where: {
-			token: In(genIds)
-		},
-		cache: 10000
-	})
+	const stats = await MarketStats.createQueryBuilder("stats")
+		.select()
+		.where("stats.tokenId IN (:...ids)", { ids })
+		.cache(10000)
+		.getMany()
 
-	return genIds.map((id: number) => stats.find(stat => stat.tokenId === id))
+	return ids.map((id: number) => stats.find(stat => stat.tokenId === id))
 }
 export const createGenTokMarketStatsLoader = () => new DataLoader(batchGenTokMarketStats)
 
