@@ -106,7 +106,7 @@ export class OfferResolver {
 		query = query.take(take)
 
 		// finally the cache
-		query = query.cache(5000)
+		// query = query.cache(5000)
 
 		return query.getMany()
 	}

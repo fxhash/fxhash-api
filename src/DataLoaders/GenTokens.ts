@@ -80,7 +80,7 @@ const batchGenTokLatestObjkt = async (genIds) => {
 		.where("objkt.issuerId IN (:...genIds)", { genIds })
 		.orderBy("id", "DESC")
 		.take(6)
-		.cache(10000)
+		// .cache(10000)
 		.getMany()
 
 	return genIds.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
@@ -94,7 +94,7 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
 		.addSelect("objkt.issuerId", "issuerId")
 		.where("objkt.issuerId IN (:...genIds)", { genIds })
 		.groupBy("objkt.issuerId")
-		.cache(10000)
+		// .cache(10000)
 		.getRawMany()
 	
 	return genIds.map((id: number) => {
@@ -157,7 +157,7 @@ const batchGenTokMarketStats = async (ids): Promise<MarketStats[]> => {
 	const stats = await MarketStats.createQueryBuilder("stats")
 		.select()
 		.where("stats.tokenId IN (:...ids)", { ids })
-		.cache(10000)
+		// .cache(10000)
 		.getMany()
 
 	return ids.map((id: number) => stats.find(stat => stat.tokenId === id))

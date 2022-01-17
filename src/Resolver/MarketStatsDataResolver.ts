@@ -45,7 +45,7 @@ export class MarketStatsDataResolver {
     query = query.take(take)
 
     // cache
-    query = query.cache(100000) // 100 sec
+    // query = query.cache(100000) // 100 sec
 
     return query.getMany()
   }

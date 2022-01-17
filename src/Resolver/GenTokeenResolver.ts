@@ -223,7 +223,7 @@ export class GenTokenResolver {
 		query = query.skip(skip)
 
 		// cache
-		query = query.cache(10000)
+		// query = query.cache(10000)
 
 		return query.getMany()
 	}
