@@ -162,9 +162,13 @@ export class UserResolver {
 	): Promise<User|undefined|null> {
 		let user: User|null|undefined = null
 		if (id)
-			// user = await User.findOne(id, { cache: 10000 })
+			user = await User.findOne(id, { 
+				// cache: 10000 
+			})
 		else if (name)
-			// user = await User.findOne({ where: { name }, cache: 10000 })
+			user = await User.findOne({ where: { name }, 
+				// cache: 10000 
+			})
 		return user
 	}
 }
