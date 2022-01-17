@@ -59,7 +59,7 @@ export class ObjktResolver {
 			},
 			skip,
 			take,
-			cache: 10000
+			// cache: 10000
 		})
 	}
 
@@ -76,7 +76,7 @@ export class ObjktResolver {
 		if (!(slug == null)) args.slug = slug
 		return Objkt.findOne({
 			where: args,
-			cache: 10000
+			// cache: 10000
 		})
 	}
 }

@@ -12,7 +12,7 @@ const batchUsers = async (userIds) => {
 		where: {
 			id: In(userIds)
 		},
-		cache: 10000
+		// cache: 10000
 	})
 	return userIds.map(id => users.find(user => user.id === id))
 }
@@ -27,7 +27,7 @@ const batchUsersObjkt = async (userIds) => {
 		order: {
 			id: "DESC"
 		},
-		cache: 10000
+		// cache: 10000
 	})
 	return userIds.map((id: string) => objkts.filter(objkt => objkt.owner?.id === id))
 }
@@ -46,7 +46,7 @@ const batchUsersGenTok = async (userIds) => {
 		order: {
 			id: "DESC"
 		},
-		cache: 10000
+		// cache: 10000
 	})
 	return userIds.map((id: string) => tokens.filter(token => token.author?.id === id))
 }
@@ -61,7 +61,7 @@ const batchUsersOffers = async (userIds) => {
 		order: {
 			createdAt: "DESC"
 		},
-		cache: 10000
+		// cache: 10000
 	})
 	return userIds.map((id: string) => offers.filter(offer => offer.issuer?.id === id))
 }
@@ -76,7 +76,7 @@ const batchUsersIssuerActions = async (userIds) => {
 		order: {
 			createdAt: "DESC"
 		},
-		cache: 10000,
+		// cache: 10000,
 	})
 	return userIds.map((id: string) => actions.filter(action => action.issuer?.id === id))
 }
@@ -91,7 +91,7 @@ const batchUsersTargetActions = async (userIds) => {
 		order: {
 			createdAt: "DESC"
 		},
-		cache: 10000
+		// cache: 10000
 	})
 	return userIds.map((id: string) => actions.filter(action => action.target?.id === id))
 }

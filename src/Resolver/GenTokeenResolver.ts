@@ -113,7 +113,7 @@ export class GenTokenResolver {
 			},
 			skip: skip,
 			take: take,
-			cache: 10000
+			// cache: 10000
 		})
 	}
 
@@ -243,7 +243,7 @@ export class GenTokenResolver {
 			},
 			skip,
 			take,
-			cache: 10000
+			// cache: 10000
 		})
 	}
   
@@ -265,7 +265,7 @@ export class GenTokenResolver {
 			},
 			skip,
 			take,
-			cache: 60000
+			// cache: 60000
 		})
 	}
 

@@ -113,7 +113,7 @@ const batchGenTokActions = async (ids) => {
     order: {
       createdAt: "DESC"
     },
-		cache: 10000
+		// cache: 10000
 	})
 	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
 }
@@ -127,7 +127,7 @@ const batchGenTokReports = async (genIds) => {
     order: {
       id: "DESC"
     },
-		cache: 10000
+		// cache: 10000
 	})
 	return genIds.map((id: number) => reports.filter(report => report.tokenId === id))
 }
@@ -143,7 +143,7 @@ const batchGenTokLatestActions = async (ids) => {
       createdAt: "DESC"
     },
 		take: 20,
-		cache: 10000
+		// cache: 10000
 	})
 	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
 }

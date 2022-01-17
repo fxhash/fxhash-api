@@ -10,7 +10,7 @@ const batchObjkts = async (ids) => {
 		where: {
 			id: In(ids)
 		},
-		cache: 10000
+		// cache: 10000
 	})
 	return ids.map(id => objkts.find(objkt => objkt.id === id))
 }
@@ -25,7 +25,7 @@ const batchObjktActions = async (ids) => {
     order: {
       createdAt: "DESC"
     },
-		cache: 10000
+		// cache: 10000
 	})
 	return ids.map((id: number) => actions.filter(action => action.objkt?.id === id))
 }
