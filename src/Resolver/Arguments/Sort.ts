@@ -2,8 +2,8 @@ import { IsIn } from "class-validator"
 import { ArgsType, Field, InputType } from "type-graphql"
 
 
-@ArgsType()
-export class OffersSortArgs {
+@InputType()
+export class OffersSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   price?: "ASC" | "DESC"
@@ -42,11 +42,11 @@ export class ObjktsSortArgs {
 }
 
 @InputType()
-export class GenerativeSortInput {
+export class GenerativeSortInput {  
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   lockEnd?: "ASC" | "DESC"
-
+  
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   price?: "ASC" | "DESC"
@@ -58,6 +58,11 @@ export class GenerativeSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   balance?: "ASC" | "DESC"
+
+  // search-related sort filter
+  @Field(type => String, { nullable: true })
+  @IsIn(["DESC"])
+  relevance?: "DESC"
 }
 
 @InputType()

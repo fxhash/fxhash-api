@@ -5,7 +5,7 @@ import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { In } from "typeorm"
-import { OffersSortArgs } from "./Arguments/Sort"
+import { OffersSortInput } from "./Arguments/Sort"
 import { processFilters, processOfferFilters } from "../Utils/Filters"
 import { searchIndexMarketplace } from "../Services/Search"
 
@@ -32,7 +32,7 @@ export class OfferResolver {
   @Query(returns => [Offer])
 	async offers(
 		@Args() { skip, take }: PaginationArgs,
-		@Args() sortArgs: OffersSortArgs,
+		@Arg("sort", { nullable: true }) sortArgs: OffersSortInput,
 		@Arg("filters", FiltersOffer, { nullable: true }) filters: any
 	): Promise<Offer[]> {		
 		// default sort argument
@@ -114,7 +114,7 @@ export class OfferResolver {
   @Query(returns => [Offer], { nullable: true })
 	async offersByIds(
 		@Arg("ids", type => [Number]) ids: number[],
-		@Args() sortArgs: OffersSortArgs
+		@Arg("sort", { nullable: true }) sortArgs: OffersSortInput,
 	): Promise<Offer[]> {
 		const offers = await Offer.find({
 			where: {
