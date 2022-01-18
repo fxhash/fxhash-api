@@ -11,6 +11,11 @@ export class OffersSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   createdAt?: "ASC" | "DESC"
+
+  // search-related sort filter
+  @Field(type => String, { nullable: true })
+  @IsIn(["DESC"])
+  relevance?: "DESC"
 }
 
 

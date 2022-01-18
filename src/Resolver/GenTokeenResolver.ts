@@ -1,6 +1,6 @@
 import { ApolloError } from "apollo-server-errors"
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
-import { Equal, In, LessThanOrEqual, MoreThan } from "typeorm"
+import { Equal, getManager, In, LessThanOrEqual, MoreThan } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
@@ -170,6 +170,15 @@ export class GenTokenResolver {
 			})
 			const ids = searchResults.hits.map(hit => hit.objectID)
 			query = query.whereInIds(ids)
+
+			// if the sort option is relevance, we remove the sort arguments as the order
+			// of the search results needs to be preserved
+			if (sortArgs.relevance) {
+				delete sortArgs.relevance
+				// then we manually set the order using array_position
+				const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
+				query = query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
+			}
 		}
 		
 		// add the filter on the flags
@@ -221,9 +230,6 @@ export class GenTokenResolver {
 		// add pagination
 		query = query.take(take)
 		query = query.skip(skip)
-
-		// cache
-		// query = query.cache(10000)
 
 		return query.getMany()
 	}

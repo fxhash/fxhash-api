@@ -52,6 +52,14 @@ export class OfferResolver {
 			})
 			const ids = searchResults.hits.map(hit => hit.objectID)
 			query = query.whereInIds(ids)
+			// if the sort option is relevance, we remove the sort arguments as the order
+			// of the search results needs to be preserved
+			if (sortArgs.relevance) {
+				delete sortArgs.relevance
+				// then we manually set the order using array_position
+				const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
+				query = query.addOrderBy(`array_position(array[${relevanceList}], offer.id)`)
+			}
 		}
 
 		// add the sort arguments
