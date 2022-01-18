@@ -34,13 +34,16 @@ export class OfferResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Arg("sort", { nullable: true }) sortArgs: OffersSortInput,
 		@Arg("filters", FiltersOffer, { nullable: true }) filters: any
-	): Promise<Offer[]> {		
+	): Promise<Offer[]> {
 		// default sort argument
-		if (Object.keys(sortArgs).length === 0) {
-			sortArgs.createdAt = "DESC"
+		if (!sortArgs || Object.keys(sortArgs).length === 0) {
+			sortArgs = {
+				createdAt: "DESC"
+			}
 		}
+
 		// default [skip, take} arguments
-		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		;[skip, take] = useDefaultValues([skip, take], [0, 20])
 
 		// start building the query
 		let query = Offer.createQueryBuilder("offer").select()
@@ -54,7 +57,7 @@ export class OfferResolver {
 			query = query.whereInIds(ids)
 			// if the sort option is relevance, we remove the sort arguments as the order
 			// of the search results needs to be preserved
-			if (sortArgs.relevance) {
+			if (sortArgs && sortArgs.relevance) {
 				delete sortArgs.relevance
 				// then we manually set the order using array_position
 				const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
@@ -116,7 +119,10 @@ export class OfferResolver {
 		// finally the cache
 		// query = query.cache(5000)
 
-		return query.getMany()
+		const results = await query.getMany()
+		console.log(results)
+
+		return results
 	}
 	
   @Query(returns => [Offer], { nullable: true })
