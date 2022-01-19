@@ -111,8 +111,8 @@ export class Objkt extends BaseEntity {
   @Filter([ "eq" ], type => Boolean)
   authorVerified: Boolean
 
-  @Filter([ "eq" ], type => String)
-  author: string
+  @Filter([ "in" ], type => String)
+  author: string[]
 
   @Filter([ "eq" ], type => String)
   searchQuery: string

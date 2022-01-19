@@ -1,20 +1,20 @@
-import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { Arg, Args, Ctx, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql"
 import { Not } from "typeorm"
 import { Action } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
-import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
-import { processFilters, processUserCollectionFilters } from "../Utils/Filters"
 import { userCollectionSortTableLevels } from "../Utils/Sort"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { UserCollectionSortInput } from "./Arguments/Sort"
+import { applyUserCollectionFIltersToQuery } from "./Filters/User"
+
 
 @Resolver(User)
 export class UserResolver {
-  @FieldResolver(returns => [Objkt])
+  @FieldResolver(returns => [Objkt], { description: "Explore the gentks owned by users" })
 	async objkts(
 		@Root() user: User,
 		@Args() { skip, take }: PaginationArgs,
@@ -39,79 +39,7 @@ export class UserResolver {
 
 		
 		// FILTERING
-
-		// if their is a search string, we leverage the fact that gentks can be searched
-		// using the Generative Token index, because they are all children of it
-		if (filters?.searchQuery_eq) {
-			const searchResults = await searchIndexGenerative.search(filters.searchQuery_eq, { 
-				hitsPerPage: 5000
-			})
-			const ids = searchResults.hits.map(hit => hit.objectID)
-			query = query.andWhere("issuer.id IN (:...issuerIds)", { issuerIds: ids })
-
-			// if the sort option is relevance, we remove the sort arguments as the order
-			// of the search results needs to be preserved
-			if (sort.relevance) {
-				delete sort.relevance
-				// then we manually set the order using array_position
-				const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
-				query = query.addOrderBy(`array_position(array[${relevanceList}], objkt.id)`)
-			}
-		}
-
-		// process the filters directly against the objkt table
-		const processedFilters = processUserCollectionFilters(filters)
-		for (const filter of processedFilters) {
-			query = query.andWhere(filter)
-		}
-
-		// custom filters
-		if (filters) {
-			// all the filters related to the author
-			if (filters.author_eq != null || filters.authorVerified_eq != null) {
-				// we need the author so we join it (we can select as it's almost always requested)
-				query = query.leftJoinAndSelect("issuer.author", "author")
-				// filter for a specific author
-				if (filters.author_eq != null) {
-					query = query.andWhere("author.id = :authorId", { authorId: filters.author_eq })
-				}
-				// filters for verified authors only
-				if (filters.authorVerified_eq != null) {
-					if (filters.authorVerified_eq === true) {
-						query = query.andWhere("author.flag = 'VERIFIED'")
-					}
-					else {
-						query = query.andWhere("author.flag != 'VERIFIED'")
-					}
-				}
-			}
-
-			// the mint progress
-			if (filters.mintProgress_eq != null) {
-				// if we want to filter all completed collections
-				if (filters.mintProgress_eq === "COMPLETED") {
-					query = query.andWhere("issuer.balance = 0")
-				}
-				// if we want to filter all the ongoing collections
-				else if (filters.mintProgress_eq === "ONGOING") {
-					query = query.andWhere("issuer.balance > 0")
-				}
-				// if we want to filter all the collections close to be finished
-				else if (filters.mintProgress_eq === "ALMOST") {
-					query = query.andWhere("issuer.balance::decimal / issuer.supply < 0.1 AND issuer.balance > 0")
-				}
-			}
-
-			// filter for some issuers only
-			if (filters.issuer_in != null) {
-				query = query.andWhere("issuer.id IN (:...issuerIdFilters)", { issuerIdFilters: filters.issuer_in })
-			}
-
-			// if we only want the items with an offer
-			if (filters.offer_ne === null) {
-				query = query.innerJoinAndSelect("objkt.offer", "offer")
-			}
-		}
+		query = await applyUserCollectionFIltersToQuery(query, filters, sort)
 
 
 		// SORTING
@@ -132,6 +60,45 @@ export class UserResolver {
 		query = query.offset(skip)
 		query = query.limit(take)
 
+		return query.getMany()
+	}
+
+	@FieldResolver(returns => [GenerativeToken], {
+		description: "Given a list of filters to apply to a user's collection, outputs a list of Generative Tokens returned by the search on the Gentks, without a limit on the number of results."
+	})
+	async generativeTokensFromObjktFilters(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+	): Promise<GenerativeToken[]> {
+		// basic query to get all the user's Generative Tokens linked to gentks they own
+		let query = GenerativeToken.createQueryBuilder("issuer")
+			.leftJoin("objkt", "objkt", "objkt.issuerId = issuer.id")
+			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
+
+		// apply the filters
+		query = await applyUserCollectionFIltersToQuery(query, filters)
+		
+		return query.getMany()
+	}
+	
+	@FieldResolver(returns => [User], {
+		description: "Given a list of filters to apply to a user's collection, outputs a list of Authors returned by the search on the Gentks, without a limit on the number of results."
+	})
+	async authorsFromObjktFilters(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+	): Promise<User[]> {
+		// basic query to get all the authors linked to a token they own
+		let query = User.createQueryBuilder("author")
+			.leftJoin("author.generativeTokens", "issuer")
+			.leftJoin("issuer.objkts", "objkt")
+			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
+
+		// apply the filters
+		query = await applyUserCollectionFIltersToQuery(query, filters, undefined, true)
+		
 		return query.getMany()
 	}
 
