@@ -120,7 +120,6 @@ export class OfferResolver {
 		// query = query.cache(5000)
 
 		const results = await query.getMany()
-		console.log(results)
 
 		return results
 	}
