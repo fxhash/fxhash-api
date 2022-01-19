@@ -47,6 +47,30 @@ export class ObjktsSortArgs {
 }
 
 @InputType()
+export class UserCollectionSortInput {
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  id?: "ASC" | "DESC"
+  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  collectedAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  assignedAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  rarity?: "ASC" | "DESC"
+
+  // search-related sort filter
+  @Field(type => String, { nullable: true })
+  @IsIn(["DESC"])
+  relevance?: "DESC"
+}
+
+@InputType()
 export class GenerativeSortInput {  
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])

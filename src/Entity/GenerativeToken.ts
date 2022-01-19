@@ -3,6 +3,7 @@ import slugify from 'slugify'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, RelationId, OneToOne } from 'typeorm'
+import { GenMintProgressFilter } from '../types/GenerativeToken'
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { MarketStats } from './MarketStats'
@@ -25,17 +26,6 @@ export enum GenTokFlag {
 registerEnumType(GenTokFlag, {
   name: "GenTokFlag", // this one is mandatory
   description: "Flag state of Generative Token", // this one is optional
-})
-
-export enum GenMintProgressFilter {
-  COMPLETED   = "COMPLETED",
-  ONGOING     = "ONGOING",
-  ALMOST      = "ALMOST",
-}
-
-registerEnumType(GenMintProgressFilter, {
-  name: "GenMintProgressFilter", // this one is mandatory
-  description: "Filter for the progress of the mint", // this one is optional
 })
 
 @Entity()

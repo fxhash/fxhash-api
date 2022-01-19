@@ -1,8 +1,9 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
-import { createUnionType, Field, ObjectType } from 'type-graphql'
+import { createUnionType, Field, Int, ObjectType, registerEnumType } from 'type-graphql'
 import { generateFilterType, Filter } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToOne, OneToMany, RelationId } from 'typeorm'
+import { GenMintProgressFilter } from '../types/GenerativeToken'
 import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
@@ -23,6 +24,7 @@ export class Objkt extends BaseEntity {
   slug?: string
 
   @ManyToOne(() => GenerativeToken, token => token.objkts)
+  @Filter([ "in" ], type => Int)
   issuer?: GenerativeToken
 
   @Column({ nullable: false })
@@ -38,7 +40,7 @@ export class Objkt extends BaseEntity {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  @Filter(["eq"])
+  @Filter(["eq"], type => Boolean)
   assigned?: boolean
 
   @Field({ nullable: true })
@@ -97,6 +99,23 @@ export class Objkt extends BaseEntity {
   @Column({ type: "timestamptz", transformer: DateTransformer })
   @Filter(["gt", "lt"])
   assignedAt: string
+
+
+  //
+  // FILTERS FOR THE GQL ENDPOINT
+  //
+
+  @Filter([ "eq" ], type => GenMintProgressFilter)
+  mintProgress: "completed"|"ongoing"|"almost"
+
+  @Filter([ "eq" ], type => Boolean)
+  authorVerified: Boolean
+
+  @Filter([ "eq" ], type => String)
+  author: string
+
+  @Filter([ "eq" ], type => String)
+  searchQuery: string
 }
 
 // the Type for the filters of the GraphQL query for Objkt

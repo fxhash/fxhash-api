@@ -72,3 +72,14 @@ const generativeFiltersDbFields = [ "price", "supply" ]
 export const processGenerativeFilters = (filters: any) => {
   return processSelectiveFilters(filters, generativeFiltersDbFields)
 }
+
+
+const userCollectionFiltersDbFields = [ "assigned", "createdAt", "assignedAt" ] 
+
+/**
+ * This method processes the offer filters which can be run against the DB fields.
+ * If a filter doesn't target a DB field, it will be ignored by this method
+ */
+export const processUserCollectionFilters = (filters: any) => {
+  return processSelectiveFilters(filters, userCollectionFiltersDbFields)
+}
