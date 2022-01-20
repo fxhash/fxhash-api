@@ -11,6 +11,7 @@ import { User } from "../Entity/User"
 import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters, processGenerativeFilters } from "../Utils/Filters"
+import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { GenerativeSortInput, ObjktsSortArgs } from "./Arguments/Sort"
 
@@ -127,11 +128,16 @@ export class GenTokenResolver {
 	}
 		
 	@FieldResolver(returns => [MarketStatsHistory])
-	async marketStatsHistory(	
+	async marketStatsHistory(
 		@Root() token: GenerativeToken,
-		@Ctx() ctx: RequestContext
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", { nullable: false }) filters: MarketStatsHistoryInput,
 	) {
-		return ctx.genTokMarketStatsHistoryLoader.load(token.id)
+		return ctx.genTokMarketStatsHistoryLoader.load({
+			id: token.id,
+			from: filters.from,
+			to: filters.to
+		})
 	} 
   
   @Query(returns => [GenerativeToken])

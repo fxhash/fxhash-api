@@ -166,11 +166,21 @@ export const createGenTokMarketStatsLoader = () => new DataLoader(batchGenTokMar
 
 /**
  * Given a list of Generator IDs, returns a list of market place histories
+ * param: {
+ *   id: the ID of the token,
+ *   from: the date to search from
+ *   to: the date to search to
+ * }
  */
-const batchGenTokMarketStatsHistory = async (ids): Promise<MarketStatsHistory[]> => {
+const batchGenTokMarketStatsHistory = async (params): Promise<MarketStatsHistory[]> => {
+	const { from, to } = params[0]
+	const ids = params.map(param => param.id)
+
 	const query = MarketStatsHistory.createQueryBuilder("hist")
 		.select()
 		.where("hist.tokenId IN (:...ids)", { ids })
+		.andWhere("hist.from >= :from", { from })
+		.andWhere("hist.to < :to", { to })
 		.orderBy("hist.from", "ASC")
 	
 	const hists = await query.getMany()
