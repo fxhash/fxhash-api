@@ -25,10 +25,17 @@ export class GenTokenResolver {
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
 		@Arg("featureFilters", type => [FeatureFilter], { nullable: true }) featureFilters: FeatureFilter[],
-		@Arg("sort") sort: ObjktsSortInput,
+		@Arg("sort", { nullable: true }) sort: ObjktsSortInput,
 		@Args() { skip, take }: PaginationArgs,
 	) {
+		// defaults
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				iteration: "ASC"
+			}
+		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
+
 		// we parse the feature filters
 		if (token.objkts) return token.objkts
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, featureFilters, sort, skip, take })
@@ -48,7 +55,7 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
-		@Arg("sort") sort: ObjktsSortInput,
+		@Arg("sort", { nullable: true }) sort: ObjktsSortInput,
 		@Args() { skip, take }: PaginationArgs,
 	) {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
