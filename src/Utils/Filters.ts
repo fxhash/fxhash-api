@@ -1,6 +1,7 @@
 import { FilterOperator } from "type-graphql-filter"
 import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual } from "typeorm"
 import { Offer } from "../Entity/Offer"
+import { FeatureFilter, FeatureType } from "../Resolver/Arguments/Filter"
 
 function mapFilterOperatorTypeorm(operator: FilterOperator) {
   switch (operator) {
@@ -83,3 +84,25 @@ const userCollectionFiltersDbFields = [ "assigned", "createdAt", "assignedAt" ]
 export const processUserCollectionFilters = (filters: any) => {
   return processSelectiveFilters(filters, userCollectionFiltersDbFields)
 }
+
+
+/**
+ * For each feature filtered, returns an array of json filters that can be applied
+ * to a OR condition in a psql WHERE clause.
+ */
+export function processGentkFeatureFilters(filters: FeatureFilter[]): string[][] {
+  const processed: string[][] = []
+  for (const filter of filters) {
+    const values: string[] = []
+    for (const value of filter.values) {
+      if (filter.type === FeatureType.BOOLEAN || filter.type === FeatureType.NUMBER) {
+        values.push(`[{"name": "${filter.name}", "value": ${value}}]`)
+      }
+      else if (filter.type === FeatureType.STRING) {
+        values.push(`[{"name": "${filter.name}", "value": "${value}"}]`)
+      }
+    }
+    processed.push(values)
+  }
+  return processed
+} 

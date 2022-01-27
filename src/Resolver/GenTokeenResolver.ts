@@ -12,9 +12,10 @@ import { User } from "../Entity/User"
 import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters, processGenerativeFilters } from "../Utils/Filters"
+import { FeatureFilter } from "./Arguments/Filter"
 import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { GenerativeSortInput, ObjktsSortArgs } from "./Arguments/Sort"
+import { GenerativeSortInput, ObjktsSortInput } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -23,12 +24,14 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+		@Arg("featureFilters", type => [FeatureFilter], { nullable: true }) featureFilters: FeatureFilter[],
+		@Arg("sort") sort: ObjktsSortInput,
 		@Args() { skip, take }: PaginationArgs,
-		@Args() sort: ObjktsSortArgs
 	) {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		// we parse the feature filters
 		if (token.objkts) return token.objkts
-		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
+		return ctx.genTokObjktsLoader.load({ id: token.id, filters, featureFilters, sort, skip, take })
 	}
 
   @FieldResolver(returns => [Objkt])
@@ -45,8 +48,8 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+		@Arg("sort") sort: ObjktsSortInput,
 		@Args() { skip, take }: PaginationArgs,
-		@Args() sort: ObjktsSortArgs
 	) {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		if (token.objkts) return token.objkts

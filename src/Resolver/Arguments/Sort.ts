@@ -19,8 +19,8 @@ export class OffersSortInput {
 }
 
 
-@ArgsType()
-export class ObjktsSortArgs {
+@InputType()
+export class ObjktsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   id?: "ASC" | "DESC"

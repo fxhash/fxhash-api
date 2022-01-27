@@ -1,11 +1,12 @@
 import DataLoader from "dataloader"
-import { In } from "typeorm"
+import { Brackets, In } from "typeorm"
 import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { Objkt } from "../Entity/Objkt"
 import { Report } from "../Entity/Report"
+import { processGentkFeatureFilters } from "../Utils/Filters"
 
 const batchGenTokens = async (ids) => {
 	const tokens = await GenerativeToken.find({
@@ -27,6 +28,7 @@ const batchGenTokObjkt = async (genIds) => {
 	const ids = genIds.map(id => id.id)
 	// extract the filters from the params
 	const filters = genIds[0].filters
+	const featureFilters = genIds[0].featureFilters
 	const sorts = genIds[0].sort || {}
 	const take = genIds[0].take
 	const skip = genIds[0].skip
@@ -40,6 +42,28 @@ const batchGenTokObjkt = async (genIds) => {
 		.select()
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
 
+	// if we have some filters on the features
+	if (featureFilters?.length > 0) {
+		const processed = processGentkFeatureFilters(featureFilters)
+		// filtering features is a little bit tricky, because we have to group where operations
+		// in a specific way. Let's say that we have 2 features:
+		// - A [a, b, c, d]
+		// - B [a, b, c, d]
+		// If we want to select Aa and Ab, we want all the gentks where A is a OR b
+		// If we want to select Ba and Bb, we want all the gentks where B is a OR b
+		// If we want to select Aa and Ba, we want all the gentks where A is a AND B is b
+		// so we need to query each single feature values in a OR and each different feature in AND
+		for (let i = 0; i < processed.length; i++) {
+			const filterGroup = processed[i]
+			query = query.andWhere(new Brackets(qb => {
+				for (let j = 0; j < filterGroup.length; j++) {
+					const filter = filterGroup[j]
+					qb.orWhere(`objkt.features::jsonb @> :filter_${i}_${j}`, { [`filter_${i}_${j}`]: filter })
+				}
+			}))
+		}
+	}
+
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query
 	if (filters && filters.offer_ne === null) {
 		query = query.innerJoinAndSelect("objkt.offer", "offer")
@@ -49,13 +73,13 @@ const batchGenTokObjkt = async (genIds) => {
 	if (sorts) {
 		for (const sort in sorts) {
 			if (sort === "offerPrice") {
-				query = query.addOrderBy("offer.price", sorts[sort])
+				query = query.addOrderBy("offer.price", sorts[sort], "NULLS LAST")
 			}
 			else if (sort === "offerCreatedAt") {
-				query = query.addOrderBy("offer.createdAt", sorts[sort])
+				query = query.addOrderBy("offer.createdAt", sorts[sort],"NULLS LAST")
 			}
 			else {
-				query = query.addOrderBy(`objkt.${sort}`, sorts[sort])
+				query = query.addOrderBy(`objkt.${sort}`, sorts[sort], "NULLS LAST")
 			}
 		}
 	}
@@ -74,6 +98,10 @@ const batchGenTokObjkt = async (genIds) => {
 }
 export const createGenTokObjktsLoader = () => new DataLoader(batchGenTokObjkt)
 
+/**
+ * Given a list of generative tokens, outputs for each token a list of their
+ * latest objkts minted
+ */
 const batchGenTokLatestObjkt = async (genIds) => {
 	const objkts = await Objkt.createQueryBuilder("objkt")
 		.select()
@@ -224,16 +252,21 @@ const batchGenTokObjktFeatures = async (ids) => {
 						}
 						// either create a new value if it doesn't exist
 						if (!traits[trait.name][trait.value]){
-							traits[trait.name][trait.value] = 1
+							traits[trait.name][trait.value] = {
+								deseria: trait.value,
+								occur: 1,
+							}
 						}
 						// or increment the value if already found
 						else {
-							traits[trait.name][trait.value]++
+							traits[trait.name][trait.value].occur++
 						}
 					}
 				}
 			}
 		}
+
+		console.log(traits)
 
 		// 2nd pass - format the traits
 		const formattedTraits: any[] = []
@@ -241,8 +274,8 @@ const batchGenTokObjktFeatures = async (ids) => {
 			const formattedValues: any[] = []
 			for (const value in traits[trait]) {
 				formattedValues.push({
-					value: value,
-					occur: traits[trait][value],
+					value: traits[trait][value].deseria,
+					occur: traits[trait][value].occur,
 				})
 			}
 			formattedTraits.push({
