@@ -1,5 +1,5 @@
 import { Request as ExpressRequest } from "express"
-import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
+import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from "../DataLoaders/Offer"
@@ -29,6 +29,7 @@ export interface RequestContext extends ExpressRequest {
   genTokMarketStatsLoader: ReturnType<typeof createGenTokMarketStatsLoader>,
   genTokObjktsCountLoader: ReturnType<typeof createGenTokObjktsCountLoader>,
   genTokMarketStatsHistoryLoader: ReturnType<typeof createGenTokMarketStatsHistoryLoader>,
+  genTokObjktFeaturesLoader: ReturnType<typeof createGenTokObjktFeaturesLoader>,
 
   // OFFERS loaders
   offersLoader: ReturnType<typeof createOffersLoader>,

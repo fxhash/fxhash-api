@@ -1,5 +1,6 @@
 import { ApolloError } from "apollo-server-errors"
-import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { GraphQLJSONObject } from "graphql-type-json"
+import { Arg, Args, Ctx, Field, FieldResolver, ObjectType, Query, Resolver, Root } from "type-graphql"
 import { Equal, getManager, In, LessThanOrEqual, MoreThan } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
@@ -138,7 +139,18 @@ export class GenTokenResolver {
 			from: filters.from,
 			to: filters.to
 		})
-	} 
+	}
+
+	@FieldResolver(returns => [GraphQLJSONObject], {
+		nullable: true,
+		description: "[HEAVY - please no abuse] Returns a list of the different features and their possible values",
+	})
+	async features(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.genTokObjktFeaturesLoader.load(token.id) 
+	}
   
   @Query(returns => [GenerativeToken])
 	async generativeTokens(

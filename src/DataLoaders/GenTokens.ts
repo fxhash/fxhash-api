@@ -188,3 +188,73 @@ const batchGenTokMarketStatsHistory = async (params): Promise<MarketStatsHistory
 	return ids.map(id => hists.filter(hist => hist.tokenId === id))
 }
 export const createGenTokMarketStatsHistoryLoader = () => new DataLoader(batchGenTokMarketStatsHistory)
+
+
+/**
+ * Given a list of Generative Tokens, outputs a list of all the features 
+ * of their Gentks
+ * This list is determined by checking all the features of all the gentks
+ * generated, by grouping features and by counting occurences of each trait
+ */
+const batchGenTokObjktFeatures = async (ids) => {
+	const objkts = await Objkt.createQueryBuilder("objkt")
+		.select(["objkt.issuerId", "objkt.features"])
+		.where("objkt.issuerId IN (:...ids)", { ids })
+		.getMany()
+	
+	const featuresByIds: any[] = []
+
+	// for each token in the list, we compute the features
+	for (const id of ids) {	// most of the time will only run once
+		const features = objkts.filter(objkt => objkt.issuerId === id).map(objkt => objkt.features)
+
+		// the map will store each feature and their values for faster access
+		const traits = {}
+
+		// 1st pass - process the traits
+		if (features.length > 0) {
+			// go through each gentk features
+			for (const feature of features) {
+				// go through each trait
+				if (feature) {
+					for (const trait of feature) {
+						// if the trait wasn't registered yet we register it
+						if (!traits[trait.name]) {
+							traits[trait.name] = {}
+						}
+						// either create a new value if it doesn't exist
+						if (!traits[trait.name][trait.value]){
+							traits[trait.name][trait.value] = 1
+						}
+						// or increment the value if already found
+						else {
+							traits[trait.name][trait.value]++
+						}
+					}
+				}
+			}
+		}
+
+		// 2nd pass - format the traits
+		const formattedTraits: any[] = []
+		for (const trait in traits) {
+			const formattedValues: any[] = []
+			for (const value in traits[trait]) {
+				formattedValues.push({
+					value: value,
+					occur: traits[trait][value],
+				})
+			}
+			formattedTraits.push({
+				name: trait,
+				values: formattedValues
+			})
+		}
+
+		// add the formatted features to the list (if none, adds empty array)
+		featuresByIds.push(formattedTraits)
+	}
+
+	return featuresByIds
+}
+export const createGenTokObjktFeaturesLoader = () => new DataLoader(batchGenTokObjktFeatures)
