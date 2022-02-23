@@ -2,6 +2,7 @@ import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graph
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
+import { In } from "typeorm"
 import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
@@ -61,6 +62,20 @@ export class ObjktResolver {
 			take,
 			// cache: 10000
 		})
+	}
+
+	@Query((returns) => [Objkt], { nullable: true })
+	async objktsByIds(
+		@Arg("ids", (type) => [Number]) ids: number[]
+	): Promise<Objkt[]> {
+		const objkts = await Objkt.find({
+			where: [{
+				id: In(ids),
+			}],
+			take: 100,
+		});
+		// @ts-ignore
+		return ids.map((id) => objkts.find((o) => o.id == id)).filter((o) => !!o);
 	}
 
 	@Query(returns => Objkt, { nullable: true })
