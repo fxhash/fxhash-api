@@ -81,6 +81,14 @@ export class UserResolver {
 		
 		return query.getMany()
 	}
+
+	@FieldResolver(returns => [Objkt], { description: "Returns the entire collection of a user, in token ID order" })
+	entireCollection(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.userObjktsLoader.load(user.id)
+	}
 	
 	@FieldResolver(returns => [User], {
 		description: "Given a list of filters to apply to a user's collection, outputs a list of Authors returned by the search on the Gentks, without a limit on the number of results."
