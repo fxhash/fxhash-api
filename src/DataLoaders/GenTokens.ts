@@ -64,7 +64,7 @@ const batchGenTokObjkt = async (genIds) => {
 		}
 	}
 
-  // offerPrice and offerCreatedAt sort requires a join to offer table
+	// offerPrice and offerCreatedAt sort requires a join to offer table
 	const sortRequiresOffer = sorts.includes(
 		(sort) => sort == "offerPrice" || sort == "offerCreatedAt"
 	);
