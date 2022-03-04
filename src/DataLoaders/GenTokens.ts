@@ -40,9 +40,13 @@ const batchGenTokObjkt = async (genIds) => {
 		.select()
 		.where("objkt.issuerId IN (:...issuers)", { issuers: ids })
 
+	// offerPrice and offerCreatedAt sort requires a join to offer table
+	const sortRequiresOffer = sorts.includes(
+		(sort) => sort == "offerPrice" || sort == "offerCreatedAt"
+	);
 	// if the filters says "OFFER NOT NULL", we can use inner join to filter query
-	if (filters && filters.offer_ne === null) {
-		query = query.innerJoinAndSelect("objkt.offer", "offer")
+	if (sortRequiresOffer || (filters && filters.offer_ne === null)) {
+		query = query.innerJoinAndSelect("objkt.offer", "offer");
 	}
 
 	// add sorting
