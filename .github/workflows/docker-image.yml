@@ -29,3 +29,21 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  update-chart:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: fxhash/god
+          ssh-key: ${{ secrets.MONOREPO_SSH_KEY }}
+      - name: "Update Helm Chart values"
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          sed -i -e "s/tag:\(.*\)/tag: $GITHUB_SHA/g" charts/dependency-charts/fxh-api/values.yaml
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add charts/dependency-charts/fxh-api/values.yaml
+          git commit -m "🤖 Github Actions: Update fxhash-api image version"
+          git push
