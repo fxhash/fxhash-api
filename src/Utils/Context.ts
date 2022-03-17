@@ -1,9 +1,9 @@
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
+import { createListingIssuersLoader, createListingObjktsLoader, createListingsLoader } from '../DataLoaders/Listing'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
-import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
-import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from '../DataLoaders/Offer'
+import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
-  createUsersOffersLoader, createUsersTargetActionssLoader } from '../DataLoaders/User'
+  createUsersListingsLoader, createUsersTargetActionssLoader } from '../DataLoaders/User'
 import { RequestContext } from '../types/RequestContext'
 
 export const createContext = (req: any, res: any): RequestContext => {
@@ -15,7 +15,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     usersLoader: createUsersLoader(),
 		userObjktsLoader: createUsersObjktLoader(),
 		userGenToksLoader: createUsersGenTokLoader(),
-    userOffersLoader: createUsersOffersLoader(),
+    userListingsLoader: createUsersListingsLoader(),
     userIssuerActionsLoader: createUsersIssuerActionssLoader(),
 	  userTargetActionsLoader: createUsersTargetActionssLoader(),
 
@@ -35,16 +35,14 @@ export const createContext = (req: any, res: any): RequestContext => {
 		genTokMarketStatsHistoryLoader: createGenTokMarketStatsHistoryLoader(),
 		genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
 
-    // OFFERS loaders
-    offersLoader: createOffersLoader(),
-		offerObjktsLoader: createOfferObjktsLoader(),
-		offerIssuersLoader: createOfferIssuersLoader(),
+    // LISTINGS loaders
+    listingsLoader: createListingsLoader(),
 
     // OBJKTS loaders
 		objktsLoader: createObjktsLoader(),
     objktActionsLoader: createObjktActionsLoader(),
     objktOwnersLoader: createObjktOwnersLoader(),
-    objktOffersLoader: createObjktOffersLoader(),
+    objktListingsLoader: createObjktListingsLoader(),
     objktGenerativesLoader: createObjktGenerativesLoader(),
 
 		// MARKET STATS loaders

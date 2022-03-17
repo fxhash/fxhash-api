@@ -3,7 +3,7 @@ import { In } from "typeorm"
 import { Action } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
-import { Offer } from "../Entity/Offer"
+import { Listing } from "../Entity/Listing"
 import { User } from "../Entity/User"
 
 
@@ -56,8 +56,8 @@ const batchUsersGenTok = async (userIds) => {
 }
 export const createUsersGenTokLoader = () => new DataLoader(batchUsersGenTok)
 
-const batchUsersOffers = async (userIds) => {
-	const offers = await Offer.find({
+const batchUsersListings = async (userIds) => {
+	const listings = await Listing.find({
     relations: [ "issuer" ],
 		where: {
 			issuer: In(userIds)
@@ -67,9 +67,9 @@ const batchUsersOffers = async (userIds) => {
 		},
 		// cache: 10000
 	})
-	return userIds.map((id: string) => offers.filter(offer => offer.issuer?.id === id))
+	return userIds.map((id: string) => listings.filter(listing => listing.issuer?.id === id))
 }
-export const createUsersOffersLoader = () => new DataLoader(batchUsersOffers)
+export const createUsersListingsLoader = () => new DataLoader(batchUsersListings)
 
 const batchUsersIssuerActions = async (userIds) => {
 	const actions = await Action.find({

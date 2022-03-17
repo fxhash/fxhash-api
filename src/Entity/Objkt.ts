@@ -7,7 +7,7 @@ import { GenMintProgressFilter } from '../types/GenerativeToken'
 import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
-import { Offer } from './Offer'
+import { Listing } from './Listing'
 import { Split } from './Split'
 import { Transaction } from './Transaction'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -84,9 +84,8 @@ export class Objkt extends BaseEntity {
   @OneToMany(() => Split, split => split.objkt)
   royaltiesSplit: Split[]
 
-  @OneToOne(() => Offer, offer => offer.objkt, { onDelete: "CASCADE" })
-  @Filter(["ne"])
-  offer?: Offer|null
+  @OneToMany(() => Listing, listing => listing.objkt)
+  listings?: Listing[]
 
   @OneToMany(() => Transaction, transaction => transaction.objkt)
   transactions: Transaction[]

@@ -2,7 +2,7 @@ import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graph
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
-import { Offer } from "../Entity/Offer"
+import { Listing } from "../Entity/Listing"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
@@ -28,13 +28,13 @@ export class ObjktResolver {
 		return ctx.objktGenerativesLoader.load(objkt.id)
 	}
 
-	@FieldResolver(returns => Offer, { nullable: true })
-	offer(
+	@FieldResolver(returns => Listing, { nullable: true })
+	listing(
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
 	) {
-		if (objkt.offer) return objkt.offer
-		return ctx.objktOffersLoader.load(objkt.id)
+		if (objkt.listings) return objkt.listings
+		return ctx.objktListingsLoader.load(objkt.id)
 	}
 
 	@FieldResolver(returns => [Action])

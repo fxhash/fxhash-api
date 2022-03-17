@@ -2,7 +2,6 @@ import DataLoader from "dataloader"
 import { In } from "typeorm"
 import { Action } from "../Entity/Action"
 import { Objkt } from "../Entity/Objkt"
-import { User } from "../Entity/User"
 
 
 const batchObjkts = async (ids) => {
@@ -48,16 +47,16 @@ export const createObjktOwnersLoader = () => new DataLoader(batchObjktOwners)
 /**
  * Given a list of objkt IDs, returns a list of offers
  */
- const batchObjktOffers = async (ids: any) => {
+ const batchObjktListings = async (ids: any) => {
 	const objkts = await Objkt.createQueryBuilder("objkt")
 		.select("objkt.id")
 		.whereInIds(ids)
 		.leftJoinAndSelect("objkt.offer", "offer")
 		.getMany()
 
-	return ids.map(id => objkts.find(o => o.id === id)?.offer)
+	return ids.map(id => objkts.find(o => o.id === id)?.listings)
 }
-export const createObjktOffersLoader = () => new DataLoader(batchObjktOffers)
+export const createObjktListingsLoader = () => new DataLoader(batchObjktListings)
 
 /**
  * Given a list of objkt IDs, returns a list of their generative tokens

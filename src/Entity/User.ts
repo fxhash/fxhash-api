@@ -4,9 +4,9 @@ import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne } from 'typeorm'
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
+import { Listing } from './Listing'
 import { ModerationReason } from './ModerationReason'
 import { Objkt } from './Objkt'
-import { Offer } from './Offer'
 import { Report } from './Report'
 import { Split } from './Split'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -101,8 +101,8 @@ export class User extends BaseEntity {
   @OneToMany(() => Objkt, objkt => objkt.owner)
   objkts: Objkt[]
 
-  @OneToMany(() => Offer, offer => offer.issuer)
-  offers: Offer[]
+  @OneToMany(() => Listing, listing => listing.issuer)
+  listings: Listing[]
 
   @OneToMany(() => Report, report => report.user)
   reports: Report[]

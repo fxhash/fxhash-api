@@ -3,7 +3,7 @@ import { ArgsType, Field, InputType } from "type-graphql"
 
 
 @InputType()
-export class OffersSortInput {
+export class ListingsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   price?: "ASC" | "DESC"

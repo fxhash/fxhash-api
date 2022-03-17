@@ -1,9 +1,9 @@
 import { Arg, Args, Ctx, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql"
-import { Not } from "typeorm"
+import { IsNull, Not } from "typeorm"
 import { Action } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
-import { Offer } from "../Entity/Offer"
+import { Listing } from "../Entity/Listing"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { userCollectionSortTableLevels } from "../Utils/Sort"
@@ -14,7 +14,9 @@ import { applyUserCollectionFIltersToQuery } from "./Filters/User"
 
 @Resolver(User)
 export class UserResolver {
-  @FieldResolver(returns => [Objkt], { description: "Explore the gentks owned by users" })
+  @FieldResolver(returns => [Objkt], { 
+		description: "Explore the gentks owned by users" 
+	})
 	async objkts(
 		@Root() user: User,
 		@Args() { skip, take }: PaginationArgs,
@@ -51,7 +53,7 @@ export class UserResolver {
 		}
 		// sorting on sub fields 
 		if (levelledSortArguments.secondaryTable.collectedAt) {
-			// we need to find the last offer accepted for the the objkt
+			// we need to find the last listing accepted for the the objkt
 			query = query.leftJoin("objkt.actions", "action", "action.objktId = objkt.id AND action.type = 'OFFER_ACCEPTED'")
 			query = query.addOrderBy("action.createdAt", levelledSortArguments.secondaryTable.collectedAt, "NULLS LAST")
 		}
@@ -82,7 +84,9 @@ export class UserResolver {
 		return query.getMany()
 	}
 
-	@FieldResolver(returns => [Objkt], { description: "Returns the entire collection of a user, in token ID order" })
+	@FieldResolver(returns => [Objkt], { 
+		description: "Returns the entire collection of a user, in token ID order"
+	})
 	entireCollection(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
@@ -131,24 +135,32 @@ export class UserResolver {
 		})
 	}
 
-  @FieldResolver(returns => [Offer])
-	offers(
+  @FieldResolver(returns => [Listing], {
+		description: "The Listings created by the user. By default, this endpoint only returns the active Listings (not cancelled not accepted). **This endpoint should only be used on a single user at once as it has not been optimized for batch yet**."
+	})
+	listings(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
 		@Args() { skip, take }: PaginationArgs
 	) {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return Offer.find({
-			where: {
-				issuer: user.id
-			},
-			order: {
-				id: "DESC"
-			},
-			skip,
-			take,
-			// cache: 10000
-		})
+
+		let query = Listing.createQueryBuilder("listing")
+			.select()
+			.where("listing.issuerId = :userId", { userId: user.id })
+
+		// filter Listings which don't "exist" anymore
+		query = query.andWhere("listing.acceptedAt is null")
+		query = query.andWhere("listing.cancelledAt is null")
+
+		// order results by creation time
+		query = query.addOrderBy("listing.createdAt", "DESC")
+
+		// add pagination
+		query = query.skip(skip)
+		query = query.take(take)
+
+		return query.getMany()
 	}
 
 	@FieldResolver(returns => [Action])

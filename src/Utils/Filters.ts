@@ -1,9 +1,9 @@
 import { FilterOperator } from "type-graphql-filter"
-import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual } from "typeorm"
-import { Offer } from "../Entity/Offer"
+import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual, IsNull } from "typeorm"
+import { Listing } from "../Entity/Listing"
 import { FeatureFilter, FeatureType } from "../Resolver/Arguments/Filter"
 
-function mapFilterOperatorTypeorm(operator: FilterOperator) {
+function mapFilterOperatorTypeorm(operator: FilterOperator, value: any) {
   switch (operator) {
     case "eq": return Equal
     case "ne": return Not
@@ -12,6 +12,7 @@ function mapFilterOperatorTypeorm(operator: FilterOperator) {
     case "lt": return LessThan
     case "lte": return LessThanOrEqual
     case "in": return In
+    case "exist": return value ? (() => Not(IsNull())) : IsNull
     default: return Equal
   }
 }
@@ -23,7 +24,10 @@ export const processFilters = (filters: any) => {
 
   for (const [filterKey, value] of Object.entries(filters)) {
     const [field, operator] = filterKey.split("_")
-    typeormFilters[field] = mapFilterOperatorTypeorm(operator as FilterOperator)(value as any)
+    typeormFilters[field] = mapFilterOperatorTypeorm(
+      operator as FilterOperator,
+      value,
+    )(value as any)
   }
 
   return typeormFilters
@@ -44,7 +48,10 @@ export const processSelectiveFilters = (filters: Record<string, any>, allowed: s
     // if the field is in the db fields allowed, add it
     if (allowed.includes(field)) {
       typeormFilters.push({
-        [field]: mapFilterOperatorTypeorm(operator as FilterOperator)(value as any)
+        [field]: mapFilterOperatorTypeorm(
+          operator as FilterOperator,
+          value,
+        )(value as any)
       })
     }
   }
@@ -53,14 +60,20 @@ export const processSelectiveFilters = (filters: Record<string, any>, allowed: s
 }
 
 
-const offerFiltersDbFields = [ "price" ]
+const listingFiltersDbFields: (keyof Listing)[] = [ 
+  "price",
+  "createdAt",
+  "cancelledAt",
+  "acceptedAt",
+]
 
 /**
- * This method processes the offer filters which can be run against the DB fields.
+ * This method processes the listings filters which can be run against the DB 
+ * fields.
  * If a filter doesn't target a DB field, it will be ignored by this method
  */
-export const processOfferFilters = (filters: any) => {
-  return processSelectiveFilters(filters, offerFiltersDbFields)
+export const processListingFilters = (filters: any) => {
+  return processSelectiveFilters(filters, listingFiltersDbFields)
 }
 
 

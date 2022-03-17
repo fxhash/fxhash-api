@@ -4,7 +4,7 @@ import { GenTokenResolver } from "./GenTokeenResolver"
 import { MarketStatsResolver } from "./MarketStats"
 import { MarketStatsDataResolver } from "./MarketStatsDataResolver"
 import { ObjktResolver } from "./ObjktResolver"
-import { OfferResolver } from "./OfferResolver"
+import { ListingResolver } from "./ListingResolver"
 import { SplitResolver } from "./SplitResolver"
 import { UserResolver } from "./UserResolver"
 
@@ -13,7 +13,7 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   GenTokenResolver,
   ObjktResolver,
   ActionResolver,
-  OfferResolver,
+  ListingResolver,
   MarketStatsDataResolver,
   MarketStatsResolver,
   SplitResolver,
