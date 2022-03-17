@@ -11,6 +11,6 @@ export class MarketStatsResolver {
 		@Ctx() ctx: RequestContext,
   ) {
     if (stats.token) return stats.token
-    return ctx.marketStatsGenTokLoader.load(stats.id)
+    return ctx.marketStatsGenTokLoader.load(stats.tokenId)
   }
 }
