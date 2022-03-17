@@ -41,3 +41,13 @@ The field `activeListing` was added to replace the behaviour of the previous `of
 ## `generativeToken { offers }` becomes `generativeToken { activeListedObjkts }` 
 
 The endpoint was renamed because there used to be some inconsistency in the naming (it was called offers but it returned the objkts with active offers instead). The endpoint have the same features as before it was only renamed for clarity.
+
+
+## Removed `generativeToken { latestObjkts }` 
+
+It was removed as the feature is covered by `generativeToken { objkts }` with pagination.
+
+
+## Removed `generativeToken { latestActions }`
+
+It was removed as the feature is covered by `generativeToken { actions }` with pagination.

@@ -70,7 +70,7 @@ export class Objkt extends BaseEntity {
   tags: string[]
 
   @Field(() => [GraphQLJSONObject], { nullable: true })
-  @Column({ type: "json", nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   features?: TokenFeature[]
 
   @Field(() => Number, { nullable: true })

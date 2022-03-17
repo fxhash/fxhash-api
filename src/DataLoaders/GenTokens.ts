@@ -61,7 +61,9 @@ const batchGenTokObjkt = async (genIds) => {
 			query = query.andWhere(new Brackets(qb => {
 				for (let j = 0; j < filterGroup.length; j++) {
 					const filter = filterGroup[j]
-					qb.orWhere(`objkt.features::jsonb @> :filter_${i}_${j}`, { [`filter_${i}_${j}`]: filter })
+					qb.orWhere(`objkt.features @> :filter_${i}_${j}`, { 
+						[`filter_${i}_${j}`]: filter
+					})
 				}
 			}))
 		}
@@ -259,7 +261,9 @@ const batchGenTokMarketStats = async (ids): Promise<MarketStats[]> => {
 
 	return ids.map((id: number) => stats.find(stat => stat.tokenId === id))
 }
-export const createGenTokMarketStatsLoader = () => new DataLoader(batchGenTokMarketStats)
+export const createGenTokMarketStatsLoader = () => new DataLoader(
+	batchGenTokMarketStats
+)
 
 /**
  * Given a list of Generator IDs, returns a list of market place histories

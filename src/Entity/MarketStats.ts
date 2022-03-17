@@ -7,17 +7,11 @@ import { DateTransformer } from './Transformers/DateTransformer'
 @ObjectType()
 export class MarketStats extends BaseEntity {
   @PrimaryColumn()
-  id: number
+  tokenId: number
 
   @OneToOne(() => GenerativeToken)
   @JoinColumn()
   token: GenerativeToken
-
-  @Column()
-	tokenId: number
-
-  @Column({ default: false })
-  requiresUpdate: boolean
 
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })

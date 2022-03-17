@@ -13,6 +13,8 @@ const batchMarketStatsGenToken = async (ids) => {
 		.leftJoinAndSelect("stat.token", "token")
 		.getMany()
 
-	return ids.map(id => stats.find(stat => stat.id === id)?.token)
+	return ids.map(id => stats.find(stat => stat.tokenId === id)?.token)
 }
-export const createMarketStatsGenTokLoader = () => new DataLoader(batchMarketStatsGenToken)
+export const createMarketStatsGenTokLoader = () => new DataLoader(
+	batchMarketStatsGenToken
+)
