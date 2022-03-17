@@ -27,11 +27,11 @@ export class ObjktsSortInput {
   
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
-  offerPrice?: "ASC" | "DESC"
+  listingPrice?: "ASC" | "DESC"
   
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
-  offerCreatedAt?: "ASC" | "DESC"
+  listingCreatedAt?: "ASC" | "DESC"
 
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])

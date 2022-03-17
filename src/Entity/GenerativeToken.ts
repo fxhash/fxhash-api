@@ -197,12 +197,6 @@ export class GenerativeToken extends BaseEntity {
   })
   updatedAt: string
 
-  @Field()
-  objktsCount: number
-
-  @Field(type => [Objkt], { nullable: true })
-  offers: Objkt[]
-
   //
   // FILTERS FOR THE GQL ENDPOINT
   //

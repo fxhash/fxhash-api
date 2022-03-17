@@ -64,8 +64,10 @@ export class GenTokenResolver {
 		return ctx.genTokObjktsLoader.load({ id: token.id })
 	}
 
-	@FieldResolver(returns => [Objkt])
-	async offers(
+	@FieldResolver(returns => [Objkt], {
+		description: "The list of gentks on which a listing is currently active. *Due to some optimization factors, this endpoint can't be called on multiple Generative Tokens at once*."
+	})
+	async activeListedObkts(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
@@ -73,6 +75,11 @@ export class GenTokenResolver {
 		@Args() { skip, take }: PaginationArgs,
 	) {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		// we force the filter to have an existing activeListing
+		filters = {
+			...filters,
+			activeListing_exist: true,
+		}
 		if (token.objkts) return token.objkts
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
 	}
@@ -312,7 +319,7 @@ export class GenTokenResolver {
 		}
 
 		// we add the join based on the existence of certain sort / filter
-		if (filters?.price_gte || filters.price_lte || sortArgs.price) {
+		if (filters?.price_gte || filters?.price_lte || sortArgs.price) {
 			query = query.leftJoinAndSelect("token.pricingFixed", "pricingFixed")
 			query = query.leftJoinAndSelect("token.pricingDutchAuction", "pricingDutchAuction")
 		}

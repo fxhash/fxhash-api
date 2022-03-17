@@ -1,6 +1,6 @@
 import { NonEmptyArray } from "type-graphql"
 import { ActionResolver } from "./ActionResolver"
-import { GenTokenResolver } from "./GenTokeenResolver"
+import { GenTokenResolver } from "./GenTokenResolver"
 import { MarketStatsResolver } from "./MarketStats"
 import { MarketStatsDataResolver } from "./MarketStatsDataResolver"
 import { ObjktResolver } from "./ObjktResolver"
