@@ -1,6 +1,7 @@
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
 import { createListingIssuersLoader, createListingObjktsLoader, createListingsLoader } from '../DataLoaders/Listing'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
+import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
   createUsersListingsLoader, createUsersTargetActionssLoader } from '../DataLoaders/User'
@@ -48,5 +49,8 @@ export const createContext = (req: any, res: any): RequestContext => {
 
 		// MARKET STATS loaders
 		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
+		
+		// MODERATION REASON loaders
+		moderationReasonsLoader: createModerationReasonsLoader(),
 	})
 }

@@ -2,6 +2,7 @@ import { Request as ExpressRequest } from "express"
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
 import { createListingIssuersLoader, createListingObjktsLoader, createListingsLoader } from "../DataLoaders/Listing"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
+import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersListingsLoader, createUsersIssuerActionssLoader, 
   createUsersTargetActionssLoader, createUsersLoader } from "../DataLoaders/User"
@@ -48,4 +49,7 @@ export interface RequestContext extends ExpressRequest {
 
 	// MARKET STATS loaders
 	marketStatsGenTokLoader: ReturnType<typeof createMarketStatsGenTokLoader>,
+
+  // MODERATION REASON loaders
+  moderationReasonsLoader: ReturnType<typeof createModerationReasonsLoader>,
 }

@@ -68,6 +68,9 @@ export class GenerativeToken extends BaseEntity {
   })
   moderationReason?: ModerationReason
 
+  @Column()
+  moderationReasonId: string
+
   @ManyToOne(() => User, user => user.generativeTokens)
   author?: User
 

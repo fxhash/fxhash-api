@@ -1,11 +1,12 @@
 import { ApolloError } from "apollo-server-errors"
 import { GraphQLJSONObject } from "graphql-type-json"
 import { Arg, Args, Ctx, Field, FieldResolver, ObjectType, Query, Resolver, Root } from "type-graphql"
-import { Brackets, Equal, getManager, In, LessThanOrEqual, MoreThan } from "typeorm"
+import { Brackets, Equal, getManager, In, IsNull, LessThanOrEqual, MoreThan, Not } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
+import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
@@ -227,6 +228,19 @@ export class GenTokenResolver {
 		@Ctx() ctx: RequestContext,
 	) {
 		return ctx.genTokObjktFeaturesLoader.load(token.id) 
+	}
+
+	@FieldResolver(returns => String, {
+		nullable: true,
+		description: "If any, returns the moderation reason associated with the Generative Token",
+	})
+	async moderationReason(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (token.moderationReasonId == null) return null
+		if (token.moderationReason) return token.moderationReason
+		return ctx.moderationReasonsLoader.load(token.moderationReasonId)
 	}
   
   @Query(returns => [GenerativeToken], {

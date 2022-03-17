@@ -73,6 +73,9 @@ export class User extends BaseEntity {
   })
   moderationReason?: ModerationReason
 
+  @Column()
+  moderationReasonId?: number
+
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Column({ type: "jsonb", nullable: true })
   metadata?: Record<string, any>

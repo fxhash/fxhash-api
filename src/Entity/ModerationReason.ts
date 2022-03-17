@@ -1,4 +1,4 @@
-import { ObjectType } from 'type-graphql'
+import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, OneToMany } from 'typeorm'
 import { GenerativeToken } from './GenerativeToken'
 import { Report } from './Report'
@@ -13,7 +13,6 @@ import { User } from './User'
  * {reason_id}-${contract_id}
  */
 @Entity()
-@ObjectType()
 export class ModerationReason extends BaseEntity {
   @PrimaryColumn()
   id: string
@@ -29,8 +28,4 @@ export class ModerationReason extends BaseEntity {
 
   @OneToMany(() => Report, report => report.reason)
   reports: Report[]
-
-  static generateId(reasonId: string, contractId: "user"|"token") {
-    return `${reasonId}-${contractId}`
-  }
 }

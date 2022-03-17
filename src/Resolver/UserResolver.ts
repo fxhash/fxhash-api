@@ -186,6 +186,19 @@ export class UserResolver {
 		return ret
 	}
 
+	@FieldResolver(returns => String, {
+		nullable: true,
+		description: "If any, returns the moderation reason associated with the user",
+	})
+	async moderationReason(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (user.moderationReasonId == null) return null
+		if (user.moderationReason) return user.moderationReason
+		return ctx.moderationReasonsLoader.load(user.moderationReasonId)
+	}
+
   @FieldResolver(returns => [Action])
 	actionsAsIssuer(
 		@Root() user: User,

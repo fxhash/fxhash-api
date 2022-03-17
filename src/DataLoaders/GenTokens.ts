@@ -339,8 +339,6 @@ const batchGenTokObjktFeatures = async (ids) => {
 			}
 		}
 
-		console.log(traits)
-
 		// 2nd pass - format the traits
 		const formattedTraits: any[] = []
 		for (const trait in traits) {
