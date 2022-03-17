@@ -24,6 +24,12 @@ export class PricingDutchAuction extends BaseEntity {
   })
   levels: number[]
 
+  @Field({ 
+    description: "Corresponds to the last level of the Dutch Auction"
+  })
+  @Column({ type: "bigint" })
+  restingPrice: number
+
   @Field({
     description: "The time between each level, in **seconds**"
   })

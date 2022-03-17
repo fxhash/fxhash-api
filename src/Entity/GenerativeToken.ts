@@ -215,6 +215,9 @@ export class GenerativeToken extends BaseEntity {
 
   @Filter([ "eq" ], type => String)
   searchQuery: string
+
+  @Filter([ "lte", "gte" ], type => Int)
+  price: number
 }
 
 export const GenerativeFilters = generateFilterType(GenerativeToken)

@@ -1,7 +1,7 @@
 import { ApolloError } from "apollo-server-errors"
 import { GraphQLJSONObject } from "graphql-type-json"
 import { Arg, Args, Ctx, Field, FieldResolver, ObjectType, Query, Resolver, Root } from "type-graphql"
-import { Equal, getManager, In, LessThanOrEqual, MoreThan } from "typeorm"
+import { Brackets, Equal, getManager, In, LessThanOrEqual, MoreThan } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
@@ -22,7 +22,9 @@ import { GenerativeSortInput, ObjktsSortInput } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
-  @FieldResolver(returns => [Objkt])
+  @FieldResolver(returns => [Objkt], {
+		description: "Get the unique iterations generated from the Generative Token. This is the go-to endpoint to get the gentks as it's the most optimized and is built to support sort and filter options."
+	})
 	async objkts(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
@@ -41,7 +43,14 @@ export class GenTokenResolver {
 
 		// we parse the feature filters
 		if (token.objkts) return token.objkts
-		return ctx.genTokObjktsLoader.load({ id: token.id, filters, featureFilters, sort, skip, take })
+		return ctx.genTokObjktsLoader.load({ 
+			id: token.id,
+			filters,
+			featureFilters,
+			sort,
+			skip,
+			take,
+		})
 	}
 
   @FieldResolver(returns => [Objkt], {
@@ -83,7 +92,8 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 	) {
-		return ctx.gentkTokPricingFixedLoader.load(token.id)
+		return token.pricingFixed 
+		|| ctx.gentkTokPricingFixedLoader.load(token.id)
 	}
 
 	@FieldResolver(returns => PricingDutchAuction, {
@@ -94,7 +104,8 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 	) {
-		return ctx.gentkTokPricingDutchAuctionLoader.load(token.id)
+		return token.pricingDutchAuction
+		|| ctx.gentkTokPricingDutchAuctionLoader.load(token.id)
 	}
 
 	@FieldResolver(returns => [Split], {
@@ -216,7 +227,9 @@ export class GenTokenResolver {
 		return ctx.genTokObjktFeaturesLoader.load(token.id) 
 	}
   
-  @Query(returns => [GenerativeToken])
+  @Query(returns => [GenerativeToken], {
+		description: "Generic endpoint to query the Generative Tokens. Go-to endpoint to explore the Generative Tokens published on the platform, requires pagination and provides sort and filter options."
+	})
 	async generativeTokens(
 		@Args() { skip, take }: PaginationArgs,
 		@Arg("sort", { nullable: true }) sortArgs: GenerativeSortInput,
@@ -255,7 +268,7 @@ export class GenTokenResolver {
 
 			// if the sort option is relevance, we remove the sort arguments as the order
 			// of the search results needs to be preserved
-			if (sortArgs.relevance) {
+			if (sortArgs.relevance && ids.length > 0) {
 				delete sortArgs.relevance
 				// then we manually set the order using array_position
 				const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
@@ -298,6 +311,34 @@ export class GenTokenResolver {
 			}
 		}
 
+		// we add the join based on the existence of certain sort / filter
+		if (filters?.price_gte || filters.price_lte || sortArgs.price) {
+			query = query.leftJoinAndSelect("token.pricingFixed", "pricingFixed")
+			query = query.leftJoinAndSelect("token.pricingDutchAuction", "pricingDutchAuction")
+		}
+
+		// process the filters on the prices
+		if (filters?.price_gte) {
+			query = query.andWhere(new Brackets(qb => {
+				qb.where("pricingFixed.price >= :price_gte", { 
+						price_gte: filters.price_gte 
+					})
+					.orWhere("pricingDutchAuction.restingPrice >= :price_gte", { 
+						price_gte: filters.price_gte 
+					})
+			}))
+		}
+		if (filters?.price_lte) {
+			query = query.andWhere(new Brackets(qb => {
+				qb.where("pricingFixed.price <= :price_lte", { 
+						price_lte: filters.price_lte 
+					})
+					.orWhere("pricingDutchAuction.restingPrice <= :price_lte", { 
+						price_lte: filters.price_lte 
+					})
+			}))
+		}
+
 		// add the where clauses
 		const processedFilters = processGenerativeFilters(filters)
 		for (const filter of processedFilters) {
@@ -306,7 +347,19 @@ export class GenTokenResolver {
 
 		// add the sort arguments
 		for (const field in sortArgs) {
-			query = query.addOrderBy(`token.${field}`, sortArgs[field])
+			// since price is defined in different tables, we need to craft a generic
+			// query to sort all the items in an elegant fashion
+			// TODO: support dutch auctions
+			if (field === "price") {
+				query = query.addOrderBy(
+					"pricingFixed.price",
+					sortArgs[field],
+					"NULLS LAST"
+				)
+			}
+			else {
+				query = query.addOrderBy(`token.${field}`, sortArgs[field])
+			}
 		}
 
 		// add pagination

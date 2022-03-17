@@ -64,7 +64,7 @@ export const processOfferFilters = (filters: any) => {
 }
 
 
-const generativeFiltersDbFields = [ "price", "supply" ]
+const generativeFiltersDbFields = [ "supply" ]
 
 /**
  * This method processes the offer filters which can be run against the DB fields.
