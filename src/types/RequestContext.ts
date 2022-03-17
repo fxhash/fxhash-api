@@ -2,7 +2,7 @@ import { Request as ExpressRequest } from "express"
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
 import { createListingIssuersLoader, createListingObjktsLoader, createListingsLoader } from "../DataLoaders/Listing"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
-import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
+import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersListingsLoader, createUsersIssuerActionssLoader, 
   createUsersTargetActionssLoader, createUsersLoader } from "../DataLoaders/User"
 
@@ -43,6 +43,7 @@ export interface RequestContext extends ExpressRequest {
   objktActionsLoader: ReturnType<typeof createObjktActionsLoader>,
   objktOwnersLoader: ReturnType<typeof createObjktOwnersLoader>,
   objktListingsLoader: ReturnType<typeof createObjktListingsLoader>,
+  objktActiveListingsLoader: ReturnType<typeof createObjktActiveListingsLoader>,
   objktGenerativesLoader: ReturnType<typeof createObjktGenerativesLoader>,
 
 	// MARKET STATS loaders

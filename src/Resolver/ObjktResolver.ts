@@ -28,13 +28,27 @@ export class ObjktResolver {
 		return ctx.objktGenerativesLoader.load(objkt.id)
 	}
 
-	@FieldResolver(returns => Listing, { nullable: true })
-	listing(
+	@FieldResolver(returns => [Listing], { 
+		nullable: true,
+		description: "All the listings for the gentk. Includes all the listings related to the gentk, even those which were cancelled / accepted."
+	})
+	listings(
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
 	) {
 		if (objkt.listings) return objkt.listings
 		return ctx.objktListingsLoader.load(objkt.id)
+	}
+
+	@FieldResolver(returns => Listing, {
+		nullable: true,
+		description: "The Listing currently active for the gentk, if any."
+	})
+	activeListing(
+		@Root() objkt: Objkt,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.objktActiveListingsLoader.load(objkt.id)
 	}
 
 	@FieldResolver(returns => [Action])
