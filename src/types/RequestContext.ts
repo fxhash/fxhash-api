@@ -1,5 +1,5 @@
 import { Request as ExpressRequest } from "express"
-import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
+import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from "../DataLoaders/Offer"
@@ -24,7 +24,11 @@ export interface RequestContext extends ExpressRequest {
   genTokObjktsLoader: ReturnType<typeof createGenTokObjktsLoader>,
   genTokLatestObjktsLoader: ReturnType<typeof createGenTokLatestObjktsLoader>,
   genTokActionsLoader: ReturnType<typeof createGenTokActionsLoader>,
+  gentkTokPricingFixedLoader: ReturnType<typeof createGenTokPricingFixedLoader>,
+  gentkTokPricingDutchAuctionLoader: ReturnType<typeof createGenTokPricingDutchAuctionLoader>,
   genTokLatestActionsLoader: ReturnType<typeof createGenTokLatestActionsLoader>,
+  gentTokSplitsPrimaryLoader: ReturnType<typeof createGentkTokPrimarySplitsLoader>,
+  gentTokSplitsSecondaryLoader: ReturnType<typeof createGentkTokSecondarySplitsLoader>,
   genTokReportsLoader: ReturnType<typeof createGenTokReportsLoader>,
   genTokMarketStatsLoader: ReturnType<typeof createGenTokMarketStatsLoader>,
   genTokObjktsCountLoader: ReturnType<typeof createGenTokObjktsCountLoader>,

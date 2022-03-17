@@ -8,6 +8,8 @@ import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } fro
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
 import { Offer } from './Offer'
+import { Split } from './Split'
+import { Transaction } from './Transaction'
 import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
@@ -79,9 +81,15 @@ export class Objkt extends BaseEntity {
   @Column({ default: 0 })
   royalties: number = 0
 
+  @OneToMany(() => Split, split => split.objkt)
+  royaltiesSplit: Split[]
+
   @OneToOne(() => Offer, offer => offer.objkt, { onDelete: "CASCADE" })
   @Filter(["ne"])
   offer?: Offer|null
+
+  @OneToMany(() => Transaction, transaction => transaction.objkt)
+  transactions: Transaction[]
 
   @OneToMany(() => Action, action => action.objkt)
   actions: Action[]

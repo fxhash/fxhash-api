@@ -7,7 +7,10 @@ import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/Genera
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
+import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
+import { PricingFixed } from "../Entity/PricingFixed"
 import { Report } from "../Entity/Report"
+import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
@@ -41,7 +44,9 @@ export class GenTokenResolver {
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, featureFilters, sort, skip, take })
 	}
 
-  @FieldResolver(returns => [Objkt])
+  @FieldResolver(returns => [Objkt], {
+		description: "The whole gentks belonging to the Generative Token. **This endpoint must be used with moderation as the fetch can be expensive if ran on many Generative Tokens**."
+	})
 	async entireCollection(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext
@@ -61,6 +66,55 @@ export class GenTokenResolver {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 		if (token.objkts) return token.objkts
 		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
+	}
+
+	/**
+	 * Pricing resolvers.
+	 * Generative Tokens can have different pricing strategy, each one is stored
+	 * in its own table and responds to its own logic. At least one of the pricing
+	 * fields should be defined for a token
+	 */
+
+	@FieldResolver(returns => PricingFixed, {
+		description: "The PricingFixed entity associated with the Generative Token. *It can be null if the Generative Token uses a different pricing strategy*.",
+		nullable: true,
+	})
+	async pricingFixed(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.gentkTokPricingFixedLoader.load(token.id)
+	}
+
+	@FieldResolver(returns => PricingDutchAuction, {
+		description: "The PricingDutchAuction entity associated with the Generative Token. *It can be null if the Generative Token uses a different pricing strategy*.",
+		nullable: true,
+	})
+	async pricingDutchAuction(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.gentkTokPricingDutchAuctionLoader.load(token.id)
+	}
+
+	@FieldResolver(returns => [Split], {
+		description: "The list of splits on the primary market"
+	})
+	async splitsPrimary(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.gentTokSplitsPrimaryLoader.load(token.id)
+	}
+
+	@FieldResolver(returns => [Split], {
+		description: "The list of splits on the secondary market"
+	})
+	async splitsSecondary(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.gentTokSplitsSecondaryLoader.load(token.id)
 	}
 
 	@FieldResolver(returns => Number)

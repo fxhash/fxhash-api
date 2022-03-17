@@ -5,7 +5,10 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { Objkt } from "../Entity/Objkt"
+import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
+import { PricingFixed } from "../Entity/PricingFixed"
 import { Report } from "../Entity/Report"
+import { Split } from "../Entity/Split"
 import { processGentkFeatureFilters } from "../Utils/Filters"
 
 const batchGenTokens = async (ids) => {
@@ -131,6 +134,68 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
 	})
 }
 export const createGenTokObjktsCountLoader = () => new DataLoader(batchGenTokObjktsCount)
+
+/**
+ * Given a list of Generative Tokens, outputs their PricingFixed if any
+ */
+const batchGenTokPricingFixed = async (ids) => {
+	const pricings = await PricingFixed.createQueryBuilder("pricing")
+		.select()
+		.where("pricing.tokenId IN(:...ids)", { ids })
+		.getMany()
+	return ids.map(id => 
+		pricings.find(pricing => pricing.tokenId === id) || null	
+	)
+}
+export const createGenTokPricingFixedLoader = () => new DataLoader(
+	batchGenTokPricingFixed
+)
+
+/**
+ * Given a list of Generative Tokens, outputs their PricingFixed if any
+ */
+ const batchGenTokPricingDutchAuction = async (ids) => {
+	const pricings = await PricingDutchAuction.createQueryBuilder("pricing")
+		.select()
+		.where("pricing.tokenId IN(:...ids)", { ids })
+		.getMany()
+	return ids.map(id => 
+		pricings.find(pricing => pricing.tokenId === id) || null	
+	)
+}
+export const createGenTokPricingDutchAuctionLoader = () => new DataLoader(
+	batchGenTokPricingDutchAuction
+)
+
+/**
+ * Given a list of Generative Token IDs, outputs their splits on the
+ * **primary** market.
+ */
+const batchGenTokPrimarySplits = async (ids) => {
+	const splits = await Split.createQueryBuilder("split")
+		.select()
+		.where("split.generativeTokenPrimaryId IN(:...ids)", { ids })
+		.getMany()
+	return ids.map(id => 
+		splits.filter(split => split.generativeTokenPrimaryId === id)
+	)
+}
+export const createGentkTokPrimarySplitsLoader = () => new DataLoader(batchGenTokPrimarySplits)
+
+/**
+ * Given a list of Generative Token IDs, outputs their splits on the 
+ * **secondary** market.
+ */
+ const batchGenTokSecondarySplits = async (ids) => {
+	const splits = await Split.createQueryBuilder("split")
+		.select()
+		.where("split.generativeTokenSecondaryId IN(:...ids)", { ids })
+		.getMany()
+	return ids.map(id => 
+		splits.filter(split => split.generativeTokenSecondaryId === id)
+	)
+}
+export const createGentkTokSecondarySplitsLoader = () => new DataLoader(batchGenTokSecondarySplits)
 
 const batchGenTokActions = async (ids) => {
 	const actions = await Action.find({

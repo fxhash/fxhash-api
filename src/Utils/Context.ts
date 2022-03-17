@@ -1,4 +1,4 @@
-import { createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
+import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokActionsLoader, createGenTokLatestActionsLoader, createGenTokLatestObjktsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from '../DataLoaders/GenTokens'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createObjktActionsLoader, createObjktGenerativesLoader, createObjktOffersLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createOfferIssuersLoader, createOfferObjktsLoader, createOffersLoader } from '../DataLoaders/Offer'
@@ -25,6 +25,10 @@ export const createContext = (req: any, res: any): RequestContext => {
 		genTokLatestObjktsLoader: createGenTokLatestObjktsLoader(),
     genTokActionsLoader: createGenTokActionsLoader(),
 		genTokLatestActionsLoader: createGenTokLatestActionsLoader(),
+		gentkTokPricingFixedLoader: createGenTokPricingFixedLoader(),
+		gentkTokPricingDutchAuctionLoader: createGenTokPricingDutchAuctionLoader(),
+		gentTokSplitsPrimaryLoader: createGentkTokPrimarySplitsLoader(),
+		gentTokSplitsSecondaryLoader: createGentkTokSecondarySplitsLoader(),
 		genTokReportsLoader: createGenTokReportsLoader(),
 		genTokMarketStatsLoader: createGenTokMarketStatsLoader(),
 		genTokObjktsCountLoader: createGenTokObjktsCountLoader(),

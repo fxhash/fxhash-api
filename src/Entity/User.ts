@@ -1,20 +1,16 @@
 import { GraphQLString } from 'graphql'
 import { GraphQLJSONObject } from 'graphql-type-json'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
-import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany } from 'typeorm'
+import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne } from 'typeorm'
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
+import { ModerationReason } from './ModerationReason'
 import { Objkt } from './Objkt'
 import { Offer } from './Offer'
 import { Report } from './Report'
+import { Split } from './Split'
 import { DateTransformer } from './Transformers/DateTransformer'
 
-
-export enum UserRole {
-  USER              = "USER",
-  MODERATOR         = "MODERATOR",
-  ADMIN             = "ADMIN",
-}
 
 export enum UserFlag {
   NONE          = "NONE",
@@ -23,16 +19,20 @@ export enum UserFlag {
   MALICIOUS     = "MALICIOUS", 
   VERIFIED      = "VERIFIED",
 }
-
-registerEnumType(UserRole, {
-  name: "UserRole", // this one is mandatory
-  description: "Role of the user", // this one is optional
-})
-
 registerEnumType(UserFlag, {
-  name: "UserFlag", // this one is mandatory
-  description: "Flag of the user", // this one is optional
+  name: "UserFlag",
+  description: "Flag of the user",
 })
+
+export enum UserType {
+  REGULAR               = "REGULAR",
+  COLLAB_CONTRACT_V1    = "COLLAB_CONTRACT_V1"
+}
+registerEnumType(UserType, {
+  name: "UserType",
+  description: "What type of entity is this user (regular, collab... etc)",
+})
+
 
 @Entity()
 @ObjectType()
@@ -44,14 +44,21 @@ export class User extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   name?: string
- 
-  @Field(() => UserRole)
+
+  @Field(() => UserType)
   @Column({
     type: "enum",
-    enum: UserRole,
-    default: UserRole.USER
+    enum: UserType,
+    default: UserType.REGULAR,
   })
-  role: UserRole
+  type: UserType
+
+  @Column({
+    type: "smallint",
+    array: true,
+    default: [],
+  })
+  authorizations: number[]
   
   @Field(() => UserFlag)
   @Column({
@@ -60,6 +67,11 @@ export class User extends BaseEntity {
     default: UserFlag.NONE
   })
   flag: UserFlag
+
+  @ManyToOne(() => ModerationReason, reason => reason.users, { 
+    nullable: true 
+  })
+  moderationReason?: ModerationReason
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Column({ type: "jsonb", nullable: true })
@@ -94,6 +106,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Report, report => report.user)
   reports: Report[]
+
+  @OneToMany(() => Split, split => split.user)
+  splits: Split[]
 
   @Field()
   @Column({ type: "timestamptz", transformer: DateTransformer })

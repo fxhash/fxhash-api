@@ -7,6 +7,10 @@ import { Offer } from "../Entity/Offer"
 import { User } from "../Entity/User"
 
 
+/**
+ * Given a list of user IDs, resolves with an array of Users matching those
+ * IDs
+ */
 const batchUsers = async (userIds) => {
 	const users = await User.find({
 		where: {

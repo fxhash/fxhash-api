@@ -1,6 +1,7 @@
 import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, BaseEntity, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm'
 import { GenerativeToken } from './GenerativeToken'
+import { ModerationReason } from './ModerationReason'
 import { DateTransformer } from './Transformers/DateTransformer'
 import { User } from './User'
 
@@ -15,14 +16,20 @@ export class Report extends BaseEntity {
   @ManyToOne(() => User, user => user.reports)
   user?: User
 
-  @RelationId((report: Report) => report.user)
+  @Column()
 	userId: number
 
-  @ManyToOne(() => GenerativeToken, token => token.actions, { onDelete: "CASCADE" })
+  @ManyToOne(() => GenerativeToken, token => token.actions)
   token?: GenerativeToken
 
-  @RelationId((report: Report) => report.token)
+  @Column()
 	tokenId: number
+
+  @ManyToOne(() => ModerationReason, reason => reason.reports, { 
+    onDelete: "CASCADE",
+    nullable: true,
+  })
+  reason?: ModerationReason|null
 
   @Field()
   @Column({ type: 'timestamptz', transformer: DateTransformer })
