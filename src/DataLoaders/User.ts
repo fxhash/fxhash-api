@@ -4,7 +4,8 @@ import { Action } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
-import { User } from "../Entity/User"
+import { User, UserType } from "../Entity/User"
+import { Collaboration } from "../Entity/Collaboration"
 
 
 /**
@@ -21,6 +22,50 @@ const batchUsers = async (userIds) => {
 	return userIds.map(id => users.find(user => user.id === id))
 }
 export const createUsersLoader = () => new DataLoader(batchUsers)
+
+/**
+ * Given a list of user IDs, returns a list of Users of type 
+ * UserType.COLLAB_CONTRACT_V1 which are contracts in which the given users
+ * are part of.
+ */
+const batchUsersCollabContracts = async (ids) => {
+	const collabs = await Collaboration.createQueryBuilder("collab")
+		.select()
+		.leftJoinAndSelect("collab.collaborationContract", "contract")
+		.where("collab.collaboratorId IN(:...ids)", { ids })
+		.getMany()
+
+	return ids.map(id => 
+		collabs
+			.filter(collab => collab.collaboratorId === id)
+			.map(collab => collab.collaborationContract)
+	)
+}
+export const createUsersCollabContractsLoader = () => new DataLoader(
+	batchUsersCollabContracts
+)
+
+/**
+ * Given a list of user IDs, returns a list of Users of type
+ * UserType.REGULAR which are collaborators in the provided list of 
+ * collaboration contracts/
+ */
+const batchCollabCollaborators = async (ids) => {
+	const collabs = await Collaboration.createQueryBuilder("collab")
+		.select()
+		.leftJoinAndSelect("collab.collaborator", "user")
+		.where("collab.collaborationContractId IN(:...ids)", { ids })
+		.getMany()
+
+	return ids.map(id => 
+		collabs
+			.filter(collab => collab.collaborationContractId === id)
+			.map(collab => collab.collaborator)
+	)
+}
+export const createCollabCollaboratorsLoader = () => new DataLoader(
+	batchCollabCollaborators
+)
 
 const batchUsersObjkt = async (userIds) => {
 	const objkts = await Objkt.find({

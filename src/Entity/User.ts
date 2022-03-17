@@ -3,6 +3,7 @@ import { GraphQLJSONObject } from 'graphql-type-json'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne } from 'typeorm'
 import { Action } from './Action'
+import { Collaboration } from './Collaboration'
 import { GenerativeToken } from './GenerativeToken'
 import { Listing } from './Listing'
 import { ModerationReason } from './ModerationReason'
@@ -52,6 +53,16 @@ export class User extends BaseEntity {
     default: UserType.REGULAR,
   })
   type: UserType
+
+  // Collaboration-related fields
+  // as a COLLABORATION_CONTRACT, a User will have a list of collaborators
+  @OneToMany(() => Collaboration, collab => collab.collaborator)
+  collaborators: Collaboration[]
+  
+  // as a REGULAR_USER, which is part of any number of collaboration contracts,
+  // a User will have a list of collaboration contracts
+  @OneToMany(() => Collaboration, collab => collab.collaborationContract)
+  collaborationContracts: Collaboration[]
 
   @Column({
     type: "smallint",

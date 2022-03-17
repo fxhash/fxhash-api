@@ -4,7 +4,7 @@ import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
-  createUsersListingsLoader, createUsersTargetActionssLoader } from '../DataLoaders/User'
+  createUsersListingsLoader, createUsersTargetActionssLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader } from '../DataLoaders/User'
 import { RequestContext } from '../types/RequestContext'
 
 export const createContext = (req: any, res: any): RequestContext => {
@@ -19,6 +19,8 @@ export const createContext = (req: any, res: any): RequestContext => {
     userListingsLoader: createUsersListingsLoader(),
     userIssuerActionsLoader: createUsersIssuerActionssLoader(),
 	  userTargetActionsLoader: createUsersTargetActionssLoader(),
+		userCollabContractsLoader: createUsersCollabContractsLoader(),
+		collabCollaboratorsLoader: createCollabCollaboratorsLoader(),
 
     // GENERATIVE TOKEN loaders
     genTokLoader: createGenTokLoader(),

@@ -4,12 +4,13 @@ import { Action } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
-import { User } from "../Entity/User"
+import { User, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { userCollectionSortTableLevels } from "../Utils/Sort"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { UserCollectionSortInput } from "./Arguments/Sort"
 import { applyUserCollectionFIltersToQuery } from "./Filters/User"
+import { Collaboration } from "../Entity/Collaboration"
 
 
 @Resolver(User)
@@ -161,6 +162,34 @@ export class UserResolver {
 		query = query.take(take)
 
 		return query.getMany()
+	}
+
+	@FieldResolver(returns => [User], {
+		nullable: true,
+		description: "If the user is a regular user account, returns its list of collaboration contracts created on the fxhash collaboration contract factory.",
+	})
+	async collaborationContracts(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		// if the entity is a collaboration contract, it cannot have collab contracts
+		if (user.type === UserType.COLLAB_CONTRACT_V1) return null
+		if (user.collaborationContracts) return user.collaborationContracts
+		return ctx.userCollabContractsLoader.load(user.id)
+	}
+
+	@FieldResolver(returns => [User], {
+		nullable: true,
+		description: "If the user is a collaboration contract, this endpoint will return the list of collaborators on the contract.",
+	})
+	async collaborators(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		// if the entity is a regular user, it cannot have collaborators directly
+		if (user.type === UserType.REGULAR) return null
+		if (user.collaborators) return user.collaborators
+		return ctx.collabCollaboratorsLoader.load(user.id)
 	}
 
 	@FieldResolver(returns => [Action])

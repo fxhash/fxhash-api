@@ -5,7 +5,7 @@ import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersListingsLoader, createUsersIssuerActionssLoader, 
-  createUsersTargetActionssLoader, createUsersLoader } from "../DataLoaders/User"
+  createUsersTargetActionssLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader } from "../DataLoaders/User"
 
 
 
@@ -19,6 +19,8 @@ export interface RequestContext extends ExpressRequest {
 	userListingsLoader: ReturnType<typeof createUsersListingsLoader>,
 	userIssuerActionsLoader: ReturnType<typeof createUsersIssuerActionssLoader>,
 	userTargetActionsLoader: ReturnType<typeof createUsersTargetActionssLoader>,
+	userCollabContractsLoader: ReturnType<typeof createUsersCollabContractsLoader>,
+	collabCollaboratorsLoader: ReturnType<typeof createCollabCollaboratorsLoader>,
 
   // GENERATIVE TOKEN loaders
   genTokLoader: ReturnType<typeof createGenTokLoader>,
