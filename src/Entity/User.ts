@@ -34,19 +34,36 @@ registerEnumType(UserType, {
   description: "What type of entity is this user (regular, collab... etc)",
 })
 
+export enum UserAuthorization {
+  TOKEN_MODERATION          = "TOKEN_MODERATION",
+  USER_MODERATION           = "USER_MODERATION",
+  GOVERNANCE_MODERATION     = "GOVERNANCE_MODERATION",
+}
+registerEnumType(UserAuthorization, {
+  name: "UserAuthorization",
+  description: "Some users have granular authorizations to perform certain moderation actions on the contracts."
+})
+
 
 @Entity()
 @ObjectType()
 export class User extends BaseEntity {
-  @Field()
+  @Field({
+    description: "The unique identifier (tezos address) of the user."
+  })
   @PrimaryColumn()
   id: string
 
-  @Field({ nullable: true })
+  @Field({ 
+    nullable: true,
+    description: "The name of the user, as it was set in the fxhash user register contract by the user."
+  })
   @Column({ nullable: true })
   name?: string
 
-  @Field(() => UserType)
+  @Field(() => UserType, {
+    description: "The type of account. The User entity is a polymorphic entity which both support regular users and \"contract\" users. For instance, if this field returns `COLLAB_CONTRACT_V1`, it means that the account in question is a collaboration contract controlled by the users found in the `collaborators` field."
+  })
   @Column({
     type: "enum",
     enum: UserType,
@@ -71,7 +88,9 @@ export class User extends BaseEntity {
   })
   authorizations: number[]
   
-  @Field(() => UserFlag)
+  @Field(() => UserFlag, {
+    description: "If any, the flag that was set by the moderation team. Verified users will have a `VERIFIED` flag."
+  })
   @Column({
     type: "enum",
     enum: UserFlag,
@@ -87,19 +106,31 @@ export class User extends BaseEntity {
   @Column()
   moderationReasonId?: number
 
-  @Field(() => GraphQLJSONObject, { nullable: true })
+  @Field(() => GraphQLJSONObject, { 
+    nullable: true,
+    description: "The metadata of the user in JSON, extracted from IPFS as they saved it on the fxhash user register contract. *Please use individual fields if possible as it makes cheaper responses*."
+  })
   @Column({ type: "jsonb", nullable: true })
   metadata?: Record<string, any>
 
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: "The IPFS uri pointing to the given user metadata."
+  })
   @Column({ nullable: true })
   metadataUri: string
 
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: "The description of the user, as set in the IPFS json metadata associated to the user on the fxhash user register contract."
+  })
   @Column({ nullable: true })
   description: string
 
-  @Field({ nullable: true })
+  @Field({ 
+    nullable: true,
+    description: "The IPFS uri pointing to the avatar of the user as set in the json metadata associated to the user on the fxhash user register contract."
+  })
   @Column({ nullable: true })
   avatarUri: string
 
@@ -124,11 +155,12 @@ export class User extends BaseEntity {
   @OneToMany(() => Split, split => split.user)
   splits: Split[]
 
-  @Field()
+  @Field({
+    description: "The time at which this user first interacted with one of the indexed fxhash contracts."
+  })
   @Column({ type: "timestamptz", transformer: DateTransformer })
   createdAt: string
 
-  @Field()
   @Column({ type: "timestamptz", transformer: DateTransformer })
   updatedAt: string
 }

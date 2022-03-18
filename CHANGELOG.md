@@ -51,3 +51,64 @@ It was removed as the feature is covered by `generativeToken { objkts }` with pa
 ## Removed `generativeToken { latestActions }`
 
 It was removed as the feature is covered by `generativeToken { actions }` with pagination.
+
+
+## Collaboration contracts
+
+The API now supports the collaboration contracts. Since on the blockchain, contracts have addresses in a similar fashion than users do, they share a lot of common properties. The `User` entity is now a **polymorphic** entity which support all types of accounts. A new `{ type }` field was added to the user entity, and for now it can take one of 2 values:
+
+* `REGULAR`: a regular user
+* `COLLAB_CONTRACT_V1`: a collaboration contract
+
+When using the API, and especially when you want to display the author(s) of a token, it is advised to not only query the author as you used to but also query the `type` and `collaborators` fields:
+
+```gql
+generativeTokens {
+  id
+  name
+  author {
+    id
+    type
+    collaborators {
+      id
+      name
+    }
+  }
+}
+```
+
+Which can, for instance, output something like this:
+
+```json
+[
+  {
+    "id": 5510,
+    "name": "Ethereal Microcosm",
+    "author": {
+      "collaborators": [
+        {
+          "id": "tz1gbxFTPotmdLwCJ766md8XHVT9csB8Rzuz",
+          "name": null
+        },
+        {
+          "id": "tz1hi1BA8bW1gTqp3JSQmHbEhCy4zH8y9fMq",
+          "name": "ciphrd?"
+        }
+      ],
+      "type": "COLLAB_CONTRACT_V1",
+      "id": "KT1KWxjcUhKNNtiMhmKP35DsTjfv3r2XY4XR"
+    }
+  },
+  {
+    "id": 5499,
+    "name": "GPU !!",
+    "author": {
+      "collaborators": null,
+      "type": "REGULAR",
+      "id": "tz1gbxFTPotmdLwCJ766md8XHVT9csB8Rzuz"
+    }
+  }
+]
+```
+
+This way, you ensure that regardless of who authored the Generative Token, you can get back to all the authors by testing the `type` property, and eventually looping through the collaborators.

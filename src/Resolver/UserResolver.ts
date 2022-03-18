@@ -4,19 +4,29 @@ import { Action } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
-import { User, UserType } from "../Entity/User"
+import { User, UserAuthorization, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { userCollectionSortTableLevels } from "../Utils/Sort"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { UserCollectionSortInput } from "./Arguments/Sort"
 import { applyUserCollectionFIltersToQuery } from "./Filters/User"
 import { Collaboration } from "../Entity/Collaboration"
+import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
 
 
 @Resolver(User)
 export class UserResolver {
+	@FieldResolver(returns => [UserAuthorization], {
+		description: "Users can have granular moderation rights to certain features on the fxhash contracts. This field outputs a list of those authorizations in a human readable way.",
+	})
+	authorizations(
+		@Root() user: User,
+	) {
+		return mapUserAuthorizationIdsToEnum(user.authorizations)
+	}
+
   @FieldResolver(returns => [Objkt], { 
-		description: "Explore the gentks owned by users" 
+		description: "The gentks owned by the user. Can be used to explore their collection using various filters." 
 	})
 	async objkts(
 		@Root() user: User,
@@ -40,10 +50,8 @@ export class UserResolver {
 		// also requested most of the time by the API calls
 		query = query.leftJoinAndSelect("objkt.issuer", "issuer")
 
-		
 		// FILTERING
 		query = await applyUserCollectionFIltersToQuery(query, filters, sort)
-
 
 		// SORTING
 
@@ -115,25 +123,26 @@ export class UserResolver {
 		return query.getMany()
 	}
 
-  @FieldResolver(returns => [GenerativeToken])
-	generativeTokens(
+  @FieldResolver(returns => [GenerativeToken], {
+		description: "Returns the tokens authored by the user, either directly or as a collaboration through a collaboration contract."
+	})
+	async generativeTokens(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
 		@Args() { skip, take }: PaginationArgs
 	) {
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return GenerativeToken.find({
-			where: {
-				author: user.id,
-				flag: Not(GenTokFlag.HIDDEN)
-			},
-			order: {
-				id: "DESC"
-			},
-			skip,
-			take,
-			// cache: 10000
-		})
+
+		return GenerativeToken.createQueryBuilder("token")
+			.select()
+			.leftJoinAndSelect("token.author", "author")
+			.leftJoinAndSelect("author.collaborationContracts", "collabs")
+			.leftJoinAndSelect("collabs.collaborator", "collaborator")
+			.where("token.authorId = :userId", { userId: user.id })
+			.orWhere("collaborator.id = :userId", { userId: user.id })
+			.skip(skip)
+			.take(take)
+			.getMany()
 	}
 
   @FieldResolver(returns => [Listing], {
@@ -246,7 +255,9 @@ export class UserResolver {
 		return ctx.userTargetActionsLoader.load(user.id)
 	}
   
-  @Query(returns => [User])
+  @Query(returns => [User], {
+		description: "Some unfiltered exploration of the users, with pagination."
+	})
 	users(
 		@Args() { skip, take }: PaginationArgs
 	): Promise<User[]> {
@@ -261,7 +272,10 @@ export class UserResolver {
 		})
 	}
 
-	@Query(returns => User, { nullable: true })
+	@Query(returns => User, {
+		nullable: true,
+		description: "Find a user by it's ID (tezos address) or by it's name as they set it on the fxhash user register."
+	})
 	async user(
 		@Arg('id', { nullable: true }) id: string,
 		@Arg('name', { nullable: true }) name: string,
