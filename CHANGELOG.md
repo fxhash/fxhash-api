@@ -18,26 +18,25 @@ CHANGELOG
 - Action
 AuctionBidTable
 - GenerativeToken
-IpfsCid
-MarketSt
-Objkt
-PricingFixed
+- IpfsCid
+- MarketStats
+- MarketStatsHistory
+- Objkt
+- PricingFixed
 Transaction
 Auction
 - Collaboration
-GentkAssign
-Listing
-Metric
+- GentkAssign
+- Listing
 Offer
-Report
-User
+- Report
+- User
 AuctionBid
 CollectionOffer
-IndexingCursor
-MarketSt
-ModerationReason
-PricingDutchAuction
-Split
+- IndexingCursor
+- ModerationReason
+- PricingDutchAuction
+- Split
 
 
 # Changelog

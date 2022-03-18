@@ -118,7 +118,12 @@ export class UserResolver {
 			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
 
 		// apply the filters
-		query = await applyUserCollectionFIltersToQuery(query, filters, undefined, true)
+		query = await applyUserCollectionFIltersToQuery(
+			query, 
+			filters, 
+			undefined, 
+			true
+		)
 		
 		return query.getMany()
 	}

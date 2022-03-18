@@ -6,6 +6,9 @@ import { Objkt } from "../Entity/Objkt"
 import { Split } from "../Entity/Split"
 
 
+/**
+ * Given a list of objkt IDs, outputs a list of Objkt entities
+ */
 const batchObjkts = async (ids) => {
 	const objkts = await Objkt.find({
 		where: {
@@ -17,6 +20,10 @@ const batchObjkts = async (ids) => {
 }
 export const createObjktsLoader = () => new DataLoader(batchObjkts)
 
+/**
+ * Given a list of objkt IDs, outputs a list of a list of actions associated
+ * to each objkt
+ */
 const batchObjktActions = async (ids) => {
 	const actions = await Action.find({
     relations: [ "objkt" ],
@@ -31,20 +38,6 @@ const batchObjktActions = async (ids) => {
 	return ids.map((id: number) => actions.filter(action => action.objkt?.id === id))
 }
 export const createObjktActionsLoader = () => new DataLoader(batchObjktActions)
-
-/**
- * Given a list of objkt IDs, returns a list of owners
- */
-const batchObjktOwners = async (ids: any) => {
-	const objkts = await Objkt.createQueryBuilder("objkt")
-		.select("objkt.id")
-		.whereInIds(ids)
-		.leftJoinAndSelect("objkt.owner", "user")
-		.getMany()
-
-	return ids.map(id => objkts.find(o => o.id === id)?.owner)
-}
-export const createObjktOwnersLoader = () => new DataLoader(batchObjktOwners)
 
 /**
  * Given a list of Generative Token IDs, outputs their splits on the
@@ -95,17 +88,3 @@ const batchObjktActiveListings = async (ids: any) => {
 export const createObjktActiveListingsLoader = () => new DataLoader(
 	batchObjktActiveListings
 )
-
-/**
- * Given a list of objkt IDs, returns a list of their generative tokens
- */
- const batchObjktGeneratives = async (ids: any) => {
-	const objkts = await Objkt.createQueryBuilder("objkt")
-		.select("objkt.id")
-		.whereInIds(ids)
-		.leftJoinAndSelect("objkt.issuer", "issuer")
-		.getMany()
-
-	return ids.map(id => objkts.find(o => o.id === id)?.issuer)
-}
-export const createObjktGenerativesLoader = () => new DataLoader(batchObjktGeneratives)

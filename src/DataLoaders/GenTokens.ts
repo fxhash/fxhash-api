@@ -1,6 +1,5 @@
 import DataLoader from "dataloader"
 import { Brackets, In } from "typeorm"
-import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
@@ -11,6 +10,11 @@ import { Report } from "../Entity/Report"
 import { Split } from "../Entity/Split"
 import { processGentkFeatureFilters } from "../Utils/Filters"
 
+
+/**
+ * Given a list of Generative Token IDs, outputs the corresponding Generative
+ * Tokens.
+ */
 const batchGenTokens = async (ids) => {
 	const tokens = await GenerativeToken.find({
 		where: {
@@ -107,23 +111,6 @@ const batchGenTokObjkt = async (genIds) => {
 }
 export const createGenTokObjktsLoader = () => new DataLoader(batchGenTokObjkt)
 
-/**
- * Given a list of generative tokens, outputs for each token a list of their
- * latest objkts minted
- */
-const batchGenTokLatestObjkt = async (genIds) => {
-	const objkts = await Objkt.createQueryBuilder("objkt")
-		.select()
-		.where("objkt.issuerId IN (:...genIds)", { genIds })
-		.orderBy("id", "DESC")
-		.take(6)
-		// .cache(10000)
-		.getMany()
-
-	return genIds.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
-}
-export const createGenTokLatestObjktsLoader = () => new DataLoader(batchGenTokLatestObjkt)
-
 // Get the number of objkts the token has
 const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
 	const counts = await Objkt.createQueryBuilder("objkt")
@@ -207,21 +194,6 @@ export const createGentkTokSecondarySplitsLoader = () => new DataLoader(
 	batchGenTokSecondarySplits
 )
 
-const batchGenTokActions = async (ids) => {
-	const actions = await Action.find({
-    relations: [ "token" ],
-		where: {
-			token: In(ids)
-		},
-    order: {
-      createdAt: "DESC"
-    },
-		// cache: 10000
-	})
-	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
-}
-export const createGenTokActionsLoader = () => new DataLoader(batchGenTokActions)
-
 const batchGenTokReports = async (genIds) => {
 	const reports = await Report.find({
 		where: {
@@ -235,22 +207,6 @@ const batchGenTokReports = async (genIds) => {
 	return genIds.map((id: number) => reports.filter(report => report.tokenId === id))
 }
 export const createGenTokReportsLoader = () => new DataLoader(batchGenTokReports)
-
-const batchGenTokLatestActions = async (ids) => {
-	const actions = await Action.find({
-    relations: [ "token" ],
-		where: {
-			token: In(ids)
-		},
-    order: {
-      createdAt: "DESC"
-    },
-		take: 20,
-		// cache: 10000
-	})
-	return ids.map((id: number) => actions.filter(action => action.token?.id === id))
-}
-export const createGenTokLatestActionsLoader = () => new DataLoader(batchGenTokLatestActions)
 
 /**
  * Given a list of Generator ids, outputs a list of pre-computed marketplace stats
@@ -292,7 +248,9 @@ const batchGenTokMarketStatsHistory = async (params): Promise<MarketStatsHistory
 
 	return ids.map(id => hists.filter(hist => hist.tokenId === id))
 }
-export const createGenTokMarketStatsHistoryLoader = () => new DataLoader(batchGenTokMarketStatsHistory)
+export const createGenTokMarketStatsHistoryLoader = () => new DataLoader(
+	batchGenTokMarketStatsHistory
+)
 
 
 /**
@@ -365,4 +323,6 @@ const batchGenTokObjktFeatures = async (ids) => {
 
 	return featuresByIds
 }
-export const createGenTokObjktFeaturesLoader = () => new DataLoader(batchGenTokObjktFeatures)
+export const createGenTokObjktFeaturesLoader = () => new DataLoader(
+	batchGenTokObjktFeatures
+)
