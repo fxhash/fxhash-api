@@ -10,22 +10,26 @@ import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 
 @Resolver(Objkt)
 export class ObjktResolver {
-  @FieldResolver(returns => User)
+  @FieldResolver(returns => User, {
+		description: "The current owner of this gentk. The fxhash marketplace contracts are ignored when there's a transfer of ownerhsip to their contracts."
+	})
 	owner(
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
 	) {
 		if (objkt.owner) return objkt.owner
-		return ctx.objktOwnersLoader.load(objkt.id)
+		return ctx.usersLoader.load(objkt.ownerId)
 	}
 
-	@FieldResolver(returns => GenerativeToken)
+	@FieldResolver(returns => GenerativeToken, {
+		description: "The generative token from which this gentk was generated."
+	})
 	issuer(
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
 	) {
 		if (objkt.issuer) return objkt.issuer
-		return ctx.objktGenerativesLoader.load(objkt.id)
+		return ctx.genTokLoader.load(objkt.issuerId)
 	}
 
 	@FieldResolver(returns => [Listing], { 
@@ -51,7 +55,9 @@ export class ObjktResolver {
 		return ctx.objktActiveListingsLoader.load(objkt.id)
 	}
 
-	@FieldResolver(returns => [Action])
+	@FieldResolver(returns => [Action], {
+		description: "The full history of the actions related to the gentk. **Note: this is not optimized for being run on multiple gentks at once, please run it only on endpoints who fetch a single gentk**."
+	})
 	actions(
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
@@ -60,7 +66,9 @@ export class ObjktResolver {
 		return ctx.objktActionsLoader.load(objkt.id)
 	}
   
-  @Query(returns => [Objkt])
+  @Query(returns => [Objkt], {
+		description: "Generic paginated endpoint to query the gentks. Filtrable."
+	})
 	objkts(
 		@Args() { skip, take }: PaginationArgs,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any
@@ -77,7 +85,10 @@ export class ObjktResolver {
 		})
 	}
 
-	@Query(returns => Objkt, { nullable: true })
+	@Query(returns => Objkt, {
+		nullable: true,
+		description: "Endpoint to query a single gentk, using different trivial search criteria (id, hash or slug)."
+	})
 	async objkt(
 		@Arg('id', { nullable: true }) id: number,
 		@Arg('hash', { nullable: true }) hash: string,

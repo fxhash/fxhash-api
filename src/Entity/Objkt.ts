@@ -42,6 +42,9 @@ export class Objkt extends BaseEntity {
   @ManyToOne(() => User, user => user.objkts)
   owner?: User|null
 
+  @Column({ nullable: true })
+  ownerId: number
+
   @Field({ 
     nullable: true,
     description: "The gentk name, derived from the Generative Token and the iteration number: `{generative-token-name} #{iteration-number}`"

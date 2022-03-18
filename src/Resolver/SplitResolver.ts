@@ -5,7 +5,9 @@ import { RequestContext } from "../types/RequestContext"
 
 @Resolver(Split)
 export class SplitResolver {
-  @FieldResolver(returns => User)
+  @FieldResolver(returns => User, {
+    description: "The user associated with the split."
+  })
   async user(
     @Root() split: Split,
     @Ctx() ctx: RequestContext,
