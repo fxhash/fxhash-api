@@ -148,6 +148,9 @@ export class User extends BaseEntity {
   @OneToMany(() => Objkt, objkt => objkt.owner)
   objkts: Objkt[]
 
+  @OneToMany(() => Objkt, objkt => objkt.minter)
+  objktsMinted: Objkt[]
+
   @OneToMany(() => Listing, listing => listing.issuer)
   listings: Listing[]
 

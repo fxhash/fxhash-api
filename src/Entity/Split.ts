@@ -37,17 +37,16 @@ export class Split extends BaseEntity {
   generativeTokenPrimaryId: number
   
   @Index()
-  @ManyToOne(() => GenerativeToken, token => token.splitsSecondary, {
-    onDelete: "CASCADE",
-  })
+  @ManyToOne(() => GenerativeToken, token => token.splitsSecondary)
   generativeTokenSecondary: GenerativeToken
 
   @Column()
   generativeTokenSecondaryId: number
 
   @Index()
-  @ManyToOne(() => Objkt, token => token.royaltiesSplit, {
-    onDelete: "CASCADE",
-  })
+  @ManyToOne(() => Objkt, token => token.royaltiesSplit)
   objkt: Objkt
+
+  @Column()
+  objktId: number
 }

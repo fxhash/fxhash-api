@@ -3,7 +3,7 @@ import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader,
 import { createListingIssuersLoader, createListingObjktsLoader, createListingsLoader } from "../DataLoaders/Listing"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
-import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from "../DataLoaders/Objkt"
+import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createUsersObjktLoader, createUsersGenTokLoader, createUsersListingsLoader, createUsersIssuerActionssLoader, 
   createUsersTargetActionssLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader } from "../DataLoaders/User"
 
@@ -48,6 +48,7 @@ export interface RequestContext extends ExpressRequest {
   objktListingsLoader: ReturnType<typeof createObjktListingsLoader>,
   objktActiveListingsLoader: ReturnType<typeof createObjktActiveListingsLoader>,
   objktGenerativesLoader: ReturnType<typeof createObjktGenerativesLoader>,
+  objktRoyaltiesSplitsLoader: ReturnType<typeof createObjktRoyaltiesSplitsLoader>,
 
 	// MARKET STATS loaders
 	marketStatsGenTokLoader: ReturnType<typeof createMarketStatsGenTokLoader>,

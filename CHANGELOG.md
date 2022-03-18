@@ -13,6 +13,32 @@ CHANGELOG
 * optimize where it's possible
 * test properly
 
+# TODO
+
+- Action
+AuctionBidTable
+GenerativeToken
+IpfsCid
+MarketSt
+Objkt
+PricingFixed
+Transaction
+Auction
+Collaboration
+GentkAssign
+Listing
+Metric
+Offer
+Report
+User
+AuctionBid
+CollectionOffer
+IndexingCursor
+MarketSt
+ModerationReason
+PricingDutchAuction
+Split
+
 
 # Changelog
 

@@ -45,6 +45,12 @@ export class Objkt extends BaseEntity {
   @Column({ nullable: true })
   ownerId: number
 
+  @ManyToOne(() => User, user => user.objktsMinted)
+  minter?: User|null
+
+  @Column()
+  minterId: number
+
   @Field({ 
     nullable: true,
     description: "The gentk name, derived from the Generative Token and the iteration number: `{generative-token-name} #{iteration-number}`"
@@ -125,6 +131,12 @@ export class Objkt extends BaseEntity {
 
   @OneToMany(() => Split, split => split.objkt)
   royaltiesSplit: Split[]
+
+  @Field({
+    description: "The contract version on which this gentk NFT is stored. (0 = beta contract, 1 = release contract)"
+  })
+  @Column({ default: 0 })
+  version: number = 0
 
   @OneToMany(() => Listing, listing => listing.objkt)
   listings?: Listing[]

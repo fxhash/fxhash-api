@@ -7,6 +7,7 @@ import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
+import { Split } from "../Entity/Split"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -21,6 +22,17 @@ export class ObjktResolver {
 		return ctx.usersLoader.load(objkt.ownerId)
 	}
 
+	@FieldResolver(returns => User, {
+		description: "The user who originally minted this gentk."
+	})
+	minter(
+		@Root() objkt: Objkt,
+		@Ctx() ctx: RequestContext
+	) {
+		if (objkt.minter) return objkt.minter
+		return ctx.usersLoader.load(objkt.minterId)
+	}
+
 	@FieldResolver(returns => GenerativeToken, {
 		description: "The generative token from which this gentk was generated."
 	})
@@ -30,6 +42,17 @@ export class ObjktResolver {
 	) {
 		if (objkt.issuer) return objkt.issuer
 		return ctx.genTokLoader.load(objkt.issuerId)
+	}
+
+	@FieldResolver(returns => [Split], {
+		description: "A list of the royalties split for this gentk."
+	})
+	royaltiesSplit(
+		@Root() objkt: Objkt,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (objkt.royaltiesSplit) return objkt.royaltiesSplit
+		return ctx.objktRoyaltiesSplitsLoader.load(objkt.id)
 	}
 
 	@FieldResolver(returns => [Listing], { 

@@ -186,7 +186,9 @@ const batchGenTokPrimarySplits = async (ids) => {
 		splits.filter(split => split.generativeTokenPrimaryId === id)
 	)
 }
-export const createGentkTokPrimarySplitsLoader = () => new DataLoader(batchGenTokPrimarySplits)
+export const createGentkTokPrimarySplitsLoader = () => new DataLoader(
+	batchGenTokPrimarySplits
+)
 
 /**
  * Given a list of Generative Token IDs, outputs their splits on the 
@@ -201,7 +203,9 @@ export const createGentkTokPrimarySplitsLoader = () => new DataLoader(batchGenTo
 		splits.filter(split => split.generativeTokenSecondaryId === id)
 	)
 }
-export const createGentkTokSecondarySplitsLoader = () => new DataLoader(batchGenTokSecondarySplits)
+export const createGentkTokSecondarySplitsLoader = () => new DataLoader(
+	batchGenTokSecondarySplits
+)
 
 const batchGenTokActions = async (ids) => {
 	const actions = await Action.find({

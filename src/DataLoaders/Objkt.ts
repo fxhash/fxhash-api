@@ -3,6 +3,7 @@ import { In } from "typeorm"
 import { Action } from "../Entity/Action"
 import { Listing } from "../Entity/Listing"
 import { Objkt } from "../Entity/Objkt"
+import { Split } from "../Entity/Split"
 
 
 const batchObjkts = async (ids) => {
@@ -44,6 +45,23 @@ const batchObjktOwners = async (ids: any) => {
 	return ids.map(id => objkts.find(o => o.id === id)?.owner)
 }
 export const createObjktOwnersLoader = () => new DataLoader(batchObjktOwners)
+
+/**
+ * Given a list of Generative Token IDs, outputs their splits on the
+ * **primary** market.
+ */
+ const batchObjktRoyaltiesSplits = async (ids) => {
+	const splits = await Split.createQueryBuilder("split")
+		.select()
+		.where("split.objktId IN(:...ids)", { ids })
+		.getMany()
+	return ids.map(id => 
+		splits.filter(split => split.objktId === id)
+	)
+}
+export const createObjktRoyaltiesSplitsLoader = () => new DataLoader(
+	batchObjktRoyaltiesSplits
+)
 
 /**
  * Given a list of objkt IDs, returns a list of offers

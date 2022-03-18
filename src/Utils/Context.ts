@@ -2,7 +2,7 @@ import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader,
 import { createListingIssuersLoader, createListingObjktsLoader, createListingsLoader } from '../DataLoaders/Listing'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
-import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktsLoader } from '../DataLoaders/Objkt'
+import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktGenerativesLoader, createObjktListingsLoader, createObjktOwnersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createUsersGenTokLoader, createUsersIssuerActionssLoader, createUsersLoader, createUsersObjktLoader, 
   createUsersListingsLoader, createUsersTargetActionssLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader } from '../DataLoaders/User'
 import { RequestContext } from '../types/RequestContext'
@@ -48,6 +48,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     objktListingsLoader: createObjktListingsLoader(),
 		objktActiveListingsLoader: createObjktActiveListingsLoader(),
     objktGenerativesLoader: createObjktGenerativesLoader(),
+		objktRoyaltiesSplitsLoader: createObjktRoyaltiesSplitsLoader(),
 
 		// MARKET STATS loaders
 		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
