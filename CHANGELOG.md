@@ -17,14 +17,14 @@ CHANGELOG
 
 - Action
 AuctionBidTable
-GenerativeToken
+- GenerativeToken
 IpfsCid
 MarketSt
 Objkt
 PricingFixed
 Transaction
 Auction
-Collaboration
+- Collaboration
 GentkAssign
 Listing
 Metric

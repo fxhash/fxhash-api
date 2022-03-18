@@ -1,3 +1,4 @@
+import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity } from 'typeorm'
 
 /**
@@ -7,13 +8,22 @@ import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity } from 'typ
  * right order.
  */
 @Entity()
+@ObjectType({
+  description: "A cursor which represents the current position of the indexer (and so the state of the database)"
+})
 export class IndexingCursor extends BaseEntity {
   @PrimaryColumn()
   groupId: string
 
+  @Field({
+    description: "Block level"
+  })
   @Column({ type: "bigint", default: 0 })
   level: number
   
+  @Field({
+    description: "Operation index"
+  })
   @Column({ type: "bigint", default: 0 })
   id: number
 }
