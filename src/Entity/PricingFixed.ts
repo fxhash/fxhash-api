@@ -4,7 +4,9 @@ import { GenerativeToken } from "./GenerativeToken"
 
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "Describes the generic **Fixed Pricing** strategy which can be used by authors for their Generative Tokens."
+})
 export class PricingFixed extends BaseEntity {
   @Column({ primary: true })
   tokenId: number

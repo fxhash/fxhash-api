@@ -5,7 +5,9 @@ import { Objkt } from './Objkt'
 import { User } from './User'
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "A Listing on the fxhash secondary market. A polymorphic entity which encapsulates both the listings made on V1 and V2 marketplace contracts."
+})
 export class Listing extends BaseEntity {
   @Field({
     description: "The ID of the listing, corresponds to the ID on the blockchain."

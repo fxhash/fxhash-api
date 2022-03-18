@@ -8,7 +8,9 @@ import { StatsGenTokSortInput } from "./Arguments/Sort"
  * an endpoint that facilitates access to this data through some fiels of the following
  * object
  */
-@ObjectType()
+@ObjectType({
+  description: "An abstraction over the market stats to query the data in a more elegant fashion."
+})
 class MarketStatsData {
 }
 

@@ -8,7 +8,9 @@ import { User } from './User'
  * A Split defines a % of the shares owned by a user 
  */
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "Describes a generic split (ie: how much shares belong to a given user in any context)."
+})
 export class Split extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number

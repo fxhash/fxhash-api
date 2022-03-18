@@ -7,7 +7,9 @@ import { User } from './User'
 
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "Any fxhash user can report any Generative Token, and such report is represented by this entity."
+})
 export class Report extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn("uuid")

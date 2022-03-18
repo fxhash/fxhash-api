@@ -4,7 +4,9 @@ import { GenerativeToken } from './GenerativeToken'
 import { DateTransformer } from './Transformers/DateTransformer'
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "The market stats for **Generative Tokens**. Computed periodically by a side-worker."
+})
 export class MarketStats extends BaseEntity {
   @PrimaryColumn()
   tokenId: number

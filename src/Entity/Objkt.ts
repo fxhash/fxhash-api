@@ -15,13 +15,20 @@ import { User } from './User'
 
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "Unique iterations of Generative Tokens. They are the NFT entities. Called *Objkt* in the API but is actually a **Gentk** (@ciphrd: my bad there, we're too deep now)"
+})
 export class Objkt extends BaseEntity {
-  @Field()
+  @Field({
+    description: "Unique identifier, corresponds to the ID stored on-chain"
+  })
   @PrimaryColumn()
   id: number
 
-  @Field({ nullable: true })
+  @Field({ 
+    nullable: true,
+    description: "URL-friendly unique string identifier to reference the Gentk. Computed on-the-fly by the indexer."
+  })
   @Column({ nullable: true })
   slug?: string
 
@@ -32,52 +39,84 @@ export class Objkt extends BaseEntity {
   @Column({ nullable: false })
 	issuerId: number
 
-  @Field(() => User, { nullable: true })
   @ManyToOne(() => User, user => user.objkts)
   owner?: User|null
 
-  @Field({ nullable: true })
+  @Field({ 
+    nullable: true,
+    description: "The gentk name, derived from the Generative Token and the iteration number: `{generative-token-name} #{iteration-number}`"
+  })
   @Column({ nullable: true })
   name?: string
 
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: "Whether or not this gentk was assigned by the fxhash signer module (if the metadata was set onchain)"
+  })
   @Column({ nullable: true })
   @Filter(["eq"], type => Boolean)
   assigned?: boolean
 
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: "The iteration number in the collection"
+  })
   @Column({ nullable: true })
   iteration?: number
 
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: "The transaction hash which represents the seed used by the Generative Token to generate the unique output"
+  })
   @Column({ nullable: true })
   generationHash?: string
   
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    deprecationReason: "The indexer doesn't treat duplicates anymore",
+    description: "The first version of the contracts had no mechanic to prevent users from making batch calls to mint Generative Tokens. So it resulted in multiple tokens having the similar transaction hash, and thus the same output."
+  })
   @Column({ nullable: true })
   duplicate: boolean
 
-  @Field(() => GraphQLJSONObject, { nullable: true })
-  @Column({ type: "json", nullable: true })
+  @Field(() => GraphQLJSONObject, {
+    nullable: true,
+    description: "The JSON metadata of the token, extracted from IPFS where it's stored. If the token is not yet signed, will be filled with the generic [WAITING TO BE SIGNED] metadata"
+  })
+  @Column({ type: "jsonb", nullable: true })
   metadata?: ObjktMetadata
 
-  @Field({ nullable: true })
+  @Field({
+    nullable: true,
+    description: "The IPFS uri pointing to the JSON metadata of the token",
+  })
   @Column({ nullable: true })
   metadataUri: string
 
-  @Field(() => [String],{ nullable: true })
+  @Field(() => [String], {
+    nullable: true,
+    description: "A list of tags, set by the author(s) at mint time. Corresponds the the Generative Token tags."
+  })
   @Column("text", { nullable: true, array: true })
   tags: string[]
 
-  @Field(() => [GraphQLJSONObject], { nullable: true })
+  @Field(() => [GraphQLJSONObject], {
+    nullable: true,
+    description: "A list of the features, extracted from the source code executed with the unique hash as input."
+  })
   @Column({ type: "jsonb", nullable: true })
   features?: TokenFeature[]
 
-  @Field(() => Number, { nullable: true })
+  @Field(() => Number, {
+    nullable: true,
+    description: "The rarity of the gentk, is expressed by the average of the rarity of each traits. Not very precise."
+  })
   @Column({ type: "double precision", nullable: true })
   rarity?: number
 
-  @Field()
+  @Field({
+    description: "The royalties, which will be redistributed to the artists when a transaction on secondary market occurs. Expressed in per thousands (divide by 10 to get a percentage)"
+  })
   @Column({ default: 0 })
   royalties: number = 0
 
@@ -93,16 +132,17 @@ export class Objkt extends BaseEntity {
   @OneToMany(() => Action, action => action.objkt)
   actions: Action[]
 
-  @Field()
+  @Field({
+    description: "The time at which the gentk was minted on the blockchain."
+  })
   @CreateDateColumn({ type: 'timestamptz', transformer: DateTransformer })
   @Filter(["lt", "gt"])
   createdAt: string
 
-  @Field()
-  @UpdateDateColumn({ type: 'timestamptz', nullable: true, transformer: DateTransformer })
-  updatedAt: string
-
-  @Field({ nullable: true })
+  @Field({ 
+    nullable: true,
+    description: "The time at which the metadata of the token was assigned on the blockchain.",
+  })
   @Column({ type: "timestamptz", transformer: DateTransformer })
   @Filter(["gt", "lt"])
   assignedAt: string

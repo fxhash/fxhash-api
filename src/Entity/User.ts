@@ -46,7 +46,9 @@ registerEnumType(UserAuthorization, {
 
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "Polymorphic entity which globally describes regular users (who had at least one interaction with fxhash contracts) or contract entities such as a collaboration contract."
+})
 export class User extends BaseEntity {
   @Field({
     description: "The unique identifier (tezos address) of the user."

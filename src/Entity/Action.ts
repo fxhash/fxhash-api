@@ -42,7 +42,9 @@ registerEnumType(TokenActionType, {
 })
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "A polymorphic entity which describes actions made by users on the platform."
+})
 export class Action extends BaseEntity {
   @Field({
     description: "A random ID associated with the action during the indexing process."

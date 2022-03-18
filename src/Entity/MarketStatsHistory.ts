@@ -2,8 +2,10 @@ import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, UpdateDateColumn, BaseEntity, ManyToOne, Index, PrimaryGeneratedColumn } from 'typeorm'
 import { GenerativeToken } from './GenerativeToken'
 
-@ObjectType()
 @Entity()
+@ObjectType({
+  description: "The history of the market stats for **Generative Tokens**. Computed and updated periodically by a side-worker."
+})
 export class MarketStatsHistory extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number

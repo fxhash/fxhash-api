@@ -4,7 +4,9 @@ import { GenerativeToken } from "./GenerativeToken"
 
 
 @Entity()
-@ObjectType()
+@ObjectType({
+  description: "Describes a the **Dutch Auction** pricing method which can be used by artists for their Generative Tokens."
+})
 export class PricingDutchAuction extends BaseEntity {
   @Column({ primary: true })
   tokenId: number
