@@ -83,7 +83,7 @@ Which can, for instance, output something like this:
 [
   {
     "id": 5510,
-    "name": "Ethereal Microcosm",
+    "name": "Random Token Name",
     "author": {
       "collaborators": [
         {
@@ -112,3 +112,203 @@ Which can, for instance, output something like this:
 ```
 
 This way, you ensure that regardless of who authored the Generative Token, you can get back to all the authors by testing the `type` property, and eventually looping through the collaborators.
+
+
+## Dropping `user { actionsAsIssuer, actionsAsTarget }`
+
+These endpoint were not very useful and were poluting the API. They are now dropped, and the `user { actions }` endpoint should be used instead.
+
+
+## `generativeToken { price }` removed
+
+fxhash now supports different pricing strategies for the Generative Tokens. For this reason, it's not possible anymore to have a single `price` field returning the accurate price of a token.
+
+There are now 2 different pricing methods:
+
+* **Fixed pricing**: a fixed price, the same as before, but now comes with the possiblity to schedule an opening time for a token.
+* **Dutch Auction**: a price which decreases by levels at fixed intervals, with an opening time.
+
+These different pricing methods can be fetched likeso:
+
+```graphql
+query GenerativeTokens {
+  generativeTokens {
+    id
+    name
+    pricingFixed {
+      price
+      opensAt
+    }
+    pricingDutchAuction {
+      levels
+      restingPrice
+      decrementDuration
+      opensAt
+    }
+  }
+}
+```
+
+Which can output:
+
+```json
+[
+  {
+    "id": 5511,
+    "name": "Random Token Name",
+    "pricingFixed": null,
+    "pricingDutchAuction": {
+      "levels": [
+        10000000,
+        8000000,
+        6000000,
+        4000000,
+        2000000
+      ],
+      "restingPrice": 2000000,
+      "decrementDuration": 600,
+      "opensAt": "2022-03-15T10:38:01.000Z"
+    }
+  },
+  {
+    "id": 5510,
+    "name": "Random Token Name",
+    "pricingFixed": {
+      "price": 100000,
+      "opensAt": null
+    },
+    "pricingDutchAuction": null
+  }
+]
+```
+
+The following javascript function can be used to output the current price of a token based on local time of the machine the code runs on:
+
+```js
+/**
+ * Given a Generative Token (with loaded pricingFixed OR pricingDutchAuction),
+ * outputs the price at the time of the transaction.
+ * For pricing fixed, the price will be the constant, for pricing dutch auction
+ * the price will be derived from the transaction time.
+ */
+export function getGenerativeTokenPrice(token) {
+  if (!token.pricingFixed && !token.pricingDutchAuction) {
+    throw new Error(`Cannot determine token #${token.id} price because it doesn't have a pricingFixed nor princingDutchAuction`)
+  }
+
+  // if the token has a pricing fixed, we can just return this value
+  if (token.pricingFixed) {
+    return token.pricingFixed.price
+  }
+  // otherwise we need to derive the price from the time of the transaction
+  else if (token.pricingDutchAuction) {
+    const { opensAt, levels, decrementDuration } = token.pricingDutchAuction
+
+    // compute the time difference (in seconds) between opens and mint time
+    const timeDiff = (Date.now() - opensAt.getTime()) / 1000
+    // find the index of the level based on this time difference
+    const index = Math.min(
+      Math.floor(timeDiff / parseInt(decrementDuration)),
+      levels.length-1
+    )
+
+    // return corresponding level
+    return parseInt(levels[index])
+  }
+
+  throw new Error("something definitely went wrong")
+}
+```
+
+The `generativeToken { price }` field is now deleted.
+
+**Please note that if you want your front-end to be reactive with the current price of a Dutch Auction, you must implement a function which refreshes the price when needed, either with a periodic refresh or a programmatic one based on the dutch auction parameters.**
+
+
+## Dropping endpoint `generativeTokensByIds {}`
+
+The endpoint was dropped in favor of adding appropriate filter to the more generic `generativeTokens{}` endpoint.
+
+You can perform the same operation as before using:
+
+```gql
+query GenerativeTokens($filters: GenerativeTokenFilter) {
+  generativeTokens(filters: $filters) {
+    id
+    name
+    lockEnd
+    createdAt
+  }
+}
+```
+
+Variables:
+
+```json
+{
+  "filters": {
+    "id_in": [4, 5]
+  }
+}
+```
+
+Will output:
+
+```json
+{
+  "data": {
+    "generativeTokens": [
+      {
+        "id": 5,
+        "name": "Random Token Name",
+        "lockEnd": "2021-12-24T13:23:43.000Z",
+        "createdAt": "2021-12-24T13:23:43.000Z"
+      },
+      {
+        "id": 4,
+        "name": "Random Token Name",
+        "lockEnd": "2021-12-23T14:35:07.000Z",
+        "createdAt": "2021-12-23T14:35:07.000Z"
+      }
+    ]
+  }
+}
+```
+
+
+## Dropping endpoints `lockedGenerativeTokens{}` and `reportedGenerativeTokens{}`
+
+Some filters were added to the generic `generativeTokens{}` endpoint so that the same results can be fetched through the same endpoint.
+
+The filters in question are:
+
+* locked_eq: Boolean
+* flag_eq: GenTokFlag
+* flag_in: [GenTokFlag!]
+* flag_ne: GenTokFlag
+
+
+## Malicious tokens are not hidden by the `generativeToken{}` endpoint anymore
+
+The `generativeToken{}` endpoint used to only return Generative Tokens which flag was `CLEAN` or `NONE`. This is not the case anymore, as the endpoint became the generic-purpose one instead. If you want to filter those tokens, you need to run:
+
+```gql
+query GenerativeTokens($filters: GenerativeTokenFilter) {
+  generativeTokens(filters: $filters) {
+    id
+    name
+    createdAt
+    flag
+  }
+}
+```
+
+Variables:
+
+```json
+{
+  "filters": {
+    "flag_in": ["NONE", "CLEAN"]
+  }
+}
+```

@@ -27,10 +27,18 @@ export enum GenTokFlag {
   MALICIOUS         = "MALICIOUS",
   HIDDEN            = "HIDDEN",
 }
-
 registerEnumType(GenTokFlag, {
-  name: "GenTokFlag", // this one is mandatory
-  description: "Flag state of Generative Token", // this one is optional
+  name: "GenTokFlag",
+  description: "Flag state of Generative Token",
+})
+
+export enum GentkTokPricing {
+  FIXED           = "FIXED",
+  DUTCH_AUCTION   = "DUTCH_AUCTION",
+}
+registerEnumType(GentkTokPricing, {
+  name: "GenTokPricing",
+  description: "The pricing method used by the Generative Token",
 })
 
 @Entity()
@@ -42,6 +50,7 @@ export class GenerativeToken extends BaseEntity {
     description: "The ID of the Generative Token, matches the blockchain storage"
   })
   @PrimaryColumn()
+  @Filter([ "in" ], () => Int)
   id: number
 
   @Field({
@@ -58,6 +67,7 @@ export class GenerativeToken extends BaseEntity {
     enum: GenTokFlag,
     default: GenTokFlag.NONE
   })
+  @Filter([ "eq", "in", "ne" ], () => GenTokFlag)
   flag: GenTokFlag
 
   @OneToMany(() => Report, report => report.token)
@@ -215,6 +225,12 @@ export class GenerativeToken extends BaseEntity {
 
   @Filter([ "lte", "gte" ], type => Int)
   price: number
+
+  @Filter([ "eq" ], () => GentkTokPricing)
+  pricingMethod: GentkTokPricing
+
+  @Filter([ "eq" ], type => Boolean)
+  locked: boolean
 }
 
 export const GenerativeFilters = generateFilterType(GenerativeToken)

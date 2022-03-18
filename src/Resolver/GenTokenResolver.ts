@@ -3,7 +3,7 @@ import { GraphQLJSONObject } from "graphql-type-json"
 import { Arg, Args, Ctx, Field, FieldResolver, ObjectType, Query, Resolver, Root } from "type-graphql"
 import { Brackets, Equal, getManager, In, IsNull, LessThanOrEqual, MoreThan, Not } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
-import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
+import { GenerativeFilters, GenerativeToken, GentkTokPricing, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { ModerationReason } from "../Entity/ModerationReason"
@@ -16,6 +16,7 @@ import { User } from "../Entity/User"
 import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters, processGenerativeFilters } from "../Utils/Filters"
+import { getGenerativeTokenPrice } from "../Utils/GenerativeToken"
 import { FeatureFilter } from "./Arguments/Filter"
 import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
@@ -256,7 +257,7 @@ export class GenTokenResolver {
 	}
   
   @Query(returns => [GenerativeToken], {
-		description: "Generic endpoint to query the Generative Tokens. Go-to endpoint to explore the Generative Tokens published on the platform, requires pagination and provides sort and filter options. *Flagged tokens are excluded by this endpoint*."
+		description: "Generic endpoint to query the Generative Tokens. Go-to endpoint to explore the Generative Tokens published on the platform, requires pagination and provides sort and filter options. *Flagged tokens are NOT excluded by this endpoint*."
 	})
 	async generativeTokens(
 		@Args() { skip, take }: PaginationArgs,
@@ -271,20 +272,10 @@ export class GenTokenResolver {
 		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 
-		// TODO
-		// Because the mint_time wasn't transfered properly, the lock time is not a good
-		// sort option, especially in ASC order. in DESC, it works because new tokens
-		// cover the mistake, but the other way arround needs to be hacked with the
-		// ID instead, and so until data is transfered to new contracts again, and mistake
-		// is fixed.
-		if (sortArgs.lockEnd === "ASC") {
-			delete sortArgs.lockEnd
-			// @ts-ignore
-			sortArgs.id = "ASC"
-		}
+		// todo: transfer this logic to front
+		//query = query.andWhere(`token.flag IN('${GenTokFlag.CLEAN}', '${GenTokFlag.NONE}')`)
 
-		let query = GenerativeToken.createQueryBuilder("token")
-			.select()
+		let query = GenerativeToken.createQueryBuilder("token").select()
 
 		// if their is a search string, we first make a request to the search engine to get results
 		if (filters?.searchQuery_eq) {
@@ -292,34 +283,46 @@ export class GenTokenResolver {
 				hitsPerPage: 5000
 			})
 			const ids = searchResults.hits.map(hit => hit.objectID)
-			query = query.whereInIds(ids)
+			query.whereInIds(ids)
 
 			// if the sort option is relevance, we remove the sort arguments as the order
 			// of the search results needs to be preserved
-			if (sortArgs.relevance && ids.length > 0) {
+			if (sortArgs.relevance) {
 				delete sortArgs.relevance
-				// then we manually set the order using array_position
-				const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
-				query = query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
+				if (ids.length > 0) {
+					// then we manually set the order using array_position
+					const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
+					query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
+				}
 			}
 		}
-		
-		// add the filter on the flags
-		query = query.andWhere(`token.flag IN('${GenTokFlag.CLEAN}', '${GenTokFlag.NONE}')`)
-		// add filter to only get unlocked tokens
-		query = query.andWhere({
-			lockEnd: LessThanOrEqual(new Date())
-		})
 
 		// CUSTOM FILTERS
+	
 		// filter for the field author verified
 		if (filters?.authorVerified_eq != null) {
-			query = query.leftJoin("token.author", "author")
+			query.leftJoin("token.author", "author")
 			if (filters.authorVerified_eq === true) {
-				query = query.andWhere("author.flag = 'VERIFIED'")
+				query.andWhere("author.flag = 'VERIFIED'")
 			}
 			else {
-				query = query.andWhere("author.flag != 'VERIFIED'")
+				query.andWhere("author.flag != 'VERIFIED'")
+			}
+		}
+
+		// add filter for the locked / unlocked tokens
+		if (filters?.locked_eq != null) {
+			// filter the unlocked tokens
+			if (filters.locked_eq === false) {
+				query.andWhere({
+					lockEnd: LessThanOrEqual(new Date())
+				})
+			}
+			// filter only the locked tokens
+			else if (filters.locked_eq === true) {
+				query.andWhere({
+					lockEnd: MoreThan(new Date())
+				})	
 			}
 		}
 
@@ -327,27 +330,40 @@ export class GenTokenResolver {
 		if (filters?.mintProgress_eq != null) {
 			// if we want to filter all completed collections
 			if (filters.mintProgress_eq === "COMPLETED") {
-				query = query.andWhere("token.balance = 0")
+				query.andWhere("token.balance = 0")
 			}
 			// if we want to filter all the ongoing collections
 			else if (filters.mintProgress_eq === "ONGOING") {
-				query = query.andWhere("token.balance > 0")
+				query.andWhere("token.balance > 0")
 			}
 			// if we want to filter all the collections close to be finished
 			else if (filters.mintProgress_eq === "ALMOST") {
-				query = query.andWhere("token.balance::decimal / token.supply < 0.1 AND token.balance > 0")
+				query.andWhere("token.balance::decimal / token.supply < 0.1 AND token.balance > 0")
 			}
 		}
 
 		// we add the join based on the existence of certain sort / filter
-		if (filters?.price_gte || filters?.price_lte || sortArgs.price) {
-			query = query.leftJoinAndSelect("token.pricingFixed", "pricingFixed")
-			query = query.leftJoinAndSelect("token.pricingDutchAuction", "pricingDutchAuction")
+		if (filters?.price_gte || filters?.price_lte || sortArgs.price
+			|| filters?.pricingMethod_eq) {
+			// we inner join if a filter on pricing method is done
+			if (filters?.pricingMethod_eq === GentkTokPricing.FIXED) {
+				query.innerJoinAndSelect("token.pricingFixed", "pricingFixed")
+			}
+			else {
+				query.leftJoinAndSelect("token.pricingFixed", "pricingFixed")
+			}
+			// we inner join if a filter on pricing method is done
+			if (filters?.pricingMethod_eq === GentkTokPricing.DUTCH_AUCTION) {
+				query.innerJoinAndSelect("token.pricingDutchAuction", "pricingDutchAuction")
+			}
+			else {
+				query.leftJoinAndSelect("token.pricingDutchAuction", "pricingDutchAuction")
+			}
 		}
 
 		// process the filters on the prices
 		if (filters?.price_gte) {
-			query = query.andWhere(new Brackets(qb => {
+			query.andWhere(new Brackets(qb => {
 				qb.where("pricingFixed.price >= :price_gte", { 
 						price_gte: filters.price_gte 
 					})
@@ -357,7 +373,7 @@ export class GenTokenResolver {
 			}))
 		}
 		if (filters?.price_lte) {
-			query = query.andWhere(new Brackets(qb => {
+			query.andWhere(new Brackets(qb => {
 				qb.where("pricingFixed.price <= :price_lte", { 
 						price_lte: filters.price_lte 
 					})
@@ -370,7 +386,7 @@ export class GenTokenResolver {
 		// add the where clauses
 		const processedFilters = processGenerativeFilters(filters)
 		for (const filter of processedFilters) {
-			query = query.andWhere(filter)
+			query.andWhere(filter)
 		}
 
 		// add the sort arguments
@@ -379,88 +395,22 @@ export class GenTokenResolver {
 			// query to sort all the items in an elegant fashion
 			// TODO: support dutch auctions
 			if (field === "price") {
-				query = query.addOrderBy(
+				query.addOrderBy(
 					"pricingFixed.price",
 					sortArgs[field],
 					"NULLS LAST"
 				)
 			}
 			else {
-				query = query.addOrderBy(`token.${field}`, sortArgs[field])
+				query.addOrderBy(`token.${field}`, sortArgs[field])
 			}
 		}
 
 		// add pagination
-		query = query.take(take)
-		query = query.skip(skip)
+		query.take(take)
+		query.skip(skip)
 
 		return query.getMany()
-	}
-
-	@Query(returns => [GenerativeToken], {
-		description: "The list of Generative Tokens currently locked due to the 3-hour lock for unverified users (used to protect users from bad actors). *Flagged tokens are excluded by this endpoint*."
-	})
-	lockedGenerativeTokens(
-		@Args() { skip, take }: PaginationArgs
-	): Promise<GenerativeToken[]> {
-		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return GenerativeToken.find({
-			where: [{
-				flag: In([GenTokFlag.CLEAN, GenTokFlag.NONE]),
-				lockEnd: MoreThan(new Date())
-			}],
-			order: {
-				id: "ASC",
-			},
-			skip,
-			take,
-			// cache: 10000
-		})
-	}
-  
-  @Query(returns => [GenerativeToken], {
-		description: "A list of the Generative Tokens which received a flag (either if many users reported it or if it was moderated by the fxhash team."
-	})
-	reportedGenerativeTokens(
-		@Args() { skip, take }: PaginationArgs
-	): Promise<GenerativeToken[]> {
-		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return GenerativeToken.find({
-			where: [{
-				flag: GenTokFlag.AUTO_DETECT_COPY
-			},{
-				flag: GenTokFlag.REPORTED
-			},{
-				flag: GenTokFlag.MALICIOUS
-			}],
-			order: {
-				id: "DESC",
-			},
-			skip,
-			take,
-			// cache: 60000
-		})
-	}
-
-  @Query(returns => [GenerativeToken], { 
-		nullable: true,
-		description: "Given a list of IDs, returns the corresponding list of Generative Tokens (if any). *Flagged tokens are excluded by this endpoint*."
-	})
-	async generativeTokensByIds(
-		@Arg("ids", type => [Number]) ids: number[]
-	): Promise<GenerativeToken[]> {
-		const tokens = await GenerativeToken.find({
-			where: [{
-				id: In(ids),
-				flag: Equal(GenTokFlag.CLEAN)
-			},{
-				id: In(ids),
-				flag: Equal(GenTokFlag.NONE)
-			}],
-			take: 100
-		})
-		// @ts-ignore
-		return ids.map(id => tokens.find(tok => tok.id == id)).filter(tok => !!tok)
 	}
 
 	@Query(returns => GenerativeToken, {

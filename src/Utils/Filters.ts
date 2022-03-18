@@ -1,5 +1,6 @@
 import { FilterOperator } from "type-graphql-filter"
 import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual, IsNull } from "typeorm"
+import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
 import { FeatureFilter, FeatureType } from "../Resolver/Arguments/Filter"
 
@@ -77,7 +78,11 @@ export const processListingFilters = (filters: any) => {
 }
 
 
-const generativeFiltersDbFields = [ "supply" ]
+const generativeFiltersDbFields: (keyof GenerativeToken)[] = [ 
+  "supply",
+  "id",
+  "flag",
+]
 
 /**
  * This method processes the offer filters which can be run against the DB fields.
