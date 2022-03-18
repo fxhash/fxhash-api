@@ -8,6 +8,7 @@ import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
+import { FiltersOffer, Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
 import { Report } from "../Entity/Report"
@@ -83,7 +84,27 @@ export class GenTokenResolver {
 			activeListing_exist: true,
 		}
 		if (token.objkts) return token.objkts
-		return ctx.genTokObjktsLoader.load({ id: token.id, filters, sort, skip, take })
+		return ctx.genTokObjktsLoader.load({ 
+			id: token.id, 
+			filters, 
+			sort, 
+			skip, 
+			take
+		})
+	}
+
+	@FieldResolver(() => [Offer], {
+		description: "Returns a list of offers on individual gentks associated with a collection"
+	})
+	offers(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+	) {
+		return ctx.genTokOffersLoader.load({
+			id: token.id,
+			filters: filters,
+		})
 	}
 
 	/**

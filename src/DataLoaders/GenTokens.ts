@@ -4,6 +4,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { Objkt } from "../Entity/Objkt"
+import { Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
 import { Report } from "../Entity/Report"
@@ -325,4 +326,46 @@ const batchGenTokObjktFeatures = async (ids) => {
 }
 export const createGenTokObjktFeaturesLoader = () => new DataLoader(
 	batchGenTokObjktFeatures
+)
+
+/**
+ * Given a list of Generative Token IDs, returns a list of Offers for each
+ * Generative Token
+ */
+ const batchGenTokOffers = async (inputs: any) => {
+	// we extract the ids and the filters if any
+	const ids = inputs.map(input => input.id)
+	const filters = inputs[0]?.filters
+
+	const query = Offer.createQueryBuilder("offer")
+		.select()
+		.leftJoinAndSelect("offer.objkt", "objkt")
+		.leftJoinAndSelect("objkt.issuer", "issuer", "issuer.id IN(:...ids)")
+		.where("issuer.id IN(:...ids)", { ids })
+
+	// apply filters, if any
+	if (filters) {
+		if (filters.active_eq === true) {
+			query.andWhere("offer.cancelledAt is null")
+			query.andWhere("offer.acceptedAt is null")
+		}
+		else if (filters.active_eq === false) {
+			query.andWhere(new Brackets(qb => {
+				qb.where("offer.cancelledAt is not null")
+				qb.orWhere("offer.acceptedAt is not null")
+			}))
+		}
+	}
+
+	// order by creation time
+	query.orderBy("offer.createdAt", "DESC")
+		
+	const offers = await query.getMany()
+
+	return ids.map(id => offers.filter(
+		offer => offer.objkt.issuerId === id
+	))
+}
+export const createGenTokOffersLoader = () => new DataLoader(
+	batchGenTokOffers
 )

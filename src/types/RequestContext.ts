@@ -1,9 +1,9 @@
 import { Request as ExpressRequest } from "express"
-import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
+import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
-import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
-import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader } from "../DataLoaders/User"
+import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
+import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersLoader } from "../DataLoaders/User"
 
 
 
@@ -13,12 +13,14 @@ export interface RequestContext extends ExpressRequest {
 	// USER loaders
 	usersLoader: ReturnType<typeof createUsersLoader>,
 	userObjktsLoader: ReturnType<typeof createUsersObjktLoader>,
+	userOffersLoader: ReturnType<typeof createUsersOffersLoader>,
 	userCollabContractsLoader: ReturnType<typeof createUsersCollabContractsLoader>,
 	collabCollaboratorsLoader: ReturnType<typeof createCollabCollaboratorsLoader>,
 
   // GENERATIVE TOKEN loaders
   genTokLoader: ReturnType<typeof createGenTokLoader>,
   genTokObjktsLoader: ReturnType<typeof createGenTokObjktsLoader>,
+  genTokOffersLoader: ReturnType<typeof createGenTokOffersLoader>,
   gentkTokPricingFixedLoader: ReturnType<typeof createGenTokPricingFixedLoader>,
   gentkTokPricingDutchAuctionLoader: ReturnType<typeof createGenTokPricingDutchAuctionLoader>,
   gentTokSplitsPrimaryLoader: ReturnType<typeof createGentkTokPrimarySplitsLoader>,
@@ -31,10 +33,11 @@ export interface RequestContext extends ExpressRequest {
 
   // OBJKTS loaders
   objktsLoader: ReturnType<typeof createObjktsLoader>,
+  objktRoyaltiesSplitsLoader: ReturnType<typeof createObjktRoyaltiesSplitsLoader>,
   objktActionsLoader: ReturnType<typeof createObjktActionsLoader>,
   objktListingsLoader: ReturnType<typeof createObjktListingsLoader>,
   objktActiveListingsLoader: ReturnType<typeof createObjktActiveListingsLoader>,
-  objktRoyaltiesSplitsLoader: ReturnType<typeof createObjktRoyaltiesSplitsLoader>,
+  objktOffersLoader: ReturnType<typeof createObjktOffersLoader>,
 
 	// MARKET STATS loaders
 	marketStatsGenTokLoader: ReturnType<typeof createMarketStatsGenTokLoader>,

@@ -8,6 +8,7 @@ import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { Split } from "../Entity/Split"
+import { FiltersOffer, Offer } from "../Entity/Offer"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -63,7 +64,6 @@ export class ObjktResolver {
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext
 	) {
-		if (objkt.listings) return objkt.listings
 		return ctx.objktListingsLoader.load(objkt.id)
 	}
 
@@ -76,6 +76,22 @@ export class ObjktResolver {
 		@Ctx() ctx: RequestContext,
 	) {
 		return ctx.objktActiveListingsLoader.load(objkt.id)
+	}
+
+	
+	@FieldResolver(returns => [Offer], { 
+		nullable: true,
+		description: "All the offers for this gentk. Can be filtered."
+	})
+	offers(
+		@Root() objkt: Objkt,
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+	) {
+		return ctx.objktOffersLoader.load({
+			id: objkt.id,
+			filters: filters,
+		})
 	}
 
 	@FieldResolver(returns => [Action], {

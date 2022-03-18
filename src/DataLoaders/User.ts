@@ -1,8 +1,9 @@
 import DataLoader from "dataloader"
-import { In } from "typeorm"
+import { Brackets, In } from "typeorm"
 import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
 import { Collaboration } from "../Entity/Collaboration"
+import { Offer } from "../Entity/Offer"
 
 
 /**
@@ -83,3 +84,39 @@ const batchUsersObjkt = async (userIds) => {
 	)
 }
 export const createUsersObjktLoader = () => new DataLoader(batchUsersObjkt)
+
+/**
+ * Given a list of objkt IDs, returns a list of offers
+ */
+ const batchUserOffers = async (inputs: any) => {
+	// we extract the ids and the filters if any
+	const ids = inputs.map(input => input.id)
+	const filters = inputs[0]?.filters
+
+	const query = Offer.createQueryBuilder("offer")
+		.select()
+		.where("offer.buyerId IN(:...ids)", { ids })
+
+	// apply filters, if any
+	if (filters) {
+		if (filters.active_eq === true) {
+			query.andWhere("offer.cancelledAt is null")
+			query.andWhere("offer.acceptedAt is null")
+		}
+		else if (filters.active_eq === false) {
+			query.andWhere(new Brackets(qb => {
+				qb.where("offer.cancelledAt is not null")
+				qb.orWhere("offer.acceptedAt is not null")
+			}))
+		}
+	}
+
+	// order by creation time
+	query.orderBy("offer.createdAt", "DESC")
+		
+	const offers = await query.getMany()
+	return ids.map(id => offers.filter(l => l.buyerId === id))
+}
+export const createUsersOffersLoader = () => new DataLoader(
+	batchUserOffers
+)

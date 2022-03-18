@@ -12,6 +12,7 @@ import { ActionsSortInput, defaultSort, UserCollectionSortInput } from "./Argume
 import { applyUserCollectionFIltersToQuery } from "./Filters/User"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
 import { processFilters } from "../Utils/Filters"
+import { FiltersOffer, Offer } from "../Entity/Offer"
 
 
 @Resolver(User)
@@ -176,6 +177,20 @@ export class UserResolver {
 		query.take(take)
 
 		return query.getMany()
+	}
+
+	@FieldResolver(returns => [Offer], {
+		description: "Returns all the offers made by the user. Can be filtered."
+	})
+	offers(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+	) {
+		return ctx.userOffersLoader.load({
+			id: user.id,
+			filters: filters,
+		})
 	}
 
 	@FieldResolver(returns => [User], {

@@ -8,6 +8,7 @@ import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } fro
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
 import { Listing } from './Listing'
+import { Offer } from './Offer'
 import { Split } from './Split'
 import { Transaction } from './Transaction'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -140,6 +141,9 @@ export class Objkt extends BaseEntity {
 
   @OneToMany(() => Listing, listing => listing.objkt)
   listings?: Listing[]
+
+  @OneToMany(() => Offer, offer => offer.objkt)
+  offers?: Offer[]
 
   @OneToMany(() => Transaction, transaction => transaction.objkt)
   transactions: Transaction[]
