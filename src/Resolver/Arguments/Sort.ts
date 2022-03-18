@@ -2,6 +2,25 @@ import { IsIn } from "class-validator"
 import { ArgsType, Field, InputType } from "type-graphql"
 
 
+type TSortValue = "ASC" | "DESC"
+type TSortInput = Record<string, TSortValue>
+
+/**
+ * Given an input sort (currentSort) and a default sort input, outputs the 
+ * default sort input only if the input sort is empty, otherwise outputs the
+ * input sort.
+ */
+export function defaultSort(
+  currentSort: any,
+  defaultSort: TSortInput,
+): TSortInput {
+  if (!currentSort || Object.keys(currentSort).length === 0) {
+    return defaultSort
+  }
+  return currentSort
+}
+
+
 @InputType()
 export class ListingsSortInput {
   @Field(type => String, { nullable: true })
@@ -155,4 +174,15 @@ export class StatsGenTokSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   listed?: "ASC" | "DESC"
+}
+
+@InputType()
+export class ActionsSortInput {
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  createdAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  type?: "ASC" | "DESC"
 }

@@ -19,7 +19,7 @@ import { processFilters, processGenerativeFilters } from "../Utils/Filters"
 import { FeatureFilter } from "./Arguments/Filter"
 import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { GenerativeSortInput, ObjktsSortInput } from "./Arguments/Sort"
+import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -169,27 +169,39 @@ export class GenTokenResolver {
 	}
 
 	@FieldResolver(returns => [Action], {
-		description: "A list of all the actions related to the Generative Token",
+		description: "A list of all the actions related to the Generative Token. **Not optimized to be run on multiple generative tokens at once, please use carefully*.",
 	})
 	actions(
 		@Root() token: GenerativeToken,
+		@Arg("filters", FiltersAction, { nullable: true}) filters: any,
+		@Arg("sort", { nullable: true }) sortArgs: ActionsSortInput,
 		@Args() { skip, take }: PaginationArgs,
-		@Arg("filters", FiltersAction, { nullable: true}) filters: any
 	): Promise<Action[]> {
+		// default arguments
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return Action.find({
-			where: {
-				token: token.id,
-				...processFilters(filters)
-			},
-			order: {
-				createdAt: "DESC",
-				type: "DESC"
-			},
-			skip: skip,
-			take: take,
-			// cache: 10000
+		sortArgs = defaultSort(sortArgs, {
+			createdAt: "DESC"
 		})
+	
+		// create the query
+		let query = Action.createQueryBuilder("action").select()
+
+		// add the generic filters
+		query.where(processFilters(filters))
+
+		// add the filters to target the token only
+		query.andWhere("action.tokenId = :id", { id: token.id })
+
+		// add the sort arguments
+		for (const sort in sortArgs) {
+			query.addOrderBy(`action.${sort}`, sortArgs[sort])
+		}
+
+		// add pagination
+		query.skip(skip)
+		query.take(take)
+
+		return query.getMany()
 	}
 
 	@FieldResolver(returns => MarketStats, { 
