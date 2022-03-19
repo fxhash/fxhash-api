@@ -160,7 +160,7 @@ export class GenTokenResolver {
 	}
 
 	@FieldResolver(returns => [Reserve], {
-		description: "The active reserves of the Generative Token. Artists can define reserves to control the distribution of their tokens."
+		description: "The reserves of the Generative Token. Artists can define reserves to control the distribution of their tokens."
 	})
 	reserves(
 		@Root() token: GenerativeToken,
