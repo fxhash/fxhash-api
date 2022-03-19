@@ -13,6 +13,7 @@ import { Objkt } from './Objkt'
 import { PricingDutchAuction } from './PricingDutchAuction'
 import { PricingFixed } from './PricingFixed'
 import { Report } from './Report'
+import { Reserve } from './Reserve'
 import { Split } from './Split'
 import { Transaction } from './Transaction'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -139,6 +140,9 @@ export class GenerativeToken extends BaseEntity {
 
   @OneToMany(() => Split, split => split.generativeTokenSecondary)
   splitsSecondary: Split[]
+
+  @OneToMany(() => Reserve, reserve => reserve.token)
+  reserves: Reserve[]
 
   @Field({
     description: "The initial supply, as defined by artist(s) when publishing the Generative Token",

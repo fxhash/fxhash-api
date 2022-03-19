@@ -12,6 +12,7 @@ import { FiltersOffer, Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
 import { Report } from "../Entity/Report"
+import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { searchIndexGenerative } from "../Services/Search"
@@ -156,6 +157,16 @@ export class GenTokenResolver {
 		@Ctx() ctx: RequestContext,
 	) {
 		return ctx.gentTokSplitsSecondaryLoader.load(token.id)
+	}
+
+	@FieldResolver(returns => [Reserve], {
+		description: "The active reserves of the Generative Token. Artists can define reserves to control the distribution of their tokens."
+	})
+	reserves(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.genTokReservesLoader.load(token.id)
 	}
 
 	@FieldResolver(returns => Number, {

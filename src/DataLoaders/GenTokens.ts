@@ -8,6 +8,7 @@ import { Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
 import { Report } from "../Entity/Report"
+import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { processGentkFeatureFilters } from "../Utils/Filters"
 
@@ -368,4 +369,20 @@ export const createGenTokObjktFeaturesLoader = () => new DataLoader(
 }
 export const createGenTokOffersLoader = () => new DataLoader(
 	batchGenTokOffers
+)
+
+/**
+ * Given a list of Generative Tokens, outputs a list of the reserves for each
+ * Generative Token
+ */
+const batchGenTokReserves = async (ids) => {
+	const reserves = await Reserve.createQueryBuilder("reserve")
+		.select()
+		.where("reserve.tokenId IN(:...ids)", { ids })
+		.getMany()
+	
+	return ids.map(id => reserves.filter(reserve => reserve.tokenId === id))
+}
+export const createGenTokReservesLoader = () => new DataLoader(
+	batchGenTokReserves
 )

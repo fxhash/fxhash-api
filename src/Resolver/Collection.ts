@@ -9,6 +9,7 @@ import { SplitResolver } from "./SplitResolver"
 import { UserResolver } from "./UserResolver"
 import { StatusResolver } from "./StatusResolver"
 import { OfferResolver } from "./OfferResolver"
+import { ReserveResolver } from "./ReserveResolver"
 
 export const ResolverCollection: NonEmptyArray<Function> = [
   UserResolver,
@@ -20,5 +21,6 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   MarketStatsDataResolver,
   MarketStatsResolver,
   SplitResolver,
+  ReserveResolver,
   StatusResolver,
 ]
