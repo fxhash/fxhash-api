@@ -26,17 +26,14 @@ export const createObjktsLoader = () => new DataLoader(batchObjkts)
  * to each objkt
  */
 const batchObjktActions = async (ids) => {
-	const actions = await Action.find({
-    relations: [ "objkt" ],
-		where: {
-			objkt: In(ids)
-		},
-    order: {
-      createdAt: "DESC"
-    },
-		// cache: 10000
-	})
-	return ids.map((id: number) => actions.filter(action => action.objkt?.id === id))
+	const actions = await Action.createQueryBuilder("action")
+		.select()
+		.where("action.objktId IN (:...ids)", { ids })
+		.orderBy("action.createdAt", "DESC")
+		.getMany()
+	return ids.map((id: number) => actions.filter(
+		action => action.objktId === id)
+	)
 }
 export const createObjktActionsLoader = () => new DataLoader(batchObjktActions)
 

@@ -16,6 +16,10 @@ CHANGELOG
 # TODO
 
 - Action
+Offer
+CollectionOffer
+Auction
+AuctionBid
 AuctionBidTable
 - GenerativeToken
 - IpfsCid
@@ -24,15 +28,11 @@ AuctionBidTable
 - Objkt
 - PricingFixed
 Transaction
-Auction
 - Collaboration
 - GentkAssign
 - Listing
-Offer
 - Report
 - User
-AuctionBid
-CollectionOffer
 - IndexingCursor
 - ModerationReason
 - PricingDutchAuction
@@ -337,3 +337,8 @@ Variables:
   }
 }
 ```
+
+
+## Query field `user { role }` was dropped
+
+And it was replaced by `user { authorizations }` which now outputs a list of authorizations the user has.

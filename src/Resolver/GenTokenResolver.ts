@@ -71,7 +71,7 @@ export class GenTokenResolver {
 	@FieldResolver(returns => [Objkt], {
 		description: "The list of gentks on which a listing is currently active. *Due to some optimization factors, this endpoint can't be called on multiple Generative Tokens at once*."
 	})
-	async activeListedObkts(
+	async activeListedObjkts(
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
@@ -304,9 +304,6 @@ export class GenTokenResolver {
 		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 
-		// todo: transfer this logic to front
-		//query = query.andWhere(`token.flag IN('${GenTokFlag.CLEAN}', '${GenTokFlag.NONE}')`)
-
 		let query = GenerativeToken.createQueryBuilder("token").select()
 
 		// if their is a search string, we first make a request to the search engine to get results
@@ -323,7 +320,7 @@ export class GenTokenResolver {
 				delete sortArgs.relevance
 				if (ids.length > 0) {
 					// then we manually set the order using array_position
-					const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
+					const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
 					query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
 				}
 			}
