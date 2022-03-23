@@ -316,14 +316,16 @@ export class GenTokenResolver {
 
 			// if the sort option is relevance, we remove the sort arguments as the order
 			// of the search results needs to be preserved
-			if (sortArgs.relevance) {
-				delete sortArgs.relevance
-				if (ids.length > 0) {
-					// then we manually set the order using array_position
-					const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
-					query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
-				}
+			if (sortArgs.relevance && ids.length > 1) {
+				// then we manually set the order using array_position
+				const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
+				query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
 			}
+		}
+
+		// delete the relevance sort arg if any at this point
+		if (sortArgs.relevance) {
+			delete sortArgs.relevance
 		}
 
 		// CUSTOM FILTERS
