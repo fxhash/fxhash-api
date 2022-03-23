@@ -24,6 +24,7 @@ declare global {
 			ALGOLIA_SEARCH_KEY: string
 			ALGOLIA_INDEX_GENERATIVE: string
 			ALGOLIA_INDEX_MARKETPLACE: string
+			ALGOLIA_INDEX_USERS: string
 	}
 }
 }

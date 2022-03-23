@@ -1,5 +1,6 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
+import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne } from 'typeorm'
 import { Action } from './Action'
 import { Collaboration } from './Collaboration'
@@ -171,4 +172,14 @@ export class User extends BaseEntity {
 
   @Column({ type: "timestamptz", transformer: DateTransformer })
   updatedAt: string
+
+
+  //
+  // CUSTOM FILTERS
+  //
+
+  @Filter([ "eq" ], type => String)
+  searchQuery: string
 }
+
+export const UserFilters = generateFilterType(User)

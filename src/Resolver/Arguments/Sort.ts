@@ -186,3 +186,15 @@ export class ActionsSortInput {
   @IsIn(["ASC", "DESC"])
   type?: "ASC" | "DESC"
 }
+
+@InputType()
+export class UserSortInput {  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  createdAt?: "ASC" | "DESC"
+  
+  // search-related sort filter
+  @Field(type => String, { nullable: true })
+  @IsIn(["DESC"])
+  relevance?: "DESC"
+}
