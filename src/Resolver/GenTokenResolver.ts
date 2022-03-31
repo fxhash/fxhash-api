@@ -299,7 +299,7 @@ export class GenTokenResolver {
 		// default arguments
 		if (!sortArgs || Object.keys(sortArgs).length === 0) {
 			sortArgs = {
-				lockEnd: "DESC"
+				mintOpensAt: "DESC"
 			}
 		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
@@ -353,6 +353,38 @@ export class GenTokenResolver {
 			else if (filters.locked_eq === true) {
 				query.andWhere({
 					lockEnd: MoreThan(new Date())
+				})	
+			}
+		}
+
+		// add filter for the locked / unlocked tokens
+		if (filters?.locked_eq != null) {
+			// filter the unlocked tokens
+			if (filters.locked_eq === false) {
+				query.andWhere({
+					lockEnd: LessThanOrEqual(new Date())
+				})
+			}
+			// filter only the locked tokens
+			else if (filters.locked_eq === true) {
+				query.andWhere({
+					lockEnd: MoreThan(new Date())
+				})	
+			}
+		}
+
+		// add filter for the mint available
+		if (filters?.mintOpened_eq != null) {
+			// filter the unlocked tokens
+			if (filters.mintOpened_eq === false) {
+				query.andWhere({
+					mintOpensAt: MoreThan(new Date()),
+				})
+			}
+			// filter only the locked tokens
+			else if (filters.mintOpened_eq === true) {
+				query.andWhere({
+					mintOpensAt: LessThanOrEqual(new Date()),
 				})	
 			}
 		}

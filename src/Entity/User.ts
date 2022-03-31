@@ -54,6 +54,7 @@ export class User extends BaseEntity {
   @Field({
     description: "The unique identifier (tezos address) of the user."
   })
+  @Filter([ "in" ])
   @PrimaryColumn()
   id: string
 

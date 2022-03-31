@@ -11,7 +11,7 @@ import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { ActionsSortInput, defaultSort, UserCollectionSortInput, UserSortInput } from "./Arguments/Sort"
 import { applyUserCollectionFIltersToQuery } from "./Filters/User"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
-import { processFilters } from "../Utils/Filters"
+import { processFilters, processUserFilters } from "../Utils/Filters"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { searchIndexUser } from "../Services/Search"
 
@@ -149,6 +149,7 @@ export class UserResolver {
 			.orWhere("collaborator.id = :userId", { userId: user.id })
 			.skip(skip)
 			.take(take)
+			.orderBy("token.createdAt", "DESC")
 			.getMany()
 	}
 
@@ -322,6 +323,12 @@ export class UserResolver {
 		// add sort
 		for (const field in sortArgs) {
 			query.addOrderBy(`user.${field}`, sortArgs[field])
+		}
+
+		// apply the filters if any
+		const processedFilters = processUserFilters(filters)
+		for (const filter of processedFilters) {
+			query.andWhere(filter)
 		}
 
 		// pagination

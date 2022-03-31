@@ -94,6 +94,10 @@ export class GenerativeSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   lockEnd?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  mintOpensAt?: "ASC" | "DESC"
   
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
