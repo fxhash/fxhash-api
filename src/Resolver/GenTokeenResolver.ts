@@ -19,6 +19,25 @@ import { GenerativeSortInput, ObjktsSortInput } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
+
+
+	//
+	//! THE BIG BURN HACK
+	//
+	@FieldResolver()
+	balance(
+		@Root() token: GenerativeToken
+	) {
+		return 0
+	}
+	@FieldResolver()
+	supply(
+		@Root() token: GenerativeToken
+	) {
+		return token.supply - token.balance
+	}
+
+
   @FieldResolver(returns => [Objkt])
 	async objkts(
 		@Root() token: GenerativeToken,
