@@ -1,5 +1,6 @@
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
-import { Entity, Column, BaseEntity, PrimaryColumn, CreateDateColumn } from 'typeorm'
+import { Entity, Column, BaseEntity, PrimaryColumn, CreateDateColumn, OneToOne, JoinColumn } from 'typeorm'
+import { Objkt } from './Objkt'
 
 
 export enum AssignationState {
@@ -19,8 +20,12 @@ export class GentkAssign extends BaseEntity {
   @Field({
     description: "The gentk ID"
   })
-  @PrimaryColumn()
-  id: number
+  @Column({ primary: true })
+  gentkId: number
+
+  @OneToOne(() => Objkt)
+  @JoinColumn()
+  gentk: Objkt
 
   @Field({
     description: "The current assignation state."
