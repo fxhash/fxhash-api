@@ -2,6 +2,7 @@ import { FilterOperator } from "type-graphql-filter"
 import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual, IsNull } from "typeorm"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
+import { User } from "../Entity/User"
 import { FeatureFilter, FeatureType } from "../Resolver/Arguments/Filter"
 
 function mapFilterOperatorTypeorm(operator: FilterOperator, value: any) {
@@ -90,6 +91,14 @@ const generativeFiltersDbFields: (keyof GenerativeToken)[] = [
  */
 export const processGenerativeFilters = (filters: any) => {
   return processSelectiveFilters(filters, generativeFiltersDbFields)
+}
+
+
+const userFiltersDbFields: (keyof User)[] = [
+  "id"
+]
+export const processUserFilters = (filters: any) => {
+  return processSelectiveFilters(filters, userFiltersDbFields)
 }
 
 

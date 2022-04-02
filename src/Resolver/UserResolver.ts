@@ -4,15 +4,16 @@ import { Action, FiltersAction } from "../Entity/Action"
 import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
-import { User, UserAuthorization, UserType } from "../Entity/User"
+import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { userCollectionSortTableLevels } from "../Utils/Sort"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ActionsSortInput, defaultSort, UserCollectionSortInput } from "./Arguments/Sort"
+import { ActionsSortInput, defaultSort, UserCollectionSortInput, UserSortInput } from "./Arguments/Sort"
 import { applyUserCollectionFIltersToQuery } from "./Filters/User"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
-import { processFilters } from "../Utils/Filters"
+import { processFilters, processUserFilters } from "../Utils/Filters"
 import { FiltersOffer, Offer } from "../Entity/Offer"
+import { searchIndexUser } from "../Services/Search"
 
 
 @Resolver(User)
@@ -148,6 +149,7 @@ export class UserResolver {
 			.orWhere("collaborator.id = :userId", { userId: user.id })
 			.skip(skip)
 			.take(take)
+			.orderBy("token.createdAt", "DESC")
 			.getMany()
 	}
 
@@ -277,18 +279,63 @@ export class UserResolver {
   @Query(returns => [User], {
 		description: "Some unfiltered exploration of the users, with pagination."
 	})
-	users(
-		@Args() { skip, take }: PaginationArgs
+	async users(
+		@Args() { skip, take }: PaginationArgs,
+		@Arg("filters", UserFilters, { nullable: true }) filters: any,
+		@Arg("sort", { nullable: true }) sortArgs: UserSortInput,
 	): Promise<User[]> {
+		// default parameters
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return User.find({
-			order: {
+		if (!sortArgs || Object.keys(sortArgs).length === 0) {
+			sortArgs = {
 				createdAt: "ASC"
-			},
-			skip,
-			take,
-			// cache: 10000
-		})
+			}
+		}
+
+		// create the query
+		const query = User.createQueryBuilder("user").select()
+
+		// if search query, trigger a search first
+		if (filters?.searchQuery_eq) {
+			const searchResults = await searchIndexUser.search(
+				filters.searchQuery_eq,
+				{ 
+					hitsPerPage: 200
+				}
+			)
+			const ids = searchResults.hits.map(hit => hit.objectID)
+			query.whereInIds(ids)
+
+			// if the sort option is relevance, we remove the sort arguments as the order
+			// of the search results needs to be preserved
+			if (sortArgs.relevance && ids.length > 1) {
+				// then we manually set the order using array_position
+				const relevanceList = ids.map((id, idx) => `$${idx+1}`).join(', ')
+				query.addOrderBy(`array_position(array[${relevanceList}], user.id)`)
+			}
+		}
+
+		// just delete relevance by sort at this point anyway
+		if (sortArgs.relevance) {
+			delete sortArgs.relevance
+		}
+
+		// add sort
+		for (const field in sortArgs) {
+			query.addOrderBy(`user.${field}`, sortArgs[field])
+		}
+
+		// apply the filters if any
+		const processedFilters = processUserFilters(filters)
+		for (const filter of processedFilters) {
+			query.andWhere(filter)
+		}
+
+		// pagination
+		query.skip(skip)
+		query.take(take)
+
+		return query.getMany()
 	}
 
 	@Query(returns => User, {

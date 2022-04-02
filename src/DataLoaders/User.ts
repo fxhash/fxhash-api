@@ -31,6 +31,7 @@ const batchUsersCollabContracts = async (ids) => {
 		.select()
 		.leftJoinAndSelect("collab.collaborationContract", "contract")
 		.where("collab.collaboratorId IN(:...ids)", { ids })
+		.orderBy("contract.createdAt", "DESC")
 		.getMany()
 
 	return ids.map(id => 
@@ -53,6 +54,7 @@ const batchCollabCollaborators = async (ids) => {
 		.select()
 		.leftJoinAndSelect("collab.collaborator", "user")
 		.where("collab.collaborationContractId IN(:...ids)", { ids })
+		.orderBy("user.createdAt", "DESC")
 		.getMany()
 
 	return ids.map(id => 

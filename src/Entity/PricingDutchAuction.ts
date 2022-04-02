@@ -43,4 +43,11 @@ export class PricingDutchAuction extends BaseEntity {
   })
   @Column({ type: "timestamptz", nullable: true })
   opensAt: Date
+
+  @Field({ 
+    nullable: true,
+    description: "The price of the last gentk minted during the Dutch Auction. *If null, collection is not fully minted yet*",
+  })
+  @Column({ type: "bigint", nullable: true })
+  finalPrice: number
 }

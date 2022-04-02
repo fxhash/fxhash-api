@@ -6,5 +6,12 @@ export const algoliaClient = algoliasearch(
   process.env.ALGOLIA_SEARCH_KEY,
 )
 
-export const searchIndexGenerative = algoliaClient.initIndex(process.env.ALGOLIA_INDEX_GENERATIVE)
-export const searchIndexMarketplace = algoliaClient.initIndex(process.env.ALGOLIA_INDEX_MARKETPLACE)
+export const searchIndexGenerative = algoliaClient.initIndex(
+  process.env.ALGOLIA_INDEX_GENERATIVE
+)
+export const searchIndexMarketplace = algoliaClient.initIndex(
+  process.env.ALGOLIA_INDEX_MARKETPLACE
+)
+export const searchIndexUser = algoliaClient.initIndex(
+  process.env.ALGOLIA_INDEX_USERS
+)

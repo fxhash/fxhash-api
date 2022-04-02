@@ -184,8 +184,14 @@ export class GenerativeToken extends BaseEntity {
   @Field({
     description: "When will the lock of the token ends. Is defined by *createdAt* + *lockedSeconds*"
   })
-  @Column({ type: "timestamptz", nullable: true })
+  @Column({ type: "timestamptz" })
   lockEnd: Date
+
+  @Field({
+    description: "When the token will be available for minting. Is defined by max(lockEnd, pricing.opensAt)",
+  })
+  @Column({ type: "timestamptz" })
+  mintOpensAt: Date
 
   @OneToMany(() => Objkt, objkt => objkt.issuer)
   objkts: Objkt[]
@@ -235,6 +241,9 @@ export class GenerativeToken extends BaseEntity {
 
   @Filter([ "eq" ], type => Boolean)
   locked: boolean
+
+  @Filter([ "eq" ], type => Boolean)
+  mintOpened: boolean
 }
 
 export const GenerativeFilters = generateFilterType(GenerativeToken)
