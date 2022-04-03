@@ -108,6 +108,27 @@ export class GenerativeToken extends BaseEntity {
   @Column({ nullable: true })
   metadataUri?: string
 
+  @Field({ 
+    nullable: true,
+    description: "IPFS uri pointing to the web page hosting the Generator code. **Can be used to display generated gentks**"
+  })
+  @Column({ nullable: true })
+  generativeUri?: string
+
+  @Field({ 
+    nullable: true,
+    description: "IPFS uri pointing to the 300x300 (contained) thumbnail of the project"
+  })
+  @Column({ nullable: true })
+  thumbnailUri?: string
+
+  @Field({ 
+    nullable: true,
+    description: "IPFS uri pointing to the full res image of the project"
+  })
+  @Column({ nullable: true })
+  displayUri?: string
+
   @Field(() => [String], {
     nullable: true,
     description: "A list of tags as defined by the artist(s) when published. Can be used to better reference the project.",
