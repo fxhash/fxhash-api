@@ -35,11 +35,12 @@ const main = async () => {
 		logging: process.env.TYPEORM_LOGGING === "true",
 		synchronize: false,
 		entities: [ process.env.TYPEORM_ENTITIES_METRICS ],
-		  ssl: process.env.NODE_ENV === "dev" ? false : {
-			  rejectUnauthorized: false
-		  },
+		ssl: {
+			rejectUnauthorized: false,
+		},
 		extra: {
-			rejectUnauthorized: false
+			rejectUnauthorized: false,
+			max: 40
 		}
 	}])
 
