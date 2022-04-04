@@ -21,15 +21,8 @@ const main = async () => {
 		logging: process.env.TYPEORM_LOGGING === "true",
 		synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
 		entities: [ process.env.TYPEORM_ENTITIES ],
-		// cache: {
-		// 	// todo: when ready, use REDIS instead of IOREDIS
-		// 	// doesn't work currently because of 
-		// 	// https://github.com/typeorm/typeorm/issues/8420
-		// 	type: "ioredis",
-		// 	options: process.env.REDIS_URL
-		// },
-		ssl: process.env.NODE_ENV === "dev" ? false : {
-			rejectUnauthorized: false
+		ssl: {
+			rejectUnauthorized: false,
 		},
 		extra: {
 			rejectUnauthorized: false,
