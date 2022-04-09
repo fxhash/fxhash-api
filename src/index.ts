@@ -10,6 +10,7 @@ import { ApolloServer } from 'apollo-server-express'
 import { createContext } from './Utils/Context'
 import { routeGraphiql } from './routes/graphiql'
 import { ApolloMetricsPlugin } from './Plugins/MetricsPlugin'
+import { routeGetHello } from './routes/hello'
 
 
 const main = async () => {
@@ -75,6 +76,7 @@ const main = async () => {
 
 	// graphql interface
 	routeGraphiql(app)
+	routeGetHello(app)
 	
 	httpServer.listen(process.env.PORT, async () => {
 		console.log(`--------`)
