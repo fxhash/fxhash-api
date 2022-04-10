@@ -26,4 +26,16 @@ export class IndexingCursor extends BaseEntity {
   })
   @Column({ type: "bigint", default: 0 })
   id: number
+
+  @Field({
+    description: "When the first contract of the group was originated"
+  })
+  @Column({ type: "timestamptz", nullable: false })
+  originatedAt: Date
+
+  @Field({
+    description: "When the last operation was indexed"
+  })
+  @Column({ type: "timestamptz", nullable: false })
+  lastIndexedAt: Date
 }
