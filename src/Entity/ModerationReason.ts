@@ -13,10 +13,13 @@ import { User } from './User'
  * {reason_id}-${contract_id}
  */
 @Entity()
+@ObjectType()
 export class ModerationReason extends BaseEntity {
+  @Field()
   @PrimaryColumn()
   id: string
 
+  @Field()
   @Column()
   reason: string
 
