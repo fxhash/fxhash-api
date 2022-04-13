@@ -29,20 +29,6 @@ const main = async () => {
 			rejectUnauthorized: false,
 			max: 40
 		}
-	},{
-		name: "metrics",
-		type: process.env.DATABASE_TYPE,
-		url: process.env.DATABASE_METRICS_URL,
-		logging: process.env.TYPEORM_LOGGING === "true",
-		synchronize: false,
-		entities: [ process.env.TYPEORM_ENTITIES_METRICS ],
-		ssl: {
-			rejectUnauthorized: false,
-		},
-		extra: {
-			rejectUnauthorized: false,
-			max: 40
-		}
 	}])
 
 	// now bootstrap the rest of the server (gQL API)
