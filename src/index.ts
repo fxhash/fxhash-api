@@ -41,7 +41,7 @@ const main = async () => {
 	const httpServer = createServer(app)
 
 	// increase keep live timeout for ELB
-	httpServer.keepAliveTimeout = 65 * 1000
+	httpServer.keepAliveTimeout = 61 * 1000
 	httpServer.headersTimeout = 65 * 1000
 
 	// define the plugins
