@@ -40,6 +40,10 @@ const main = async () => {
 	app.use(cors())
 	const httpServer = createServer(app)
 
+	// increase keep live timeout for ELB
+	httpServer.keepAliveTimeout = 65 * 1000
+	httpServer.headersTimeout = 65 * 1000
+
 	// define the plugins
 	const plugins = process.env.RECORD_METRICS === "1" ? [ApolloMetricsPlugin] : []
 
