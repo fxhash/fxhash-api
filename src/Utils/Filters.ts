@@ -2,6 +2,7 @@ import { FilterOperator } from "type-graphql-filter"
 import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual, IsNull } from "typeorm"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
+import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
 import { FeatureFilter, FeatureType } from "../Resolver/Arguments/Filter"
 
@@ -102,14 +103,11 @@ export const processUserFilters = (filters: any) => {
 }
 
 
-const userCollectionFiltersDbFields = [ "assigned", "createdAt", "assignedAt" ] 
-
-/**
- * This method processes the offer filters which can be run against the DB fields.
- * If a filter doesn't target a DB field, it will be ignored by this method
- */
-export const processUserCollectionFilters = (filters: any) => {
-  return processSelectiveFilters(filters, userCollectionFiltersDbFields)
+const objktFiltersDbFields: (keyof Objkt)[] = [
+  "assigned", "createdAt", "assignedAt"
+]
+export const processObjktFilters = (filters: any) => {
+  return processSelectiveFilters(filters, objktFiltersDbFields)
 }
 
 

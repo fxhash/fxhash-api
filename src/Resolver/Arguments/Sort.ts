@@ -63,13 +63,6 @@ export class ObjktsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   iteration?: "ASC" | "DESC"
-}
-
-@InputType()
-export class UserCollectionSortInput {
-  @Field(type => String, { nullable: true })
-  @IsIn(["ASC", "DESC"])
-  id?: "ASC" | "DESC"
   
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
@@ -78,10 +71,6 @@ export class UserCollectionSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   assignedAt?: "ASC" | "DESC"
-
-  @Field(type => String, { nullable: true })
-  @IsIn(["ASC", "DESC"])
-  rarity?: "ASC" | "DESC"
 
   // search-related sort filter
   @Field(type => String, { nullable: true })

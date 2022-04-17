@@ -9,6 +9,8 @@ import { processFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { Split } from "../Entity/Split"
 import { FiltersOffer, Offer } from "../Entity/Offer"
+import { objktQueryFilter } from "../Query/Filters/Objkt"
+import { ObjktsSortInput } from "./Arguments/Sort"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -108,20 +110,37 @@ export class ObjktResolver {
   @Query(returns => [Objkt], {
 		description: "Generic paginated endpoint to query the gentks. Filtrable."
 	})
-	objkts(
+	async objkts(
 		@Args() { skip, take }: PaginationArgs,
-		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any
+		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
+		@Arg("sort", { nullable: true }) sort: ObjktsSortInput
 	): Promise<Objkt[]> {
+		// default pagination
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		return Objkt.find({
-			where: processFilters(filters),
-			order: {
+		// default sort
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
 				id: "DESC"
+			}
+		}
+
+		let query = Objkt.createQueryBuilder("objkt")
+			.select()
+			.leftJoin("objkt.issuer", "issuer")
+		
+		// FILTER
+		query = await objktQueryFilter(
+			query, {
+				general: filters
 			},
-			skip,
-			take,
-			// cache: 10000
-		})
+			sort
+		)
+
+		// pagination
+		query.skip(skip)
+		query.take(take)
+
+		return query.getMany()
 	}
 
 	@Query(returns => Objkt, {

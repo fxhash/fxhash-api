@@ -1,4 +1,3 @@
-import { UserCollectionSortInput } from "../Resolver/Arguments/Sort"
 
 type SortKey<T> = keyof T
 
@@ -28,13 +27,4 @@ export function sortTableLevels<T>(sortInput: T, primarySortKeys: SortKey<T>[]):
     primaryTable: sortsPrimary,
     secondaryTable: sortsSecondary,
   }
-}
-
-const userCollectionPrimaryKeys: SortKey<UserCollectionSortInput>[] = [
-  "assignedAt",
-  "id",
-  "rarity"
-]
-export function userCollectionSortTableLevels(sortInput: UserCollectionSortInput): SortTableLevels<UserCollectionSortInput> {
-  return sortTableLevels(sortInput, userCollectionPrimaryKeys)
 }

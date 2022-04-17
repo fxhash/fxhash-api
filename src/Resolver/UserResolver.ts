@@ -6,14 +6,13 @@ import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
-import { userCollectionSortTableLevels } from "../Utils/Sort"
 import { BigPaginationArgs, PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ActionsSortInput, defaultSort, UserCollectionSortInput, UserSortInput } from "./Arguments/Sort"
-import { applyUserCollectionFIltersToQuery } from "./Filters/User"
+import { ActionsSortInput, defaultSort, ObjktsSortInput, UserSortInput } from "./Arguments/Sort"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
 import { processFilters, processUserFilters } from "../Utils/Filters"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { searchIndexUser } from "../Services/Search"
+import { objktQueryFilter } from "../Query/Filters/Objkt"
 
 
 @Resolver(User)
@@ -35,7 +34,7 @@ export class UserResolver {
 		@Args() { skip, take }: PaginationArgs,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersObjkt, { nullable: true }) filters: any,
-		@Arg("sort", { nullable: true }) sort: UserCollectionSortInput
+		@Arg("sort", { nullable: true }) sort: ObjktsSortInput,
 	) {
 		// default values
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
@@ -48,26 +47,18 @@ export class UserResolver {
 		let query = Objkt.createQueryBuilder("objkt")
 		query.where("objkt.ownerId = :ownerId", { ownerId: user.id })
 
-		// we add the issuer relationship because it's required for most of the tasks, and
-		// also requested most of the time by the API calls
+		// we add the issuer relationship because it's required for most of the 
+		// tasks, and also requested most of the time by the API calls
 		query.leftJoinAndSelect("objkt.issuer", "issuer")
 
-		// FILTERING
-		query = await applyUserCollectionFIltersToQuery(query, filters, sort)
-
-		// SORTING
-
-		// filter the sort arguments that can be run on the objkt table directly
-		const levelledSortArguments = userCollectionSortTableLevels(sort)
-		for (const field in levelledSortArguments.primaryTable) {
-			query.addOrderBy(`"objkt"."${field}"`, levelledSortArguments.primaryTable[field], "NULLS LAST")
-		}
-		// sorting on sub fields 
-		if (levelledSortArguments.secondaryTable.collectedAt) {
-			// we need to find the last listing accepted for the the objkt
-			query.leftJoin("objkt.actions", "action", "action.objktId = objkt.id AND action.type = 'OFFER_ACCEPTED'")
-			query.addOrderBy("action.createdAt", levelledSortArguments.secondaryTable.collectedAt, "NULLS LAST")
-		}
+		// FILTER / SORT
+		query = await objktQueryFilter(
+			query, 
+			{
+				general: filters
+			},
+			sort
+		)
 
 		// pagination
 		query.offset(skip)
@@ -89,8 +80,13 @@ export class UserResolver {
 			.leftJoin("objkt", "objkt", "objkt.issuerId = issuer.id")
 			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
 
-		// apply the filters
-		query = await applyUserCollectionFIltersToQuery(query, filters)
+		// FILTER / SORT
+		query = await objktQueryFilter(
+			query, 
+			{
+				general: filters
+			},
+		)
 		
 		return query.getMany()
 	}
@@ -120,11 +116,11 @@ export class UserResolver {
 			.where("objkt.ownerId = :ownerId", { ownerId: user.id })
 
 		// apply the filters
-		query = await applyUserCollectionFIltersToQuery(
+		query = await objktQueryFilter(
 			query, 
-			filters, 
-			undefined, 
-			true
+			{
+				general: filters
+			},
 		)
 		
 		return query.getMany()
