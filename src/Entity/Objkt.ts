@@ -44,7 +44,7 @@ export class Objkt extends BaseEntity {
   owner?: User|null
 
   @Column({ nullable: true })
-  ownerId: number
+  ownerId: string
 
   @ManyToOne(() => User, user => user.objktsMinted)
   minter?: User|null

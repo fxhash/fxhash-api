@@ -74,7 +74,7 @@ const batchUsersObjkt = async (userIds) => {
 	const objkts = await Objkt.find({
     relations: [ "owner" ],
 		where: {
-			owner: In(userIds)
+			ownerId: In(userIds)
 		},
 		order: {
 			id: "DESC"
