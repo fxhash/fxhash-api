@@ -143,8 +143,10 @@ const batchUsersGenerativeTokens = async (users: any) => {
 		.leftJoinAndSelect("token.author", "author")
 		.leftJoinAndSelect("author.collaborationContracts", "collabs")
 		.leftJoinAndSelect("collabs.collaborator", "collaborator")
-		.where("token.authorId IN(:...ids)", { ids })
-		.orWhere("collaborator.id IN(:...ids)", { ids })
+		.andWhere(new Brackets(qb => {
+			qb.where("token.authorId IN(:...ids)", { ids })
+				.orWhere("collaborator.id IN(:...ids)", { ids })
+		}))
 
 	// add filters / sorts
 	query = await generativeQueryFilter(
