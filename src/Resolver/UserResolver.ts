@@ -1,13 +1,13 @@
 import { Arg, Args, Ctx, Field, FieldResolver, Int, ObjectType, Query, Resolver, Root } from "type-graphql"
 import { Brackets, IsNull, Not } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
-import { GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
+import { GenerativeFilters, GenerativeToken, GenTokFlag } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { BigPaginationArgs, PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ActionsSortInput, defaultSort, ObjktsSortInput, UserSortInput } from "./Arguments/Sort"
+import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput, UserSortInput } from "./Arguments/Sort"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
 import { processFilters, processUserFilters } from "../Utils/Filters"
 import { FiltersOffer, Offer } from "../Entity/Offer"
@@ -132,21 +132,26 @@ export class UserResolver {
 	async generativeTokens(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
-		@Args() { skip, take }: PaginationArgs
+		@Args() { skip, take }: PaginationArgs,
+		@Arg("sort", { nullable: true }) sort: GenerativeSortInput,
+		@Arg("filters", GenerativeFilters, { nullable: true }) filters: any
 	) {
+		// default skip/takr
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		// default sort 
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				mintOpensAt: "DESC"
+			}
+		}
 
-		return GenerativeToken.createQueryBuilder("token")
-			.select()
-			.leftJoinAndSelect("token.author", "author")
-			.leftJoinAndSelect("author.collaborationContracts", "collabs")
-			.leftJoinAndSelect("collabs.collaborator", "collaborator")
-			.where("token.authorId = :userId", { userId: user.id })
-			.orWhere("collaborator.id = :userId", { userId: user.id })
-			.skip(skip)
-			.take(take)
-			.orderBy("token.createdAt", "DESC")
-			.getMany()
+		return ctx.usersGenToksLoader.load({
+			id: user.id,
+			filters: filters,
+			sort: sort,
+			skip: skip,
+			take: take,
+		})
 	}
 
   @FieldResolver(returns => [Listing], {

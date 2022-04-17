@@ -19,5 +19,5 @@ export class Collaboration extends BaseEntity {
   collaboratorId: string
 
   @ManyToOne(() => User, user => user.collaborators)
-  collaborator: string
+  collaborator: User
 }

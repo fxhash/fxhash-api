@@ -1,9 +1,11 @@
 import DataLoader from "dataloader"
 import { Brackets, In } from "typeorm"
 import { Objkt } from "../Entity/Objkt"
-import { User } from "../Entity/User"
+import { User, UserType } from "../Entity/User"
 import { Collaboration } from "../Entity/Collaboration"
 import { Offer } from "../Entity/Offer"
+import { GenerativeToken } from "../Entity/GenerativeToken"
+import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
 
 
 /**
@@ -90,7 +92,7 @@ export const createUsersObjktLoader = () => new DataLoader(batchUsersObjkt)
 /**
  * Given a list of objkt IDs, returns a list of offers
  */
- const batchUserOffers = async (inputs: any) => {
+const batchUserOffers = async (inputs: any) => {
 	// we extract the ids and the filters if any
 	const ids = inputs.map(input => input.id)
 	const filters = inputs[0]?.filters
@@ -121,4 +123,59 @@ export const createUsersObjktLoader = () => new DataLoader(batchUsersObjkt)
 }
 export const createUsersOffersLoader = () => new DataLoader(
 	batchUserOffers
+)
+
+
+/**
+ * Given a list of user ids, outputs a list of list of Generative Tokens,
+ * in which each user has its generative tokens
+ */
+const batchUsersGenerativeTokens = async (users: any) => {
+	// we extract the IDs, filters & sort arguments
+	const ids = users.map(u => u.id)
+	const filters = users[0]?.filters
+	const sort = users[0]?.sort
+	const take = users[0]?.take
+	const skip = users[0]?.skip
+
+	let query = GenerativeToken.createQueryBuilder("token")
+		.select()
+		.leftJoinAndSelect("token.author", "author")
+		.leftJoinAndSelect("author.collaborationContracts", "collabs")
+		.leftJoinAndSelect("collabs.collaborator", "collaborator")
+		.where("token.authorId IN(:...ids)", { ids })
+		.orWhere("collaborator.id IN(:...ids)", { ids })
+
+	// add filters / sorts
+	query = await generativeQueryFilter(
+		query,
+		filters,
+		sort,
+	)
+	
+	// add pagination
+	if (take) {
+		query.take(take)
+	}
+	if (skip) {
+		query.skip(skip)
+	}
+		
+	const results = await query.getMany()
+
+	// map user to their work (either direct or collab)
+	return ids.map(
+		id => results.filter(
+			tok => 
+				tok.author!.id === id
+				|| (tok.author!.type === UserType.COLLAB_CONTRACT_V1
+						&& tok.author!.collaborationContracts.find(
+							collab => collab.collaborator.id === id
+						)
+				)
+		)
+	)
+}
+export const createUsersGenerativeTokensLoader = () => new DataLoader(
+	batchUsersGenerativeTokens
 )
