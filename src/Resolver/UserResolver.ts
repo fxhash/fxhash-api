@@ -7,7 +7,7 @@ import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { userCollectionSortTableLevels } from "../Utils/Sort"
-import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
+import { BigPaginationArgs, PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { ActionsSortInput, defaultSort, UserCollectionSortInput, UserSortInput } from "./Arguments/Sort"
 import { applyUserCollectionFIltersToQuery } from "./Filters/User"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
@@ -280,7 +280,7 @@ export class UserResolver {
 		description: "Some unfiltered exploration of the users, with pagination."
 	})
 	async users(
-		@Args() { skip, take }: PaginationArgs,
+		@Args() { skip, take }: BigPaginationArgs,
 		@Arg("filters", UserFilters, { nullable: true }) filters: any,
 		@Arg("sort", { nullable: true }) sortArgs: UserSortInput,
 	): Promise<User[]> {
