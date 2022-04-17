@@ -67,7 +67,7 @@ const batchGenTokObjkt = async (genIds) => {
 			query = query.andWhere(new Brackets(qb => {
 				for (let j = 0; j < filterGroup.length; j++) {
 					const filter = filterGroup[j]
-					qb.orWhere(`objkt.features @> :filter_${i}_${j}`, { 
+					qb.orWhere(`objkt.features::jsonb @> :filter_${i}_${j}`, { 
 						[`filter_${i}_${j}`]: filter
 					})
 				}
