@@ -264,6 +264,16 @@ export class UserResolver {
 		return query.getMany()
 	}
 
+	@FieldResolver(returns => [Action], {
+		description: "The secondary market sales in which the user is involved as a recipient (either as the direct seller or as an artist)"
+	})
+	async sales(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.usersSalesLoader.load(user.id)
+	}
+
 	@FieldResolver(returns => String, {
 		nullable: true,
 		description: "If any, returns the moderation reason associated with the user",
