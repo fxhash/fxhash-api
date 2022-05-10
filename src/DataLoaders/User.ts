@@ -6,6 +6,7 @@ import { Collaboration } from "../Entity/Collaboration"
 import { Offer } from "../Entity/Offer"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
+import { Action, TokenActionType } from "../Entity/Action"
 
 
 /**
@@ -180,4 +181,54 @@ const batchUsersGenerativeTokens = async (users: any) => {
 }
 export const createUsersGenerativeTokensLoader = () => new DataLoader(
 	batchUsersGenerativeTokens
+)
+
+
+/**
+ * Given a list of user ids, outputs a list of a list of actions of type
+ * "LISTING_ACCEPTED" in which the user is either the direct seller or
+ * an artist who authored the project.
+ */
+const batchUsersSales = async (userIds: any) => {
+	// select listing accepted
+	const query = Action.createQueryBuilder("action")
+		.select()
+		.where(new Brackets(
+			qb => qb
+				.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
+				.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
+		))
+
+	// the joins to get back to the user
+	query.leftJoin("action.target", "seller")
+		.leftJoinAndSelect("action.token", "token")
+		.leftJoinAndSelect("token.author", "author")
+		.leftJoinAndSelect("author.collaborationContracts", "collabs")
+		.leftJoinAndSelect("collabs.collaborator", "collaborator")
+
+	// where conditions to filter the user
+	query.andWhere(new Brackets(
+		qb => qb
+			// the user is a direct seller
+			.where("seller.id IN(:...ids)", { ids: userIds })
+			// the user is the only author
+			.orWhere("author.id IN(:...ids)", { ids: userIds })
+			// the user is a collaborator
+			.orWhere("collaborator.id IN(:...ids)", { ids: userIds })
+	))
+	
+	// execute the query
+	const actions = await query.getMany()
+	
+	// map each user to its results
+	return userIds.map(
+		(id: any) => actions.filter(
+			action => action.targetId === id 
+				|| action.token?.authorId === id
+				|| action.token?.author?.collaborationContracts.find(c => c.collaboratorId === id)
+		)
+	)
+}
+export const createUsersSalesLoader = () => new DataLoader(
+	batchUsersSales
 )
