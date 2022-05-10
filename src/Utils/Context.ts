@@ -2,7 +2,7 @@ import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader,
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
-import { createUsersLoader, createUsersObjktLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersLoader, createUsersGenerativeTokensLoader } from '../DataLoaders/User'
+import { createUsersLoader, createUsersObjktLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader } from '../DataLoaders/User'
 import { RequestContext } from '../types/RequestContext'
 
 export const createContext = (req: any, res: any): RequestContext => {
@@ -17,6 +17,7 @@ export const createContext = (req: any, res: any): RequestContext => {
 		userCollabContractsLoader: createUsersCollabContractsLoader(),
 		collabCollaboratorsLoader: createCollabCollaboratorsLoader(),
 		usersGenToksLoader: createUsersGenerativeTokensLoader(),
+		usersSalesLoader: createUsersSalesLoader(),
 
     // GENERATIVE TOKEN loaders
     genTokLoader: createGenTokLoader(),

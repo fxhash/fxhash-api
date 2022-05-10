@@ -3,7 +3,7 @@ import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader,
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
-import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersLoader, createUsersGenerativeTokensLoader } from "../DataLoaders/User"
+import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader } from "../DataLoaders/User"
 
 
 
@@ -17,6 +17,7 @@ export interface RequestContext extends ExpressRequest {
 	userCollabContractsLoader: ReturnType<typeof createUsersCollabContractsLoader>,
 	collabCollaboratorsLoader: ReturnType<typeof createCollabCollaboratorsLoader>,
   usersGenToksLoader: ReturnType<typeof createUsersGenerativeTokensLoader>,
+  usersSalesLoader: ReturnType<typeof createUsersSalesLoader>,
 
   // GENERATIVE TOKEN loaders
   genTokLoader: ReturnType<typeof createGenTokLoader>,
