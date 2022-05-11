@@ -190,36 +190,59 @@ export const createUsersGenerativeTokensLoader = () => new DataLoader(
  * an artist who authored the project.
  */
 const batchUsersSales = async (userIds: any) => {
-	// select listing accepted
-	const query = Action.createQueryBuilder("action")
+	// for now it can only be optimized by taking a single user:
+	const id = userIds[0]
+
+	//
+	// Get the sales in which the user is a direct seller
+	//
+	const sellerActions = await Action.createQueryBuilder("action")
 		.select()
 		.where(new Brackets(
 			qb => qb
 				.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
 				.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
 		))
+		// where conditions to filter the user
+		.andWhere("action.targetId = :id", { id })
+		.getMany()
 
-	// the joins to get back to the user
-	query.leftJoin("action.target", "seller")
-		.leftJoin("action.token", "token")
+	//
+	// Get the sales for which the user is an author
+	// To optimize, we first query the Generative Tokens in which the user is
+	// an author, and then only we query the actions associated with it
+	//
+	const tokens = await GenerativeToken.createQueryBuilder("token")
 		.leftJoin("token.author", "author")
 		.leftJoin("author.collaborationContracts", "collabs")
 		.leftJoin("collabs.collaborator", "collaborator")
+		.where("author.id = :id", { id })
+		.orWhere("collaborator.id = :id", { id })
+		.getMany()
 
-	// where conditions to filter the user
-	query.andWhere(new Brackets(
-		qb => qb
-			// the user is a direct seller
-			.where("seller.id IN(:...ids)", { ids: userIds })
-			// the user is the only author
-			.orWhere("author.id IN(:...ids)", { ids: userIds })
-			// the user is a collaborator
-			.orWhere("collaborator.id IN(:...ids)", { ids: userIds })
-	))
+	const tokenActions = await Action.createQueryBuilder("action")
+		.where(new Brackets(
+			qb => qb
+				.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
+				.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
+		))
+		.andWhere("action.tokenId IN (:...ids)", { ids: tokens.map(t => t.id) })
+		.getMany()
+
 	
-	// execute the query
-	const actions = await query.getMany()
-	
+	// join all the actions, without duplicates
+	const actions: Action[] = sellerActions
+	const actionsMap: Record<string, boolean> = {}
+	for (const action of sellerActions) {
+		actionsMap[action.id] = true
+	}
+	for (const action of tokenActions) {
+		if (!actionsMap[action.id]) {
+			actionsMap[action.id] = true
+			actions.push(action)
+		}
+	}
+
 	// map each user to its results
 	// return userIds.map(
 	// 	(id: any) => actions.filter(
