@@ -201,10 +201,10 @@ const batchUsersSales = async (userIds: any) => {
 
 	// the joins to get back to the user
 	query.leftJoin("action.target", "seller")
-		.leftJoinAndSelect("action.token", "token")
-		.leftJoinAndSelect("token.author", "author")
-		.leftJoinAndSelect("author.collaborationContracts", "collabs")
-		.leftJoinAndSelect("collabs.collaborator", "collaborator")
+		.leftJoin("action.token", "token")
+		.leftJoin("token.author", "author")
+		.leftJoin("author.collaborationContracts", "collabs")
+		.leftJoin("collabs.collaborator", "collaborator")
 
 	// where conditions to filter the user
 	query.andWhere(new Brackets(
@@ -221,13 +221,14 @@ const batchUsersSales = async (userIds: any) => {
 	const actions = await query.getMany()
 	
 	// map each user to its results
-	return userIds.map(
-		(id: any) => actions.filter(
-			action => action.targetId === id 
-				|| action.token?.authorId === id
-				|| action.token?.author?.collaborationContracts.find(c => c.collaboratorId === id)
-		)
-	)
+	// return userIds.map(
+	// 	(id: any) => actions.filter(
+	// 		action => action.targetId === id 
+	// 			|| action.token?.authorId === id
+	// 			|| action.token?.author?.collaborationContracts.find(c => c.collaboratorId === id)
+	// 	)
+	// )
+	return [ actions ]
 }
 export const createUsersSalesLoader = () => new DataLoader(
 	batchUsersSales
