@@ -188,6 +188,8 @@ export const createUsersGenerativeTokensLoader = () => new DataLoader(
  * Given a list of user ids, outputs a list of a list of actions of type
  * "LISTING_ACCEPTED" in which the user is either the direct seller or
  * an artist who authored the project.
+ * TODO: find a way to handle many user IDs while keeping the requests
+ * TODO: optimized (right now it's already slow with a single ID)
  */
 const batchUsersSales = async (userIds: any) => {
 	// for now it can only be optimized by taking a single user:
@@ -242,6 +244,9 @@ const batchUsersSales = async (userIds: any) => {
 			actions.push(action)
 		}
 	}
+
+	// finally sort the actions
+	actions.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
 	// map each user to its results
 	// return userIds.map(
