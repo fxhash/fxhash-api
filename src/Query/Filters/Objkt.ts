@@ -55,6 +55,14 @@ export const objktQueryFilter: TQueryFilter<
 			"listing.acceptedAt is null AND listing.cancelledAt is null"
 		)
 	}
+  // also add a join if a sort by listing is requested
+  else if (sort && (sort.listingPrice || sort.listingCreatedAt)) {
+    query.leftJoinAndSelect(
+      "objkt.listings",
+      "listing", 
+      "listing.acceptedAt is null AND listing.cancelledAt is null"
+    )
+  }
 
   // if their is a search string, we leverage the fact that gentks can be searched
   // using the Generative Token index, because they are all children of it
