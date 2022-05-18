@@ -270,8 +270,10 @@ export class UserResolver {
 	async sales(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
+		@Args() { skip, take }: PaginationArgs
 	) {
-		return ctx.usersSalesLoader.load(user.id)
+		[skip, take] = useDefaultValues([skip, take], [0, 20])
+		return ctx.usersSalesLoader.load({ id: user.id, skip, take })
 	}
 
 	@FieldResolver(returns => String, {
