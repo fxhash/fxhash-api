@@ -191,7 +191,11 @@ export const createUsersGenerativeTokensLoader = () => new DataLoader(
  * TODO: find a way to handle many user IDs while keeping the requests
  * TODO: optimized (right now it's already slow with a single ID)
  */
-const batchUsersSales = async (userIds: any) => {
+const batchUsersSales = async (inputs: any) => {
+	// get the user ids from the inputs
+	const userIds = inputs.map((i: any) => i.id)
+	// the skip, take arguments
+	const { skip, take } = inputs[0]
 	// for now it can only be optimized by taking a single user:
 	const id = userIds[0]
 
@@ -233,7 +237,7 @@ const batchUsersSales = async (userIds: any) => {
 
 	
 	// join all the actions, without duplicates
-	const actions: Action[] = sellerActions
+	let actions: Action[] = sellerActions
 	const actionsMap: Record<string, boolean> = {}
 	for (const action of sellerActions) {
 		actionsMap[action.id] = true
@@ -246,7 +250,12 @@ const batchUsersSales = async (userIds: any) => {
 	}
 
 	// finally sort the actions
-	actions.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+	actions.sort((a, b) => a.createdAt.localeCompare(b.createdAt) ? -1 : 1)
+
+	// pagination
+	// todo: doing pagination this way is bad but no idea how to proceed otherwise
+	// because of the multiple queries involved
+	actions = actions.slice(skip, skip+take)
 
 	// map each user to its results
 	// return userIds.map(
