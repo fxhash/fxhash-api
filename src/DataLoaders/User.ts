@@ -246,7 +246,7 @@ const batchUsersSales = async (userIds: any) => {
 	}
 
 	// finally sort the actions
-	actions.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+	actions.sort((a, b) => a.createdAt.localeCompare(b.createdAt) ? -1 : 1)
 
 	// map each user to its results
 	// return userIds.map(
