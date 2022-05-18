@@ -226,14 +226,17 @@ const batchUsersSales = async (inputs: any) => {
 		.orWhere("collaborator.id = :id", { id })
 		.getMany()
 
-	const tokenActions = await Action.createQueryBuilder("action")
-		.where(new Brackets(
-			qb => qb
-				.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
-				.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
-		))
-		.andWhere("action.tokenId IN (:...ids)", { ids: tokens.map(t => t.id) })
-		.getMany()
+	let tokenActions: Action[] = []
+	if (tokens.length > 0) {
+		tokenActions = await Action.createQueryBuilder("action")
+			.where(new Brackets(
+				qb => qb
+					.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
+					.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
+			))
+			.andWhere("action.tokenId IN (:...ids)", { ids: tokens.map(t => t.id) })
+			.getMany()
+	}
 
 	
 	// join all the actions, without duplicates
