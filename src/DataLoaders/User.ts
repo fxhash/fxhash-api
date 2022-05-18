@@ -253,7 +253,9 @@ const batchUsersSales = async (inputs: any) => {
 	}
 
 	// finally sort the actions
-	actions.sort((a, b) => a.createdAt.localeCompare(b.createdAt) ? -1 : 1)
+	actions.sort((a, b) => 
+		(a.createdAt < b.createdAt) ? -1 : ((a.createdAt > b.createdAt) ? 1 : 0)
+	)
 
 	// pagination
 	// todo: doing pagination this way is bad but no idea how to proceed otherwise
