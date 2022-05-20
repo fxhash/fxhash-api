@@ -7,7 +7,7 @@ import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { BigPaginationArgs, PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput, UserSortInput } from "./Arguments/Sort"
+import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput, OffersSortInput, UserSortInput } from "./Arguments/Sort"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
 import { processFilters, processUserFilters } from "../Utils/Filters"
 import { FiltersOffer, Offer } from "../Entity/Offer"
@@ -185,14 +185,46 @@ export class UserResolver {
 	@FieldResolver(returns => [Offer], {
 		description: "Returns all the offers made by the user. Can be filtered."
 	})
-	offers(
+	offersSent(
 		@Root() user: User,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+		@Arg("sort", { nullable: true }) sort: OffersSortInput
 	) {
-		return ctx.userOffersLoader.load({
+		// default sort
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				createdAt: "DESC"
+			}
+		}
+
+		return ctx.userOffersSentLoader.load({
 			id: user.id,
 			filters: filters,
+			sort: sort
+		})
+	}
+
+	@FieldResolver(returns => [Offer], {
+		description: "Returns all the offers made by users on tokens owned by the given user."
+	})
+	offersReceived(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+		@Arg("sort", { nullable: true }) sort: OffersSortInput
+	) {
+		// default sort
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				createdAt: "DESC"
+			}
+		}
+
+		return ctx.userOffersReceivedLoader.load({
+			id: user.id,
+			filters: filters,
+			sort: sort
 		})
 	}
 
