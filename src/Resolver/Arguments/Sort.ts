@@ -39,6 +39,18 @@ export class ListingsSortInput {
 
 
 @InputType()
+export class OffersSortInput {
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  price?: "ASC" | "DESC"
+  
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  createdAt?: "ASC" | "DESC"
+}
+
+
+@InputType()
 export class ObjktsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])

@@ -7,6 +7,7 @@ import { Offer } from "../Entity/Offer"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
 import { Action, TokenActionType } from "../Entity/Action"
+import { offerQueryFilter } from "../Query/Filters/Offer"
 
 
 /**
@@ -91,39 +92,51 @@ const batchUsersObjkt = async (userIds) => {
 export const createUsersObjktLoader = () => new DataLoader(batchUsersObjkt)
 
 /**
- * Given a list of objkt IDs, returns a list of offers
+ * Given a list of user IDs, returns a list of offers
  */
-const batchUserOffers = async (inputs: any) => {
+const batchUserOffersSent = async (inputs: any) => {
 	// we extract the ids and the filters if any
 	const ids = inputs.map(input => input.id)
 	const filters = inputs[0]?.filters
+	const sort = inputs[0]?.sort
 
 	const query = Offer.createQueryBuilder("offer")
 		.select()
 		.where("offer.buyerId IN(:...ids)", { ids })
 
-	// apply filters, if any
-	if (filters) {
-		if (filters.active_eq === true) {
-			query.andWhere("offer.cancelledAt is null")
-			query.andWhere("offer.acceptedAt is null")
-		}
-		else if (filters.active_eq === false) {
-			query.andWhere(new Brackets(qb => {
-				qb.where("offer.cancelledAt is not null")
-				qb.orWhere("offer.acceptedAt is not null")
-			}))
-		}
-	}
-
-	// order by creation time
-	query.orderBy("offer.createdAt", "DESC")
+	// filter/sort options
+	offerQueryFilter(query, filters, sort)
 		
 	const offers = await query.getMany()
 	return ids.map(id => offers.filter(l => l.buyerId === id))
 }
-export const createUsersOffersLoader = () => new DataLoader(
-	batchUserOffers
+export const createUsersOffersSentLoader = () => new DataLoader(
+	batchUserOffersSent
+)
+
+
+/**
+ * Given a list of user IDs, returns a list of offers
+ */
+ const batchUserOffersReceived = async (inputs: any) => {
+	// we extract the ids and the filters if any
+	const ids = inputs.map(input => input.id)
+	const filters = inputs[0]?.filters
+	const sort = inputs[0]?.sort
+
+	const query = Offer.createQueryBuilder("offer")
+		.select()
+		.leftJoinAndSelect("offer.objkt", "objkt")
+		.where("objkt.ownerId IN(:...ids)", { ids })
+
+	// filter/sort options
+	offerQueryFilter(query, filters, sort)
+		
+	const offers = await query.getMany()
+	return ids.map(id => offers.filter(l => l.objkt.ownerId === id))
+}
+export const createUsersOffersReceivedLoader = () => new DataLoader(
+	batchUserOffersReceived
 )
 
 

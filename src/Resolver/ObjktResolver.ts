@@ -10,7 +10,7 @@ import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { Split } from "../Entity/Split"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
-import { ObjktsSortInput } from "./Arguments/Sort"
+import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -89,10 +89,19 @@ export class ObjktResolver {
 		@Root() objkt: Objkt,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+		@Arg("sort", { nullable: true }) sort: OffersSortInput
 	) {
+		// default sort
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				createdAt: "DESC"
+			}
+		}
+
 		return ctx.objktOffersLoader.load({
 			id: objkt.id,
 			filters: filters,
+			sort: sort,
 		})
 	}
 
