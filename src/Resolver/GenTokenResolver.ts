@@ -23,7 +23,7 @@ import { getGenerativeTokenPrice } from "../Utils/GenerativeToken"
 import { FeatureFilter } from "./Arguments/Filter"
 import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput } from "./Arguments/Sort"
+import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -102,10 +102,19 @@ export class GenTokenResolver {
 		@Root() token: GenerativeToken,
 		@Ctx() ctx: RequestContext,
 		@Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+		@Arg("sort", { nullable: true }) sort: OffersSortInput
 	) {
+		// default sort
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				createdAt: "DESC"
+			}
+		}
+
 		return ctx.genTokOffersLoader.load({
 			id: token.id,
 			filters: filters,
+			sort: sort
 		})
 	}
 
