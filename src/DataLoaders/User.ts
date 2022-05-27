@@ -217,13 +217,22 @@ const batchUsersSales = async (inputs: any) => {
 	//
 	const sellerActions = await Action.createQueryBuilder("action")
 		.select()
+		// find the listings where user is seller
 		.where(new Brackets(
 			qb => qb
-				.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
-				.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
+				.where(new Brackets(
+					qb => qb
+						.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
+						.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
+				))
+				.andWhere("action.targetId = :id", { id })
 		))
-		// where conditions to filter the user
-		.andWhere("action.targetId = :id", { id })
+		// find the offers where user is seller
+		.orWhere(new Brackets(
+			qb => qb
+				.where({ type: TokenActionType.OFFER_ACCEPTED })
+				.andWhere("action.issuerId = :id", { id })
+		))
 		.getMany()
 
 	//
@@ -246,6 +255,7 @@ const batchUsersSales = async (inputs: any) => {
 				qb => qb
 					.where({ type: TokenActionType.LISTING_V1_ACCEPTED })
 					.orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
+					.orWhere({ type: TokenActionType.OFFER_ACCEPTED })
 			))
 			.andWhere("action.tokenId IN (:...ids)", { ids: tokens.map(t => t.id) })
 			.getMany()
