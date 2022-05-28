@@ -5,6 +5,7 @@ import { Listing } from "../Entity/Listing"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { Split } from "../Entity/Split"
+import { offerQueryFilter } from "../Query/Filters/Offer"
 
 
 /**
@@ -95,27 +96,14 @@ const batchObjktOffers = async (inputs: any) => {
 	// we extract the ids and the filters if any
 	const ids = inputs.map(input => input.id)
 	const filters = inputs[0]?.filters
+	const sort = inputs[0]?.sort
 
 	const query = Offer.createQueryBuilder("offer")
 		.select()
 		.where("offer.objktId IN(:...ids)", { ids })
 
-	// apply filters, if any
-	if (filters) {
-		if (filters.active_eq === true) {
-			query.andWhere("offer.cancelledAt is null")
-			query.andWhere("offer.acceptedAt is null")
-		}
-		else if (filters.active_eq === false) {
-			query.andWhere(new Brackets(qb => {
-				qb.where("offer.cancelledAt is not null")
-				qb.orWhere("offer.acceptedAt is not null")
-			}))
-		}
-	}
-
-	// order by creation time
-	query.orderBy("offer.createdAt", "DESC")
+	// apply filter/sort options
+	offerQueryFilter(query, filters, sort)
 		
 	const offers = await query.getMany()
 	return ids.map(id => offers.filter(l => l.objktId === id))
