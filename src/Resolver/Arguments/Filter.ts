@@ -26,3 +26,15 @@ export class FeatureFilter {
   })
   type: FeatureType
 }
+
+
+/**
+ * Input which can be run for a site-wide search
+ */
+@InputType()
+export class SearchFilters {
+  @Field({
+    description: "The string which will be run for the search."
+  })
+  searchQuery_eq: string
+}
