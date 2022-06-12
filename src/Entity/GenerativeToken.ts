@@ -6,6 +6,7 @@ import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDate
 import { GenMintProgressFilter } from '../types/GenerativeToken'
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
+import { ArticleGenerativeToken } from './ArticleGenerativeToken'
 import { MarketStats } from './MarketStats'
 import { MarketStatsHistory } from './MarketStatsHistory'
 import { ModerationReason } from './ModerationReason'
@@ -219,6 +220,9 @@ export class GenerativeToken extends BaseEntity {
 
   @OneToMany(() => Action, action => action.token)
   actions: Action[]
+
+  @OneToMany(() => ArticleGenerativeToken, jointure => jointure.generativeToken)
+  articleJointures: ArticleGenerativeToken[]
 
   @OneToMany(() => Transaction, transaction => transaction.objkt)
   transactions: Transaction[]

@@ -3,6 +3,7 @@ import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, BaseEntity, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm'
 import { HistoryMetadata } from '../types/Metadata'
+import { Article } from './Article'
 import { GenerativeToken } from './GenerativeToken'
 import { Objkt } from './Objkt'
 import { DateTransformer } from './Transformers/DateTransformer'
@@ -34,7 +35,11 @@ export enum TokenActionType {
   AUCTION                       = "AUCTION",
   AUCTION_BID                   = "AUCTION_BID",
   AUCTION_CANCELLED             = "AUCTION_CANCELLED",  
-  AUCTION_FULFILLED             = "AUCTION_FULFILLED",    
+  AUCTION_FULFILLED             = "AUCTION_FULFILLED",
+  ARTICLE_MINTED                = "ARTICLE_MINTED",
+  ARTICLE_METADATA_UPDATED      = "ARTICLE_METADATA_UPDATED",
+  ARTICLE_METADATA_LOCKED       = "ARTICLE_METADATA_LOCKED",
+  ARTICLE_EDITIONS_TRANSFERED   = "ARTICLE_EDITIONS_TRANSFERED",  
 }
 registerEnumType(TokenActionType, {
   name: "ActionType",
@@ -86,6 +91,12 @@ export class Action extends BaseEntity {
 
   @Column()
 	objktId: number
+
+  @ManyToOne(() => Article, article => article.actions, { onDelete: "CASCADE" })
+  article: Article
+
+  @Column({ nullable: true })
+  articleId: number
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Column({ type: "jsonb", nullable: true })
