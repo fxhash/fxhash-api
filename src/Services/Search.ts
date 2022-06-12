@@ -15,3 +15,6 @@ export const searchIndexMarketplace = algoliaClient.initIndex(
 export const searchIndexUser = algoliaClient.initIndex(
   process.env.ALGOLIA_INDEX_USERS
 )
+export const searchIndexArticles = algoliaClient.initIndex(
+  process.env.ALGOLIA_INDEX_ARTICLES
+)

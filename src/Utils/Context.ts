@@ -1,3 +1,4 @@
+import { createArticlesLedgersLoader } from '../DataLoaders/Articles'
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from '../DataLoaders/GenTokens'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
@@ -42,6 +43,9 @@ export const createContext = (req: any, res: any): RequestContext => {
     objktListingsLoader: createObjktListingsLoader(),
 		objktActiveListingsLoader: createObjktActiveListingsLoader(),
 		objktOffersLoader: createObjktOffersLoader(),
+
+		// ARTICLES loaders
+		articlesLedgersLoader: createArticlesLedgersLoader(),
 
 		// MARKET STATS loaders
 		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),

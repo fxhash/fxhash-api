@@ -1,5 +1,6 @@
 import { GraphQLJSONObject } from "graphql-type-json"
 import { Field, ObjectType } from "type-graphql"
+import { Filter, generateFilterType } from "type-graphql-filter"
 import { BaseEntity, Column, Entity, Index, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from "typeorm"
 import { ArticleMetadata } from "../types/Metadata"
 import { Action } from "./Action"
@@ -29,6 +30,7 @@ export class Article extends BaseEntity {
   @Column()
   slug: string
 
+  @Filter([ "eq" ], () => String)
   @ManyToOne(() => User, user => user.articles)
   author: User
 
@@ -93,6 +95,7 @@ export class Article extends BaseEntity {
   @Column({ type: "json" })
   metadata: ArticleMetadata
 
+  @Filter([ "eq" ])
   @Field({
     description: "Is the onchain metadata locked ? Locked metadata become immutable."
   })
@@ -130,12 +133,14 @@ export class Article extends BaseEntity {
   @Column({ type: "timestamptz", transformer: DateTransformer })
   createdAt: string
 
+  @Filter([ "lte", "gte" ])
   @Field({
     description: "Number of editions of the semi-fungible FA2 asset."
   })
   @Column()
   editions: number
 
+  @Filter([ "lte", "gte" ])
   @Field({
     description: "Royalties as set by the minter and defined onchain, in per thousands."
   })
@@ -147,4 +152,14 @@ export class Article extends BaseEntity {
   })
   @Column()
   mintOpHash: string
+
+  
+  //
+  // CUSTOM FILTERS
+  //
+
+  @Filter([ "eq" ], type => String)
+  searchQuery: string
 }
+
+export const ArticleFilters = generateFilterType(Article)

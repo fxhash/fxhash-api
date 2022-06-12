@@ -25,6 +25,7 @@ declare global {
 			ALGOLIA_INDEX_GENERATIVE: string
 			ALGOLIA_INDEX_MARKETPLACE: string
 			ALGOLIA_INDEX_USERS: string
+			ALGOLIA_INDEX_ARTICLES: string
 	}
 }
 }
