@@ -1,5 +1,6 @@
 import DataLoader from "dataloader"
 import { Brackets, In } from "typeorm"
+import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
@@ -159,6 +160,25 @@ export const createGentkTokPrimarySplitsLoader = () => new DataLoader(
 }
 export const createGentkTokSecondarySplitsLoader = () => new DataLoader(
 	batchGenTokSecondarySplits
+)
+
+/**
+ * Given a list of Article IDs, outputs a list of the ArticleGenerative token
+ * instances related to the article (the mentions of a Generative Token in an
+ * article)
+ */
+ const batchGenTokArticleMentions = async (ids) => {
+  const mentions = await ArticleGenerativeToken.find({
+    where: {
+      generativeTokenId: In(ids)
+    }
+  })
+  return ids.map(id => 
+		mentions.filter(mention => mention.generativeTokenId === id)
+	)
+}
+export const createGenTokArticleMentionsLoader = () => new DataLoader(
+	batchGenTokArticleMentions
 )
 
 const batchGenTokReports = async (genIds) => {

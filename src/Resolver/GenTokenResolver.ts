@@ -3,6 +3,7 @@ import { GraphQLJSONObject } from "graphql-type-json"
 import { Arg, Args, Ctx, Field, FieldResolver, ObjectType, Query, Resolver, Root } from "type-graphql"
 import { Brackets, Equal, getManager, In, IsNull, LessThanOrEqual, MoreThan, Not } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
+import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { GenerativeFilters, GenerativeToken, GentkTokPricing, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
@@ -283,6 +284,16 @@ export class GenTokenResolver {
 		@Ctx() ctx: RequestContext,
 	) {
 		return ctx.genTokObjktFeaturesLoader.load(token.id) 
+	}
+
+	@FieldResolver(returns => [ArticleGenerativeToken], {
+		description: "The Articles in which this Generative Token is mentionned",
+	})
+	async articleMentions(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.genTokArticleMentionsLoader.load(token.id) 
 	}
 
 	@FieldResolver(returns => String, {

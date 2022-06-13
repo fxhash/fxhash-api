@@ -1,5 +1,6 @@
 import { Arg, Args, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
 import { Action, FiltersAction } from "../Entity/Action"
+import { Article } from "../Entity/Article"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
@@ -60,6 +61,19 @@ export class ActionResolver {
     if (action.objktId == null) return null
 		if (action.objkt) return action.objkt
 		return ctx.objktsLoader.load(action.objktId)
+	}
+
+  @FieldResolver(returns => Article, {
+		nullable: true,
+		description: "The article associated with the action, if any."
+	})
+	article(
+		@Root() action: Action,
+		@Ctx() ctx: RequestContext
+	) {
+    if (action.articleId == null) return null
+		if (action.article) return action.article
+		return ctx.articlesLoader.load(action.articleId)
 	}
   
   @Query(returns => [Action], {

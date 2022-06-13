@@ -1,9 +1,9 @@
-import { createArticlesLedgersLoader } from '../DataLoaders/Articles'
-import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from '../DataLoaders/GenTokens'
+import { createArticlesGenTokMentionsLoader, createArticlesLedgersLoader, createArticlesLoader, createArticlesRevisionsLoader, createArticlesRoyaltiesSplitsLoader } from '../DataLoaders/Articles'
+import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokArticleMentionsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from '../DataLoaders/GenTokens'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
 import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
-import { createUsersLoader, createUsersObjktLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader } from '../DataLoaders/User'
+import { createUsersLoader, createUsersObjktLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader, createUsersArticlesLoader, createUsersArticleLedgersLoader } from '../DataLoaders/User'
 import { RequestContext } from '../types/RequestContext'
 
 export const createContext = (req: any, res: any): RequestContext => {
@@ -19,6 +19,8 @@ export const createContext = (req: any, res: any): RequestContext => {
 		userCollabContractsLoader: createUsersCollabContractsLoader(),
 		collabCollaboratorsLoader: createCollabCollaboratorsLoader(),
 		usersGenToksLoader: createUsersGenerativeTokensLoader(),
+		usersArticlesLoader: createUsersArticlesLoader(),
+		usersArticleLedgersLoader: createUsersArticleLedgersLoader(),
 		usersSalesLoader: createUsersSalesLoader(),
 
     // GENERATIVE TOKEN loaders
@@ -33,7 +35,7 @@ export const createContext = (req: any, res: any): RequestContext => {
 		genTokReportsLoader: createGenTokReportsLoader(),
 		genTokMarketStatsLoader: createGenTokMarketStatsLoader(),
 		genTokObjktsCountLoader: createGenTokObjktsCountLoader(),
-		genTokMarketStatsHistoryLoader: createGenTokMarketStatsHistoryLoader(),
+		genTokMarketStatsHistoryLoader: createGenTokMarketStatsHistoryLoader(),genTokArticleMentionsLoader: createGenTokArticleMentionsLoader(),
 		genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
 
     // OBJKTS loaders
@@ -45,7 +47,11 @@ export const createContext = (req: any, res: any): RequestContext => {
 		objktOffersLoader: createObjktOffersLoader(),
 
 		// ARTICLES loaders
+		articlesLoader: createArticlesLoader(),
 		articlesLedgersLoader: createArticlesLedgersLoader(),
+		articlesGenTokMentionsLoader: createArticlesGenTokMentionsLoader(),
+		articlesRevisionsLoader: createArticlesRevisionsLoader(),
+		articlesRoyaltiesSplitsLoader: createArticlesRoyaltiesSplitsLoader(),
 
 		// MARKET STATS loaders
 		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
