@@ -8,6 +8,9 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
 import { Action, TokenActionType } from "../Entity/Action"
 import { offerQueryFilter } from "../Query/Filters/Offer"
+import { Article } from "../Entity/Article"
+import { articleQueryFilter } from "../Query/Filters/Article"
+import { ArticleLedger } from "../Entity/ArticleLedger"
 
 
 /**
@@ -198,6 +201,51 @@ export const createUsersGenerativeTokensLoader = () => new DataLoader(
 
 
 /**
+ * Given a list of user ids, outputs a list of list of Articles authored by
+ * the user.
+ */
+ const batchUsersArticles = async (users: any) => {
+	// we extract the IDs, filters & sort arguments
+	const ids = users.map(u => u.id)
+	const filters = users[0]?.filters
+	const sort = users[0]?.sort
+	const take = users[0]?.take
+	const skip = users[0]?.skip
+
+	let query = Article.createQueryBuilder("article")
+		.select()
+		.where("article.authorId IN(:...ids)", { ids })
+
+	// add filters / sorts
+	query = await articleQueryFilter(
+		query,
+		filters,
+		sort,
+	)
+	
+	// add pagination
+	if (take) {
+		query.take(take)
+	}
+	if (skip) {
+		query.skip(skip)
+	}
+		
+	const results = await query.getMany()
+
+	// map user to their work (either direct or collab)
+	return ids.map(
+		id => results.filter(
+			article => article.authorId === id
+		)
+	)
+}
+export const createUsersArticlesLoader = () => new DataLoader(
+	batchUsersArticles
+)
+
+
+/**
  * Given a list of user ids, outputs a list of a list of actions of type
  * "LISTING_ACCEPTED" in which the user is either the direct seller or
  * an artist who authored the project.
@@ -297,4 +345,25 @@ const batchUsersSales = async (inputs: any) => {
 }
 export const createUsersSalesLoader = () => new DataLoader(
 	batchUsersSales
+)
+
+
+/**
+ * Given a list of user ids, outputs a list of Article Ledger entries where the
+ * user is the owner key
+ */
+const batchUsersArticleLedgers = async (ids) => {
+	const ledgers = await ArticleLedger.find({
+		where: {
+			ownerId: In(ids)
+		}
+	})
+	return ids.map(
+		id => ledgers.filter(
+			ledger => ledger.ownerId === id
+		)
+	)
+}
+export const createUsersArticleLedgersLoader = () => new DataLoader(
+	batchUsersArticleLedgers
 )

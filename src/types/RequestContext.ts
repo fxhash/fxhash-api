@@ -1,10 +1,10 @@
 import { Request as ExpressRequest } from "express"
-import { createArticlesLedgersLoader } from "../DataLoaders/Articles"
-import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from "../DataLoaders/GenTokens"
+import { createArticlesGenTokMentionsLoader, createArticlesLedgersLoader, createArticlesLoader, createArticlesRevisionsLoader, createArticlesRoyaltiesSplitsLoader } from "../DataLoaders/Articles"
+import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokArticleMentionsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
-import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader } from "../DataLoaders/User"
+import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader, createUsersArticlesLoader, createUsersArticleLedgersLoader } from "../DataLoaders/User"
 
 
 
@@ -19,6 +19,8 @@ export interface RequestContext extends ExpressRequest {
 	userCollabContractsLoader: ReturnType<typeof createUsersCollabContractsLoader>,
 	collabCollaboratorsLoader: ReturnType<typeof createCollabCollaboratorsLoader>,
   usersGenToksLoader: ReturnType<typeof createUsersGenerativeTokensLoader>,
+  usersArticlesLoader: ReturnType<typeof createUsersArticlesLoader>,
+  usersArticleLedgersLoader: ReturnType<typeof createUsersArticleLedgersLoader>,
   usersSalesLoader: ReturnType<typeof createUsersSalesLoader>,
 
   // GENERATIVE TOKEN loaders
@@ -35,6 +37,7 @@ export interface RequestContext extends ExpressRequest {
   genTokObjktsCountLoader: ReturnType<typeof createGenTokObjktsCountLoader>,
   genTokMarketStatsHistoryLoader: ReturnType<typeof createGenTokMarketStatsHistoryLoader>,
   genTokObjktFeaturesLoader: ReturnType<typeof createGenTokObjktFeaturesLoader>,
+  genTokArticleMentionsLoader: ReturnType<typeof createGenTokArticleMentionsLoader>,
 
   // OBJKTS loaders
   objktsLoader: ReturnType<typeof createObjktsLoader>,
@@ -43,9 +46,13 @@ export interface RequestContext extends ExpressRequest {
   objktListingsLoader: ReturnType<typeof createObjktListingsLoader>,
   objktActiveListingsLoader: ReturnType<typeof createObjktActiveListingsLoader>,
   objktOffersLoader: ReturnType<typeof createObjktOffersLoader>,
-
+  
   // ARTICLES loaders
+  articlesLoader: ReturnType<typeof createArticlesLoader>,
   articlesLedgersLoader: ReturnType<typeof createArticlesLedgersLoader>,
+  articlesGenTokMentionsLoader: ReturnType<typeof createArticlesGenTokMentionsLoader>,
+  articlesRevisionsLoader: ReturnType<typeof createArticlesRevisionsLoader>,
+  articlesRoyaltiesSplitsLoader: ReturnType<typeof createArticlesRoyaltiesSplitsLoader>,
 
 	// MARKET STATS loaders
 	marketStatsGenTokLoader: ReturnType<typeof createMarketStatsGenTokLoader>,

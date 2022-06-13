@@ -1,6 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
 import { BaseEntity, Column, Entity, Index, ManyToOne, PrimaryColumn } from "typeorm";
 import { Article } from "./Article";
+import { DateTransformer } from "./Transformers/DateTransformer";
 
 
 @ObjectType({
@@ -30,7 +31,7 @@ export class ArticleRevision extends BaseEntity {
   @Field({
     description: "Datetime at which the revision was published onchain."
   })
-  @Column({ type: "timestamptz" })
+  @Column({ type: "timestamptz", transformer: DateTransformer })
   createdAt: string
 
   @Field({
