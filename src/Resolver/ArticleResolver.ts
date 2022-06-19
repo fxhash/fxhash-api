@@ -52,7 +52,7 @@ export class ArticleResolver {
 		}
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
 
-		let query = Article.createQueryBuilder("token").select()
+		let query = Article.createQueryBuilder("article").select()
 
 		// apply the filters/sort
 		query = await articleQueryFilter(
@@ -150,6 +150,41 @@ export class ArticleResolver {
 		// add pagination
 		query.skip(skip)
 		query.take(take)
+
+		return query.getMany()
+	}
+
+	@FieldResolver(() => [Article])
+	async relatedArticles(
+		@Root() article: Article,
+		@Args() { skip, take }: PaginationArgs,
+	) {
+		// default arguments
+		[skip, take] = useDefaultValues([skip, take], [0, 5])
+
+		// sort by search relevance
+		const sort: ArticleSortInput = {
+			relevance: "DESC"
+		}
+
+		// create the select query & the filters
+		let query = Article.createQueryBuilder("article").select()
+
+		// apply the filters/sort
+		query = await articleQueryFilter(
+			query,
+			{
+				searchQuery_eq: article.tags.join(" ")
+			},
+			sort,
+		)
+
+		// we remove the current article from related
+		query.andWhere("article.id != :id", { id: article.id })
+
+		// add pagination
+		query.take(take)
+		query.skip(skip)
 
 		return query.getMany()
 	}

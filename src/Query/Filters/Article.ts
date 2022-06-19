@@ -30,7 +30,7 @@ sort,
     if (sort?.relevance && ids.length > 1) {
       // then we manually set the order using array_position
       const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
-      query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
+      query.addOrderBy(`array_position(array[${relevanceList}], article.id)`)
     }
   }
 
@@ -48,7 +48,7 @@ sort,
   // add the sort arguments
   if (sort) {
     for (const field in sort) {
-      query.addOrderBy(`token.${field}`, sort[field])
+      query.addOrderBy(`article.${field}`, sort[field])
     }
   }
 
