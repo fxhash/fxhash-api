@@ -127,7 +127,7 @@ export class Article extends BaseEntity {
   @Column({
     nullable: true
   })
-  thumbnailCaption: string|null
+  thumbnailCaption?: string
 
   @Field(() => [String], {
     description: "A list of the platforms targetted by the article. To facilitate indexing by the platforms for articles scoped to their content, this field can be used.",
