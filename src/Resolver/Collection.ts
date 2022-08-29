@@ -12,6 +12,9 @@ import { OfferResolver } from "./OfferResolver"
 import { ReserveResolver } from "./ReserveResolver"
 import { ModerationReasonResolver } from "./ModerationReasonResolver"
 import { SearchResolver } from "./SearchResolver"
+import { ArticleResolver } from "./ArticleResolver"
+import { ArticleLedgerResolver } from "./ArticleLedgerResolver"
+import { ArticleGenerativeTokenResolver } from "./ArticleGenerativeTokenResolver"
 
 export const ResolverCollection: NonEmptyArray<Function> = [
   UserResolver,
@@ -27,4 +30,7 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   StatusResolver,
   ModerationReasonResolver,
   SearchResolver,
+  ArticleResolver,
+  ArticleLedgerResolver,
+  ArticleGenerativeTokenResolver,
 ]

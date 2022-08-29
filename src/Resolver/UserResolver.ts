@@ -7,12 +7,14 @@ import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { BigPaginationArgs, PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
-import { ActionsSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput, OffersSortInput, UserSortInput } from "./Arguments/Sort"
+import { ActionsSortInput, ArticleSortInput, defaultSort, GenerativeSortInput, ObjktsSortInput, OffersSortInput, UserSortInput } from "./Arguments/Sort"
 import { mapUserAuthorizationIdsToEnum } from "../Utils/User"
 import { processFilters, processUserFilters } from "../Utils/Filters"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { searchIndexUser } from "../Services/Search"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
+import { Article, ArticleFilters } from "../Entity/Article"
+import { ArticleLedger } from "../Entity/ArticleLedger"
 
 
 @Resolver(User)
@@ -152,6 +154,35 @@ export class UserResolver {
 			skip: skip,
 			take: take,
 		})
+	}
+
+	@FieldResolver(returns => [Article], {
+		description: "The Articles authored by the user."
+	})
+	articles(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+		@Args() { skip, take }: PaginationArgs,
+		@Arg("sort", { nullable: true }) sort: ArticleSortInput,
+		@Arg("filters", ArticleFilters, { nullable: true }) filters: any
+	) {
+		return ctx.usersArticlesLoader.load({
+			id: user.id,
+			filters: filters,
+			sort: sort,
+			skip: skip,
+			take: take,
+		})
+	}
+
+	@FieldResolver(returns => [ArticleLedger], {
+		description: "The Articles owned by the user."
+	})
+	articlesOwned(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		return ctx.usersArticleLedgersLoader.load(user.id)
 	}
 
   @FieldResolver(returns => [Listing], {

@@ -3,6 +3,8 @@ import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne } from 'typeorm'
 import { Action } from './Action'
+import { Article } from './Article'
+import { ArticleLedger } from './ArticleLedger'
 import { Collaboration } from './Collaboration'
 import { GenerativeToken } from './GenerativeToken'
 import { Listing } from './Listing'
@@ -84,6 +86,12 @@ export class User extends BaseEntity {
   // a User will have a list of collaboration contracts
   @OneToMany(() => Collaboration, collab => collab.collaborationContract)
   collaborationContracts: Collaboration[]
+
+  @OneToMany(() => Article, article => article.author)
+  articles: Article[]
+
+  @OneToMany(() => ArticleLedger, ledger => ledger.owner)
+  articlesLedger: ArticleLedger[]
 
   @Column({
     type: "smallint",

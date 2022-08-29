@@ -1,5 +1,6 @@
 import { FilterOperator } from "type-graphql-filter"
 import { FindConditions, FindOperator, Not, LessThan, MoreThan, Equal, In, MoreThanOrEqual, LessThanOrEqual, IsNull } from "typeorm"
+import { Article } from "../Entity/Article"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
 import { Objkt } from "../Entity/Objkt"
@@ -108,6 +109,17 @@ const objktFiltersDbFields: (keyof Objkt)[] = [
 ]
 export const processObjktFilters = (filters: any) => {
   return processSelectiveFilters(filters, objktFiltersDbFields)
+}
+
+
+const articleFiltersDbFields: (keyof Article)[] = [ 
+  "author",
+  "metadataLocked",
+  "editions",
+  "royalties"
+]
+export const processArticleFilters = (filters: any) => {
+  return processSelectiveFilters(filters, articleFiltersDbFields)
 }
 
 

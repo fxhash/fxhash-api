@@ -203,3 +203,27 @@ export class UserSortInput {
   @IsIn(["DESC"])
   relevance?: "DESC"
 }
+
+@InputType()
+export class ArticleSortInput {
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  id?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  createdAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  editions?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  royalties?: "ASC" | "DESC"
+  
+  // search-related sort filter
+  @Field(type => String, { nullable: true })
+  @IsIn(["DESC"])
+  relevance?: "DESC"
+}

@@ -1,5 +1,6 @@
 import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, PrimaryGeneratedColumn, OneToMany, ManyToOne, Index } from 'typeorm'
+import { Article } from './Article'
 import { GenerativeToken } from './GenerativeToken'
 import { Objkt } from './Objkt'
 import { User } from './User'
@@ -49,4 +50,13 @@ export class Split extends BaseEntity {
 
   @Column()
   objktId: number
+
+  @Index()
+  @ManyToOne(() => Article, article => article.royaltiesSplit, {
+    onDelete: "CASCADE",
+  })
+  article: Article
+
+  @Column()
+  articleId: number
 }
