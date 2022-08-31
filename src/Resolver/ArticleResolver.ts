@@ -174,7 +174,7 @@ export class ArticleResolver {
 		query = await articleQueryFilter(
 			query,
 			{
-				searchQuery_eq: article.tags.join(" ")
+				searchQuery_eq: article.title + " " + article.tags.join(" ")
 			},
 			sort,
 		)

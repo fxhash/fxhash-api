@@ -116,7 +116,8 @@ const articleFiltersDbFields: (keyof Article)[] = [
   "author",
   "metadataLocked",
   "editions",
-  "royalties"
+  "royalties",
+  "flag",
 ]
 export const processArticleFilters = (filters: any) => {
   return processSelectiveFilters(filters, articleFiltersDbFields)
