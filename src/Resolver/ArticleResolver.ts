@@ -188,4 +188,17 @@ export class ArticleResolver {
 
 		return query.getMany()
 	}
+
+	@FieldResolver(returns => String, {
+		nullable: true,
+		description: "If any, returns the moderation reason associated with the Article",
+	})
+	async moderationReason(
+		@Root() article: Article,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (article.moderationReasonId == null) return null
+		if (article.moderationReason) return article.moderationReason
+		return ctx.moderationReasonsLoader.load(article.moderationReasonId)
+	}
 }
