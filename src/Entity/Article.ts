@@ -1,5 +1,5 @@
 import { GraphQLJSONObject } from "graphql-type-json"
-import { Field, ObjectType } from "type-graphql"
+import { Field, ObjectType, registerEnumType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
 import { BaseEntity, Column, Entity, Index, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from "typeorm"
 import { ArticleMetadata } from "../types/Metadata"
@@ -7,10 +7,23 @@ import { Action } from "./Action"
 import { ArticleGenerativeToken } from "./ArticleGenerativeToken"
 import { ArticleLedger } from "./ArticleLedger"
 import { ArticleRevision } from "./ArticleRevision"
+import { ModerationReason } from "./ModerationReason"
 import { Split } from "./Split"
 import { DateTransformer } from "./Transformers/DateTransformer"
 import { User } from "./User"
 
+export enum ArticleFlag {
+  NONE              = "NONE",
+  CLEAN             = "CLEAN",
+  REPORTED          = "REPORTED",
+  AUTO_DETECT_COPY  = "AUTO_DETECT_COPY",
+  MALICIOUS         = "MALICIOUS",
+  HIDDEN            = "HIDDEN",
+}
+registerEnumType(ArticleFlag, {
+  name: "ArticleFlag",
+  description: "Flag state of Generative Token",
+})
 
 @Entity()
 @ObjectType({
@@ -29,6 +42,17 @@ export class Article extends BaseEntity {
   })
   @Column()
   slug: string
+
+  @Field(() => ArticleFlag, {
+    description: "Articles can be moderated and their moderation state will reflect in this property."
+  })
+  @Column({
+    type: "enum",
+    enum: ArticleFlag,
+    default: ArticleFlag.NONE
+  })
+  @Filter([ "eq", "in", "ne" ], () => ArticleFlag)
+  flag: ArticleFlag
 
   @Filter([ "eq" ], () => String)
   @ManyToOne(() => User, user => user.articles)
@@ -52,6 +76,14 @@ export class Article extends BaseEntity {
 
   @OneToMany(() => Action, action => action.article)
   actions: Action[]
+
+  @ManyToOne(() => ModerationReason, reason => reason.articles, { 
+    nullable: true 
+  })
+  moderationReason?: ModerationReason
+
+  @Column()
+  moderationReasonId: string
 
   @Field({
     description: "Title of the article. Maps to the `name` field of the JSON metadata."
@@ -146,7 +178,7 @@ export class Article extends BaseEntity {
   @Field({
     description: "Number of editions of the semi-fungible FA2 asset."
   })
-  @Column()
+  @Column({ type: "bigint" })
   editions: number
 
   @Filter([ "lte", "gte" ])

@@ -174,7 +174,7 @@ export class ArticleResolver {
 		query = await articleQueryFilter(
 			query,
 			{
-				searchQuery_eq: article.tags.join(" ")
+				searchQuery_eq: article.title + " " + article.tags.join(" ")
 			},
 			sort,
 		)
@@ -187,5 +187,18 @@ export class ArticleResolver {
 		query.skip(skip)
 
 		return query.getMany()
+	}
+
+	@FieldResolver(returns => String, {
+		nullable: true,
+		description: "If any, returns the moderation reason associated with the Article",
+	})
+	async moderationReason(
+		@Root() article: Article,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (article.moderationReasonId == null) return null
+		if (article.moderationReason) return article.moderationReason
+		return ctx.moderationReasonsLoader.load(article.moderationReasonId)
 	}
 }

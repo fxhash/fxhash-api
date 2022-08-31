@@ -1,10 +1,11 @@
 import { UserAuthorization } from "../Entity/User"
 
 
-type TUserAuthorizationIDS = 10 | 20 | 30
+type TUserAuthorizationIDS = 10 | 11 | 20 | 30
 
 const mappingUserAuthToEnum: Record<TUserAuthorizationIDS, UserAuthorization> = {
   10: UserAuthorization.TOKEN_MODERATION,
+  11: UserAuthorization.ARTICLE_MODERATION,
   20: UserAuthorization.USER_MODERATION,
   30: UserAuthorization.GOVERNANCE_MODERATION,
 }

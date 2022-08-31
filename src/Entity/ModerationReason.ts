@@ -1,5 +1,6 @@
 import { Field, ObjectType } from 'type-graphql'
 import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, OneToMany } from 'typeorm'
+import { Article } from './Article'
 import { GenerativeToken } from './GenerativeToken'
 import { Report } from './Report'
 import { User } from './User'
@@ -28,6 +29,9 @@ export class ModerationReason extends BaseEntity {
 
   @OneToMany(() => GenerativeToken, token => token.moderationReason)
   tokens: GenerativeToken[]
+
+  @OneToMany(() => Article, article => article.moderationReason)
+  articles: Article[]
 
   @OneToMany(() => Report, report => report.reason)
   reports: Report[]
