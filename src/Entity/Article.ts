@@ -21,7 +21,7 @@ export enum ArticleFlag {
   HIDDEN            = "HIDDEN",
 }
 registerEnumType(ArticleFlag, {
-  name: "GenTokFlag",
+  name: "ArticleFlag",
   description: "Flag state of Generative Token",
 })
 
