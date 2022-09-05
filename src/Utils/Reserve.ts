@@ -5,7 +5,7 @@ type TReserveMethodIDS = 0 | 1
 
 const mappingReserveMethodsToEnum: Record<TReserveMethodIDS, EReserveMethod> = {
   0: EReserveMethod.WHITELIST,
-  1: EReserveMethod.TOKEN_STAKERS,
+  1: EReserveMethod.MINT_PASS,
 }
 
 /**
