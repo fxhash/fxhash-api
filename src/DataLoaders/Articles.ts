@@ -4,6 +4,7 @@ import { Article } from "../Entity/Article"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { ArticleLedger } from "../Entity/ArticleLedger"
 import { ArticleRevision } from "../Entity/ArticleRevision"
+import { Listing } from "../Entity/Listing"
 import { Split } from "../Entity/Split"
 
 
@@ -93,4 +94,33 @@ const batchArticlesGenTokMentions = async (ids) => {
 }
 export const createArticlesGenTokMentionsLoader = () => new DataLoader(
 	batchArticlesGenTokMentions
+)
+
+
+/**
+ * Given a list of article IDs, returns a list of active listings for each article
+ * The list can contain NULL elements if an article doesn't have any active
+ * listing.
+ */
+const batchArticleActiveListings = async (args: any) => {
+  const ids = args.map(arg => arg.id)
+  const sort = args[0].sort
+
+	const query = Listing.createQueryBuilder("listing")
+		.select()
+		.where("listing.articleId IN(:...ids)", { ids })
+		.andWhere("listing.amount > 0")
+    .andWhere("listing.cancelledAt is null")
+    .andWhere("listing.acceptedAt is null")
+
+  // add the sort arguments
+  for (const field in sort) {
+    query.addOrderBy(`listing.${field}`, sort[field])
+  }
+  
+  const listings = await query.getMany()
+	return ids.map(id => listings.filter(l => l.articleId === id) || null)
+}
+export const createArticleActiveListingsLoader = () => new DataLoader(
+	batchArticleActiveListings
 )

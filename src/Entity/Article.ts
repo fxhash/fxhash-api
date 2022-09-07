@@ -7,8 +7,10 @@ import { Action } from "./Action"
 import { ArticleGenerativeToken } from "./ArticleGenerativeToken"
 import { ArticleLedger } from "./ArticleLedger"
 import { ArticleRevision } from "./ArticleRevision"
+import { Listing } from "./Listing"
 import { ModerationReason } from "./ModerationReason"
 import { Split } from "./Split"
+import { Transaction } from "./Transaction"
 import { DateTransformer } from "./Transformers/DateTransformer"
 import { User } from "./User"
 
@@ -65,6 +67,9 @@ export class Article extends BaseEntity {
   @OneToMany(() => ArticleLedger, ledger => ledger.article)
   ledgers: ArticleLedger[]
 
+  @OneToMany(() => Listing, listing => listing.article)
+  listings?: Listing[]
+
   @OneToMany(() => ArticleGenerativeToken, jointure => jointure.article)
   generativeTokenJointures: ArticleGenerativeToken[]
 
@@ -76,6 +81,9 @@ export class Article extends BaseEntity {
 
   @OneToMany(() => Action, action => action.article)
   actions: Action[]
+
+  @OneToMany(() => Transaction, transaction => transaction.article)
+  transactions: Transaction[]
 
   @ManyToOne(() => ModerationReason, reason => reason.articles, { 
     nullable: true 

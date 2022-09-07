@@ -5,13 +5,14 @@ import { Article, ArticleFilters } from "../Entity/Article";
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken";
 import { ArticleLedger } from "../Entity/ArticleLedger";
 import { ArticleRevision } from "../Entity/ArticleRevision";
+import { Listing } from "../Entity/Listing";
 import { Split } from "../Entity/Split";
 import { User } from "../Entity/User";
 import { articleQueryFilter } from "../Query/Filters/Article";
 import { RequestContext } from "../types/RequestContext";
 import { processFilters } from "../Utils/Filters";
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination";
-import { ActionsSortInput, ArticleSortInput, defaultSort } from "./Arguments/Sort";
+import { ActionsSortInput, ArticleSortInput, defaultSort, ListingsSortInput } from "./Arguments/Sort";
 
 @Resolver(Article)
 export class ArticleResolver {
@@ -84,9 +85,30 @@ export class ArticleResolver {
   ledger(
     @Root() article: Article,
     @Ctx() ctx: RequestContext,
-  ) {
-    return ctx.articlesLedgersLoader.load(article.id)
-  }
+	) {
+		return ctx.articlesLedgersLoader.load(article.id)
+	}
+	
+	@FieldResolver(() => [Listing], {
+		description: "Get an article active listings."
+	})
+	activeListings(
+		@Root() article: Article,
+		@Ctx() ctx: RequestContext,
+		@Arg("sort", { nullable: true }) sort: ListingsSortInput
+	) {
+		// default sort argument
+		if (!sort || Object.keys(sort).length === 0) {
+			sort = {
+				price: "ASC"
+			}
+		}
+
+		return ctx.articleActiveListingsLoader.load({
+			id: article.id,
+			sort,
+		})
+	}
 
   @FieldResolver(() => [ArticleGenerativeToken], {
 		description: "The Generative Tokens mentionned by the article."
