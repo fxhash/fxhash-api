@@ -1,8 +1,20 @@
-import { Field, ObjectType } from 'type-graphql'
+import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
 import { Entity, Column, PrimaryColumn, BaseEntity, ManyToOne, Index } from 'typeorm'
+import { Article } from './Article'
 import { Objkt } from './Objkt'
 import { User } from './User'
+
+
+// enum used to filter the listing
+export enum EListingAssetType {
+  GENTK = "GENTK",
+  ARTICLE = "ARTICLE"
+}
+registerEnumType(EListingAssetType, {
+  name: "ListingAssetType",
+  description: "The type of asset listed.",
+})
 
 @Entity()
 @ObjectType({
@@ -30,9 +42,21 @@ export class Listing extends BaseEntity {
 
   @ManyToOne(() => Objkt, objkt => objkt.listings)
   objkt: Objkt
-
+  
   @Column()
   objktId: number
+  
+  @ManyToOne(() => Article, article => article.listings)
+  article?: Article
+  
+  @Column()
+  articleId: number
+
+  @Field({
+    description: "The amount of the asset in the listing. For NFTs it will always be 1."
+  })
+  @Column({ type: "bigint" })
+  amount: number 
 
   @Field({
     description: "The listing price, **in mutez**"
@@ -88,6 +112,9 @@ export class Listing extends BaseEntity {
 
   @Filter([ "eq" ], type => String)
   searchQuery: string
+
+  @Filter(["eq"], type => EListingAssetType)
+  asset: EListingAssetType
 }
 
 export const FiltersListing = generateFilterType(Listing)

@@ -1,5 +1,6 @@
 import { ObjectType } from "type-graphql"
 import { BaseEntity, Column, Entity, Index, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
 import { Objkt } from "./Objkt"
 
@@ -48,4 +49,11 @@ export class Transaction extends BaseEntity {
   @Index()
   @Column()
   objktId: number
+  
+  @ManyToOne(() => Article, article => article.transactions)
+  article: Article
+  
+  @Index()
+  @Column({ nullable: true })
+  articleId: number
 }
