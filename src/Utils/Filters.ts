@@ -97,7 +97,8 @@ export const processGenerativeFilters = (filters: any) => {
 
 
 const userFiltersDbFields: (keyof User)[] = [
-  "id"
+  "id",
+  "flag"
 ]
 export const processUserFilters = (filters: any) => {
   return processSelectiveFilters(filters, userFiltersDbFields)
