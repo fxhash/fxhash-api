@@ -6,6 +6,7 @@ import { GenerativeToken } from "./GenerativeToken"
 
 export enum EReserveMethod {
   WHITELIST         = "WHITELIST",
+  MINT_PASS         = "MINT_PASS",
   TOKEN_STAKERS     = "TOKEN_STAKERS",
 }
 registerEnumType(EReserveMethod, {

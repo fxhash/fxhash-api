@@ -6,8 +6,9 @@ import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { ListingsSortInput } from "./Arguments/Sort"
 import { processListingFilters } from "../Utils/Filters"
 import { searchIndexMarketplace } from "../Services/Search"
-import { FiltersListing, Listing } from "../Entity/Listing"
+import { EListingAssetType, FiltersListing, Listing } from "../Entity/Listing"
 import { ListingID } from "./Arguments/Listing"
+import { Article } from "../Entity/Article"
 
 @Resolver(Listing)
 export class ListingResolver {
@@ -25,14 +26,28 @@ export class ListingResolver {
 
   @FieldResolver(returns => Objkt, { 
 		nullable: true,
-		description: "The objkt associated with the listing."
+		description: "The objkt associated with the listing, if any."
 	})
 	objkt(
 		@Root() listing: Listing,
 		@Ctx() ctx: RequestContext
 	) {
+		if (listing.objktId == null) return null
 		if (listing.objkt) return listing.objkt
 		return ctx.objktsLoader.load(listing.objktId)
+	}
+
+  @FieldResolver(returns => Article, { 
+		nullable: true,
+		description: "The article associated with the listing, if any."
+	})
+	article(
+		@Root() listing: Listing,
+		@Ctx() ctx: RequestContext
+	) {
+		if (listing.articleId == null) return null
+		if (listing.article) return listing.article
+		return ctx.articlesLoader.load(listing.articleId)
 	}
   
   @Query(returns => [Listing],{
@@ -55,6 +70,7 @@ export class ListingResolver {
 		filters = {
 			acceptedAt_exist: false,
 			cancelledAt_exist: false,
+			asset_eq: EListingAssetType.GENTK,
 			...filters,
 		}
 
@@ -137,6 +153,16 @@ export class ListingResolver {
 			}
 			if (filters?.tokenSupply_gte != null) {
 				query.andWhere("token.supply >= :sizeGte", { sizeGte: filters.tokenSupply_gte })
+			}
+		}
+
+		// filters on the asset type
+		if (filters.asset_eq) {
+			if (filters.asset_eq === EListingAssetType.ARTICLE) {
+				query.andWhere("listing.articleId IS NOT NULL")
+			} 
+			else if (filters.asset_eq === EListingAssetType.GENTK) {
+				query.andWhere("listing.objktId IS NOT NULL")
 			}
 		}
 

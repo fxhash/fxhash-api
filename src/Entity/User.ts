@@ -109,6 +109,7 @@ export class User extends BaseEntity {
     enum: UserFlag,
     default: UserFlag.NONE
   })
+  @Filter([ "eq", "ne", "in" ], () => UserFlag)
   flag: UserFlag
 
   @ManyToOne(() => ModerationReason, reason => reason.users, { 
