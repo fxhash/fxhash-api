@@ -103,6 +103,29 @@ export class Objkt extends BaseEntity {
   @Column({ nullable: true })
   metadataUri: string
 
+  @Field({
+    nullable: true,
+    description:
+      "IPFS uri pointing to the web page hosting the Generator code.",
+  })
+  @Column({ nullable: true })
+  artifactUri?: string;
+
+  @Field({
+    nullable: true,
+    description:
+      "IPFS uri pointing to the 300x300 (contained) thumbnail of the gentk",
+  })
+  @Column({ nullable: true })
+  thumbnailUri?: string;
+
+  @Field({
+    nullable: true,
+    description: "IPFS uri pointing to the full res image of the gentk",
+  })
+  @Column({ nullable: true })
+  displayUri?: string;
+
   @Field(() => [String], {
     nullable: true,
     description: "A list of tags, set by the author(s) at mint time. Corresponds the the Generative Token tags."
