@@ -48,6 +48,20 @@ export class ObjktResolver {
 		return ctx.genTokLoader.load(objkt.issuerId)
 	}
 
+	@FieldResolver((returns) => String, {
+		description: "IPFS uri pointing to the 300x300 (contained) thumbnail",
+	})
+	thumbnailUri(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+		return objkt.metadata?.thumbnailUri;
+	}
+
+	@FieldResolver((returns) => String, {
+		description: "IPFS uri pointing to the full res image",
+	})
+	displayUri(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+		return objkt.metadata?.displayUri;
+	}
+
 	@FieldResolver(returns => [Split], {
 		description: "A list of the royalties split for this gentk."
 	})
