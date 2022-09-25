@@ -6,6 +6,7 @@ import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken";
 import { ArticleLedger } from "../Entity/ArticleLedger";
 import { ArticleRevision } from "../Entity/ArticleRevision";
 import { Listing } from "../Entity/Listing";
+import { MediaImage } from "../Entity/MediaImage";
 import { Split } from "../Entity/Split";
 import { User } from "../Entity/User";
 import { articleQueryFilter } from "../Query/Filters/Article";
@@ -108,6 +109,19 @@ export class ArticleResolver {
 			id: article.id,
 			sort,
 		})
+	}
+
+	@FieldResolver(returns => MediaImage, {
+		description: "The media entity associated with the thumbnail of the article, provides additional informations on the thumbnail such as resolution, base64 placeholder and mime type.",
+		nullable: true,
+	})
+	thumbnailMedia(
+		@Root() article: Article,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (!article.thumbnailMediaId) return null
+		if (article.thumbnailMedia) return article.thumbnailMedia
+		return ctx.mediaImagesLoader.load(article.thumbnailMediaId)
 	}
 
   @FieldResolver(() => [ArticleGenerativeToken], {

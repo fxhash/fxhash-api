@@ -1,13 +1,14 @@
 import { GraphQLJSONObject } from "graphql-type-json"
 import { Field, ObjectType, registerEnumType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
-import { BaseEntity, Column, Entity, Index, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from "typeorm"
+import { BaseEntity, Column, Entity, Index, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryColumn } from "typeorm"
 import { ArticleMetadata } from "../types/Metadata"
 import { Action } from "./Action"
 import { ArticleGenerativeToken } from "./ArticleGenerativeToken"
 import { ArticleLedger } from "./ArticleLedger"
 import { ArticleRevision } from "./ArticleRevision"
 import { Listing } from "./Listing"
+import { MediaImage } from "./MediaImage"
 import { ModerationReason } from "./ModerationReason"
 import { Split } from "./Split"
 import { Transaction } from "./Transaction"
@@ -159,6 +160,15 @@ export class Article extends BaseEntity {
   })
   @Column()
   thumbnailUri: string
+
+  @ManyToOne(() => MediaImage, { 
+    nullable: true,
+  })
+  @JoinColumn({ name: "thumbnailMediaId", referencedColumnName: "cid" })
+  thumbnailMedia: MediaImage
+
+  @Column()
+  thumbnailMediaId: string
 
   @Field({
     description: "An optional caption for the thumbnail.",

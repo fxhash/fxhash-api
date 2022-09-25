@@ -15,6 +15,7 @@ import { searchIndexUser } from "../Services/Search"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { Article, ArticleFilters } from "../Entity/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
+import { MediaImage } from "../Entity/MediaImage"
 
 
 @Resolver(User)
@@ -67,6 +68,19 @@ export class UserResolver {
 		query.limit(take)
 
 		return query.getMany()
+	}
+
+	@FieldResolver(returns => MediaImage, {
+		description: "The media entity associated with the user avatar, provides additional informations on the avatar such as resolution, base64 placeholder and media type.",
+		nullable: true,
+	})
+	avatarMedia(
+		@Root() user: User,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (!user.avatarMediaId) return null
+		if (user.avatarMedia) return user.avatarMedia
+		return ctx.mediaImagesLoader.load(user.avatarMediaId)
 	}
 
 	@FieldResolver(returns => [GenerativeToken], {

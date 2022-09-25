@@ -11,6 +11,7 @@ import { Split } from "../Entity/Split"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
+import { MediaImage } from "../Entity/MediaImage"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -80,6 +81,18 @@ export class ObjktResolver {
 		return ctx.objktActiveListingsLoader.load(objkt.id)
 	}
 
+	@FieldResolver(returns => MediaImage, {
+		description: "The media entity associated with the capture image taken by signer module, provides additional informations on the capture such as resolution, base64 placeholder and media type.",
+		nullable: true,
+	})
+	captureMedia(
+		@Root() token: Objkt,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (!token.captureMediaId) return null
+		if (token.captureMedia) return token.captureMedia
+		return ctx.mediaImagesLoader.load(token.captureMediaId)
+	}
 	
 	@FieldResolver(returns => [Offer], { 
 		nullable: true,

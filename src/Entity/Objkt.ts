@@ -2,12 +2,13 @@ import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
 import { createUnionType, Field, Int, ObjectType, registerEnumType } from 'type-graphql'
 import { generateFilterType, Filter } from 'type-graphql-filter'
-import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToOne, OneToMany, RelationId } from 'typeorm'
+import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToOne, OneToMany, RelationId, JoinColumn } from 'typeorm'
 import { GenMintProgressFilter } from '../types/GenerativeToken'
 import { ObjktMetadata, TokenFeature, TokenFeatureValueType, TokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { GenerativeToken } from './GenerativeToken'
 import { Listing } from './Listing'
+import { MediaImage } from './MediaImage'
 import { Offer } from './Offer'
 import { Split } from './Split'
 import { Transaction } from './Transaction'
@@ -138,6 +139,29 @@ export class Objkt extends BaseEntity {
   })
   @Column({ default: 0 })
   version: number = 0
+
+  @Field({
+    description: "The IPFS URI pointing to the original capture made by the fxhash signer during the signing process. This maps to the `metadata`->`displayUri` of the token.",
+    nullable: true,
+  })
+  @Column({ type: "char", length: 53, nullable: true })
+  displayUri: string
+  
+  @Field({
+    description: "The IPFS URI pointing to the 300x300 (contained) made by the fxhash signer from the original capture during the signing process. This maps to the `metadata`->`thumbnailUri` of the token.",
+    nullable: true,
+  })
+  @Column({ type: "char", length: 53, nullable: true })
+  thumbnailUri: string
+
+  @ManyToOne(() => MediaImage, { 
+    nullable: true,
+  })
+  @JoinColumn({ name: "captureMediaId", referencedColumnName: "cid" })
+  captureMedia: MediaImage
+
+  @Column()
+  captureMediaId: string
 
   @OneToMany(() => Listing, listing => listing.objkt)
   listings?: Listing[]
