@@ -48,27 +48,17 @@ export class ObjktResolver {
 	}
 
 	@FieldResolver((returns) => String, {
-		description: "IPFS uri pointing to the web page hosting the Generator code.",
-	})
-	artifactUri(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-		if (objkt.artifactUri) return objkt.artifactUri;
-		return ctx.genTokLoader.load(objkt.metadata?.artifactUri);
-	}
-
-	@FieldResolver((returns) => String, {
 		description: "IPFS uri pointing to the 300x300 (contained) thumbnail",
 	})
 	thumbnailUri(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-		if (objkt.thumbnailUri) return objkt.thumbnailUri;
-		return ctx.genTokLoader.load(objkt.metadata?.thumbnailUri);
+		return objkt.metadata?.thumbnailUri;
 	}
 
 	@FieldResolver((returns) => String, {
 		description: "IPFS uri pointing to the full res image",
 	})
 	displayUri(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-		if (objkt.displayUri) return objkt.displayUri;
-		return ctx.genTokLoader.load(objkt.metadata?.displayUri);
+		return objkt.metadata?.displayUri;
 	}
 
 	@FieldResolver(returns => [Split], {
