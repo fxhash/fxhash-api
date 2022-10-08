@@ -2,6 +2,7 @@ import { Request as ExpressRequest } from "express"
 import { createArticleActiveListingsLoader, createArticlesGenTokMentionsLoader, createArticlesLedgersLoader, createArticlesLoader, createArticlesRevisionsLoader, createArticlesRoyaltiesSplitsLoader } from "../DataLoaders/Articles"
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokArticleMentionsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
+import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from "../DataLoaders/Objkt"
 import { createUsersObjktLoader, createUsersLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader, createUsersArticlesLoader, createUsersArticleLedgersLoader } from "../DataLoaders/User"
@@ -54,6 +55,9 @@ export interface RequestContext extends ExpressRequest {
   articlesRevisionsLoader: ReturnType<typeof createArticlesRevisionsLoader>,
   articlesRoyaltiesSplitsLoader: ReturnType<typeof createArticlesRoyaltiesSplitsLoader>,
   articleActiveListingsLoader: ReturnType<typeof createArticleActiveListingsLoader>,
+
+  // MEDIA IMAGES loaders
+  mediaImagesLoader: ReturnType<typeof createMediaImagesLoader>,
 
 	// MARKET STATS loaders
 	marketStatsGenTokLoader: ReturnType<typeof createMarketStatsGenTokLoader>,

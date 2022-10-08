@@ -7,6 +7,7 @@ import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { GenerativeFilters, GenerativeToken, GentkTokPricing, GenTokFlag } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
+import { MediaImage } from "../Entity/MediaImage"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { FiltersOffer, Offer } from "../Entity/Offer"
@@ -57,6 +58,19 @@ export class GenTokenResolver {
 			skip,
 			take,
 		})
+	}
+
+	@FieldResolver(returns => MediaImage, {
+		description: "The media entity associated with the capture image taken by the artists, provides additional informations on the capture such as resolution, base64 placeholder and mime type.",
+		nullable: true,
+	})
+	captureMedia(
+		@Root() token: GenerativeToken,
+		@Ctx() ctx: RequestContext,
+	) {
+		if (!token.captureMediaId) return null
+		if (token.captureMedia) return token.captureMedia
+		return ctx.mediaImagesLoader.load(token.captureMediaId)
 	}
 
   @FieldResolver(returns => [Objkt], {

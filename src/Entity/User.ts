@@ -1,13 +1,14 @@
 import { GraphQLJSONObject } from 'graphql-type-json'
 import { Field, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
-import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne } from 'typeorm'
+import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne, JoinColumn } from 'typeorm'
 import { Action } from './Action'
 import { Article } from './Article'
 import { ArticleLedger } from './ArticleLedger'
 import { Collaboration } from './Collaboration'
 import { GenerativeToken } from './GenerativeToken'
 import { Listing } from './Listing'
+import { MediaImage } from './MediaImage'
 import { ModerationReason } from './ModerationReason'
 import { Objkt } from './Objkt'
 import { Offer } from './Offer'
@@ -147,6 +148,15 @@ export class User extends BaseEntity {
   })
   @Column({ nullable: true })
   avatarUri: string
+
+  @ManyToOne(() => MediaImage, { 
+    nullable: true,
+  })
+  @JoinColumn({ name: "avatarMediaId", referencedColumnName: "cid" })
+  avatarMedia: MediaImage
+
+  @Column()
+  avatarMediaId: string
 
   @OneToMany(() => GenerativeToken, token => token.author)
   generativeTokens: GenerativeToken[]

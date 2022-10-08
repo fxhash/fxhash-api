@@ -2,13 +2,14 @@ import { GraphQLJSONObject } from 'graphql-type-json'
 import slugify from 'slugify'
 import { Field, Int, ObjectType, registerEnumType } from 'type-graphql'
 import { Filter, generateFilterType } from 'type-graphql-filter'
-import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, RelationId, OneToOne } from 'typeorm'
+import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, CreateDateColumn, ManyToOne, OneToMany, RelationId, OneToOne, JoinColumn } from 'typeorm'
 import { GenMintProgressFilter } from '../types/GenerativeToken'
 import { GenerativeTokenMetadata } from '../types/Metadata'
 import { Action } from './Action'
 import { ArticleGenerativeToken } from './ArticleGenerativeToken'
 import { MarketStats } from './MarketStats'
 import { MarketStatsHistory } from './MarketStatsHistory'
+import { MediaImage } from './MediaImage'
 import { ModerationReason } from './ModerationReason'
 import { Objkt } from './Objkt'
 import { PricingDutchAuction } from './PricingDutchAuction'
@@ -129,6 +130,13 @@ export class GenerativeToken extends BaseEntity {
   })
   @Column({ nullable: true })
   displayUri?: string
+
+  @ManyToOne(() => MediaImage)
+  @JoinColumn({ name: "captureMediaId", referencedColumnName: "cid" })
+  captureMedia?: MediaImage
+
+  @Column()
+  captureMediaId: string
 
   @Field(() => [String], {
     nullable: true,

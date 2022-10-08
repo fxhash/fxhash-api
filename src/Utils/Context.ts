@@ -1,6 +1,7 @@
 import { createArticleActiveListingsLoader, createArticlesGenTokMentionsLoader, createArticlesLedgersLoader, createArticlesLoader, createArticlesRevisionsLoader, createArticlesRoyaltiesSplitsLoader } from '../DataLoaders/Articles'
 import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokArticleMentionsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from '../DataLoaders/GenTokens'
 import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
+import { createMediaImagesLoader } from '../DataLoaders/MediaImage'
 import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
 import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
 import { createUsersLoader, createUsersObjktLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader, createUsersArticlesLoader, createUsersArticleLedgersLoader } from '../DataLoaders/User'
@@ -53,6 +54,9 @@ export const createContext = (req: any, res: any): RequestContext => {
 		articlesRevisionsLoader: createArticlesRevisionsLoader(),
 		articlesRoyaltiesSplitsLoader: createArticlesRoyaltiesSplitsLoader(),
 		articleActiveListingsLoader: createArticleActiveListingsLoader(),
+
+		// MEDIA IMAGES loaders
+		mediaImagesLoader: createMediaImagesLoader(),
 
 		// MARKET STATS loaders
 		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
