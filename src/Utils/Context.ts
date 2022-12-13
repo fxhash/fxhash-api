@@ -1,67 +1,124 @@
-import { createArticleActiveListingsLoader, createArticlesGenTokMentionsLoader, createArticlesLedgersLoader, createArticlesLoader, createArticlesRevisionsLoader, createArticlesRoyaltiesSplitsLoader } from '../DataLoaders/Articles'
-import { createGentkTokPrimarySplitsLoader, createGentkTokSecondarySplitsLoader, createGenTokArticleMentionsLoader, createGenTokLoader, createGenTokMarketStatsHistoryLoader, createGenTokMarketStatsLoader, createGenTokObjktFeaturesLoader, createGenTokObjktsCountLoader, createGenTokObjktsLoader, createGenTokOffersLoader, createGenTokPricingDutchAuctionLoader, createGenTokPricingFixedLoader, createGenTokReportsLoader, createGenTokReservesLoader } from '../DataLoaders/GenTokens'
-import { createMarketStatsGenTokLoader } from '../DataLoaders/MarketStats'
-import { createMediaImagesLoader } from '../DataLoaders/MediaImage'
-import { createModerationReasonsLoader } from '../DataLoaders/ModerationReason'
-import { createObjktActionsLoader, createObjktActiveListingsLoader, createObjktListingsLoader, createObjktOffersLoader, createObjktRoyaltiesSplitsLoader, createObjktsLoader } from '../DataLoaders/Objkt'
-import { createUsersLoader, createUsersObjktLoader, createUsersCollabContractsLoader, createCollabCollaboratorsLoader, createUsersOffersSentLoader, createUsersGenerativeTokensLoader, createUsersSalesLoader, createUsersOffersReceivedLoader, createUsersArticlesLoader, createUsersArticleLedgersLoader } from '../DataLoaders/User'
-import { RequestContext } from '../types/RequestContext'
+import {
+  createArticleActiveListingsLoader,
+  createArticlesGenTokMentionsLoader,
+  createArticlesLedgersLoader,
+  createArticlesLoader,
+  createArticlesRevisionsLoader,
+  createArticlesRoyaltiesSplitsLoader,
+} from "../DataLoaders/Articles"
+import {
+  createGentkTokPrimarySplitsLoader,
+  createGentkTokRedeemablesLoader,
+  createGentkTokSecondarySplitsLoader,
+  createGenTokArticleMentionsLoader,
+  createGenTokLoader,
+  createGenTokMarketStatsHistoryLoader,
+  createGenTokMarketStatsLoader,
+  createGenTokObjktFeaturesLoader,
+  createGenTokObjktsCountLoader,
+  createGenTokObjktsLoader,
+  createGenTokOffersLoader,
+  createGenTokPricingDutchAuctionLoader,
+  createGenTokPricingFixedLoader,
+  createGenTokReportsLoader,
+  createGenTokReservesLoader,
+} from "../DataLoaders/GenTokens"
+import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
+import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
+import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
+import {
+  createObjktActionsLoader,
+  createObjktActiveListingsLoader,
+  createObjktAvailableRedeemablesLoader,
+  createObjktListingsLoader,
+  createObjktOffersLoader,
+  createObjktRedemptionsLoader,
+  createObjktRoyaltiesSplitsLoader,
+  createObjktsLoader,
+} from "../DataLoaders/Objkt"
+import {
+  createRedeemableLoader,
+  createRedeemableRedemptionsLoader,
+  createRedeemableSplitsLoader,
+} from "../DataLoaders/Redeemable"
+import {
+  createUsersLoader,
+  createUsersObjktLoader,
+  createUsersCollabContractsLoader,
+  createCollabCollaboratorsLoader,
+  createUsersOffersSentLoader,
+  createUsersGenerativeTokensLoader,
+  createUsersSalesLoader,
+  createUsersOffersReceivedLoader,
+  createUsersArticlesLoader,
+  createUsersArticleLedgersLoader,
+} from "../DataLoaders/User"
+import { RequestContext } from "../types/RequestContext"
 
 export const createContext = (req: any, res: any): RequestContext => {
-	// @ts-ignore
-	return ({
-		req,
+  // @ts-ignore
+  return {
+    req,
 
-		// USER loaders
+    // USER loaders
     usersLoader: createUsersLoader(),
-		userObjktsLoader: createUsersObjktLoader(),
-		userOffersSentLoader: createUsersOffersSentLoader(),
-		userOffersReceivedLoader: createUsersOffersReceivedLoader(),
-		userCollabContractsLoader: createUsersCollabContractsLoader(),
-		collabCollaboratorsLoader: createCollabCollaboratorsLoader(),
-		usersGenToksLoader: createUsersGenerativeTokensLoader(),
-		usersArticlesLoader: createUsersArticlesLoader(),
-		usersArticleLedgersLoader: createUsersArticleLedgersLoader(),
-		usersSalesLoader: createUsersSalesLoader(),
+    userObjktsLoader: createUsersObjktLoader(),
+    userOffersSentLoader: createUsersOffersSentLoader(),
+    userOffersReceivedLoader: createUsersOffersReceivedLoader(),
+    userCollabContractsLoader: createUsersCollabContractsLoader(),
+    collabCollaboratorsLoader: createCollabCollaboratorsLoader(),
+    usersGenToksLoader: createUsersGenerativeTokensLoader(),
+    usersArticlesLoader: createUsersArticlesLoader(),
+    usersArticleLedgersLoader: createUsersArticleLedgersLoader(),
+    usersSalesLoader: createUsersSalesLoader(),
 
     // GENERATIVE TOKEN loaders
     genTokLoader: createGenTokLoader(),
     genTokObjktsLoader: createGenTokObjktsLoader(),
-		genTokOffersLoader: createGenTokOffersLoader(),
-		gentkTokPricingFixedLoader: createGenTokPricingFixedLoader(),
-		gentkTokPricingDutchAuctionLoader: createGenTokPricingDutchAuctionLoader(),
-		gentTokSplitsPrimaryLoader: createGentkTokPrimarySplitsLoader(),
-		gentTokSplitsSecondaryLoader: createGentkTokSecondarySplitsLoader(),
-		genTokReservesLoader: createGenTokReservesLoader(),
-		genTokReportsLoader: createGenTokReportsLoader(),
-		genTokMarketStatsLoader: createGenTokMarketStatsLoader(),
-		genTokObjktsCountLoader: createGenTokObjktsCountLoader(),
-		genTokMarketStatsHistoryLoader: createGenTokMarketStatsHistoryLoader(),genTokArticleMentionsLoader: createGenTokArticleMentionsLoader(),
-		genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
+    genTokOffersLoader: createGenTokOffersLoader(),
+    gentkTokPricingFixedLoader: createGenTokPricingFixedLoader(),
+    gentkTokPricingDutchAuctionLoader: createGenTokPricingDutchAuctionLoader(),
+    gentTokSplitsPrimaryLoader: createGentkTokPrimarySplitsLoader(),
+    gentTokSplitsSecondaryLoader: createGentkTokSecondarySplitsLoader(),
+    genTokReservesLoader: createGenTokReservesLoader(),
+    genTokReportsLoader: createGenTokReportsLoader(),
+    genTokMarketStatsLoader: createGenTokMarketStatsLoader(),
+    genTokObjktsCountLoader: createGenTokObjktsCountLoader(),
+    genTokMarketStatsHistoryLoader: createGenTokMarketStatsHistoryLoader(),
+    genTokArticleMentionsLoader: createGenTokArticleMentionsLoader(),
+    genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
+    genTokRedeemablesLoader: createGentkTokRedeemablesLoader(),
 
     // OBJKTS loaders
-		objktsLoader: createObjktsLoader(),
-		objktRoyaltiesSplitsLoader: createObjktRoyaltiesSplitsLoader(),
+    objktsLoader: createObjktsLoader(),
+    objktRoyaltiesSplitsLoader: createObjktRoyaltiesSplitsLoader(),
     objktActionsLoader: createObjktActionsLoader(),
     objktListingsLoader: createObjktListingsLoader(),
-		objktActiveListingsLoader: createObjktActiveListingsLoader(),
-		objktOffersLoader: createObjktOffersLoader(),
+    objktActiveListingsLoader: createObjktActiveListingsLoader(),
+    objktOffersLoader: createObjktOffersLoader(),
+    objktRedemptionsLoader: createObjktRedemptionsLoader(),
+    objktAvailableRedeemablesLoader: createObjktAvailableRedeemablesLoader(),
 
-		// ARTICLES loaders
-		articlesLoader: createArticlesLoader(),
-		articlesLedgersLoader: createArticlesLedgersLoader(),
-		articlesGenTokMentionsLoader: createArticlesGenTokMentionsLoader(),
-		articlesRevisionsLoader: createArticlesRevisionsLoader(),
-		articlesRoyaltiesSplitsLoader: createArticlesRoyaltiesSplitsLoader(),
-		articleActiveListingsLoader: createArticleActiveListingsLoader(),
+    // ARTICLES loaders
+    articlesLoader: createArticlesLoader(),
+    articlesLedgersLoader: createArticlesLedgersLoader(),
+    articlesGenTokMentionsLoader: createArticlesGenTokMentionsLoader(),
+    articlesRevisionsLoader: createArticlesRevisionsLoader(),
+    articlesRoyaltiesSplitsLoader: createArticlesRoyaltiesSplitsLoader(),
+    articleActiveListingsLoader: createArticleActiveListingsLoader(),
 
-		// MEDIA IMAGES loaders
-		mediaImagesLoader: createMediaImagesLoader(),
+    // MEDIA IMAGES loaders
+    mediaImagesLoader: createMediaImagesLoader(),
 
-		// MARKET STATS loaders
-		marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
-		
-		// MODERATION REASON loaders
-		moderationReasonsLoader: createModerationReasonsLoader(),
-	})
+    // MARKET STATS loaders
+    marketStatsGenTokLoader: createMarketStatsGenTokLoader(),
+
+    // MODERATION REASON loaders
+    moderationReasonsLoader: createModerationReasonsLoader(),
+
+    // REDEEMABLE loaders
+    redeemableLoader: createRedeemableLoader(),
+    reedemableSplitsLoader: createRedeemableSplitsLoader(),
+    reedemableRedemptionsLoader: createRedeemableRedemptionsLoader(),
+  }
 }
