@@ -213,6 +213,9 @@ export class User extends BaseEntity {
   @Column({ type: "timestamptz", transformer: DateTransformer })
   updatedAt: string
 
+  @OneToMany(() => Listing, listing => listing.acceptedBy)
+  acceptedListings: Listing[]
+
   //
   // CUSTOM FILTERS
   //

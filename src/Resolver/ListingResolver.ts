@@ -24,7 +24,7 @@ export class ListingResolver {
 		return ctx.usersLoader.load(listing.issuerId)
 	}
 
-  @FieldResolver(returns => Objkt, { 
+  @FieldResolver(returns => Objkt, {
 		nullable: true,
 		description: "The objkt associated with the listing, if any."
 	})
@@ -37,7 +37,7 @@ export class ListingResolver {
 		return ctx.objktsLoader.load(listing.objktId)
 	}
 
-  @FieldResolver(returns => Article, { 
+  @FieldResolver(returns => Article, {
 		nullable: true,
 		description: "The article associated with the listing, if any."
 	})
@@ -49,8 +49,22 @@ export class ListingResolver {
 		if (listing.article) return listing.article
 		return ctx.articlesLoader.load(listing.articleId)
 	}
-  
-  @Query(returns => [Listing],{
+
+	@FieldResolver(returns => User, {
+		nullable: true,
+		description: "The user who bought the listing."
+	})
+	acceptedBy(
+		@Root() listing: Listing,
+		@Ctx() ctx: RequestContext
+	) {
+		if (listing.acceptedById === null) return null
+		if (listing.acceptedBy) return listing.acceptedBy
+		return ctx.usersLoader.load(listing.acceptedById)
+	}
+
+
+	@Query(returns => [Listing],{
 		description: "The go-to endpoint to explore Listings on the marketplace. This endpoint both returns Listings made on the old and new marketplace contracts. **By default, only returns active listings (not accepted nor cancelled)**"
 	})
 	async listings(
@@ -82,7 +96,7 @@ export class ListingResolver {
 
 		// if their is a search string, we first make a request to the search engine to get results
 		if (filters?.searchQuery_eq) {
-			const searchResults = await searchIndexMarketplace.search(filters.searchQuery_eq, { 
+			const searchResults = await searchIndexMarketplace.search(filters.searchQuery_eq, {
 				hitsPerPage: 5000
 			})
 
@@ -99,7 +113,7 @@ export class ListingResolver {
 					`(listing.id, listing.version) IN(${formatted})`
 				)
 			}
-	
+
 			// if the sort option is relevance, we remove the sort arguments as the order
 			// of the search results needs to be preserved
 			if (sortArgs.relevance && ids.length > 1) {
@@ -135,7 +149,7 @@ export class ListingResolver {
 					query.andWhere("token.balance > 0")
 				}
 			}
-			
+
 			// filter for author of the listing verified
 			if (filters?.authorVerified_eq != null) {
 				query.leftJoin("token.author", "author")
@@ -160,7 +174,7 @@ export class ListingResolver {
 		if (filters.asset_eq) {
 			if (filters.asset_eq === EListingAssetType.ARTICLE) {
 				query.andWhere("listing.articleId IS NOT NULL")
-			} 
+			}
 			else if (filters.asset_eq === EListingAssetType.GENTK) {
 				query.andWhere("listing.objktId IS NOT NULL")
 			}
@@ -181,7 +195,7 @@ export class ListingResolver {
 
 		return query.getMany()
 	}
-	
+
   @Query(returns => [Listing], {
 		nullable: true,
 		description: "Given a list of Listing identifiers (ID + contract-version), outputs the associated listings.",
