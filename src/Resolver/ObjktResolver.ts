@@ -22,6 +22,7 @@ import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
+import { searchIndexGenerative } from "../Services/Search";
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -154,6 +155,7 @@ export class ObjktResolver {
       }
     }
 
+
     let query = Objkt.createQueryBuilder("objkt")
       .select()
       .leftJoin("objkt.issuer", "issuer")
@@ -166,10 +168,14 @@ export class ObjktResolver {
       },
       sort
     )
-
     // pagination
-    query.skip(skip)
-    query.take(take)
+    if (sort?.relevance) {
+      query.offset(skip)
+      query.limit(take)
+    } else {
+      query.skip(skip)
+      query.take(take)
+    }
 
     return query.getMany()
   }
@@ -183,7 +189,7 @@ export class ObjktResolver {
     @Arg("id", { nullable: true }) id: number,
     @Arg("hash", { nullable: true }) hash: string,
     @Arg("slug", { nullable: true }) slug: string
-  ): Promise<Objkt | undefined> {
+  ): Promise<Objkt | undefined | null> {
     if (id == null && hash == null && slug == null) return undefined
     let args: Record<string, any> = {}
     if (!(id == null)) args.id = id

@@ -14,12 +14,13 @@ export const articleQueryFilter: TQueryFilter<
 > = async (
 query,
 filters,
-sort,
+baseSort,
 ) => {
+  const sort = { ...baseSort }
   // if their is a search string, we first make a request to the search engine to get results
   if (filters?.searchQuery_eq) {
     const searchResults = await searchIndexArticles.search(
-      filters.searchQuery_eq, { 
+      filters.searchQuery_eq, {
       hitsPerPage: 5000
     })
     const ids = searchResults.hits.map(hit => hit.objectID)

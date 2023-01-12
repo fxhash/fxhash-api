@@ -390,8 +390,13 @@ export class GenTokenResolver {
     query = await generativeQueryFilter(query, filters, sortArgs)
 
     // add pagination
-    query.take(take)
-    query.skip(skip)
+    if (sortArgs.relevance) {
+      query.offset(skip)
+      query.limit(take)
+    } else {
+      query.skip(skip)
+      query.take(take)
+    }
 
     return query.getMany()
   }
@@ -404,7 +409,7 @@ export class GenTokenResolver {
   generativeToken(
     @Arg("id", { nullable: true }) id: number,
     @Arg("slug", { nullable: true }) slug: string
-  ): Promise<GenerativeToken | undefined> {
+  ): Promise<GenerativeToken | undefined | null> {
     if (id == null && slug == null) {
       throw new ApolloError("Either ID or SLUG must be supllied.")
     }

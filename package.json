@@ -32,7 +32,7 @@
     "slugify": "^1.6.2",
     "type-graphql": "^1.1.1",
     "type-graphql-filter": "^0.4.0",
-    "typeorm": "^0.2.38",
+    "typeorm": "^0.3.11",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

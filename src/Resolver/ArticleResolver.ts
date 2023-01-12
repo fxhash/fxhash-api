@@ -64,8 +64,13 @@ export class ArticleResolver {
 		)
 
 		// add pagination
-		query.take(take)
-		query.skip(skip)
+		if (sort?.relevance) {
+			query.offset(skip)
+			query.limit(take)
+		} else {
+			query.skip(skip)
+			query.take(take)
+		}
 
 		return query.getMany()
 	}
@@ -89,7 +94,7 @@ export class ArticleResolver {
 	) {
 		return ctx.articlesLedgersLoader.load(article.id)
 	}
-	
+
 	@FieldResolver(() => [Listing], {
 		description: "Get an article active listings."
 	})
@@ -168,7 +173,7 @@ export class ArticleResolver {
 		sortArgs = defaultSort(sortArgs, {
 			createdAt: "DESC"
 		})
-	
+
 		// create the query
 		let query = Action.createQueryBuilder("action").select()
 
@@ -219,8 +224,13 @@ export class ArticleResolver {
 		query.andWhere("article.id != :id", { id: article.id })
 
 		// add pagination
-		query.take(take)
-		query.skip(skip)
+		if (sort?.relevance) {
+			query.offset(skip)
+			query.limit(take)
+		} else {
+			query.skip(skip)
+			query.take(take)
+		}
 
 		return query.getMany()
 	}

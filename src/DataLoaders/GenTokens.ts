@@ -65,13 +65,13 @@ const batchGenTokObjkt = async genIds => {
     sorts
   )
 
-  // pagination
   if (take !== null && take !== undefined) {
-    query = query.take(take)
+    query = sorts.relevance ? query.limit(take) : query.take(take)
   }
   if (skip !== null && skip !== undefined) {
-    query = query.skip(skip)
+    query = sorts.relevance ? query.offset(skip) : query.skip(skip)
   }
+  // pagination
 
   const objkts = await query.getMany()
 

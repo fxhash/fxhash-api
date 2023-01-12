@@ -29,7 +29,7 @@ const batchUsers = async (userIds) => {
 export const createUsersLoader = () => new DataLoader(batchUsers)
 
 /**
- * Given a list of user IDs, returns a list of Users of type 
+ * Given a list of user IDs, returns a list of Users of type
  * UserType.COLLAB_CONTRACT_V1 which are contracts in which the given users
  * are part of.
  */
@@ -41,7 +41,7 @@ const batchUsersCollabContracts = async (ids) => {
 		.orderBy("contract.createdAt", "DESC")
 		.getMany()
 
-	return ids.map(id => 
+	return ids.map(id =>
 		collabs
 			.filter(collab => collab.collaboratorId === id)
 			.map(collab => collab.collaborationContract)
@@ -53,7 +53,7 @@ export const createUsersCollabContractsLoader = () => new DataLoader(
 
 /**
  * Given a list of user IDs, returns a list of Users of type
- * UserType.REGULAR which are collaborators in the provided list of 
+ * UserType.REGULAR which are collaborators in the provided list of
  * collaboration contracts/
  */
 const batchCollabCollaborators = async (ids) => {
@@ -64,7 +64,7 @@ const batchCollabCollaborators = async (ids) => {
 		.orderBy("user.createdAt", "DESC")
 		.getMany()
 
-	return ids.map(id => 
+	return ids.map(id =>
 		collabs
 			.filter(collab => collab.collaborationContractId === id)
 			.map(collab => collab.collaborator)
@@ -109,7 +109,7 @@ const batchUserOffersSent = async (inputs: any) => {
 
 	// filter/sort options
 	offerQueryFilter(query, filters, sort)
-		
+
 	const offers = await query.getMany()
 	return ids.map(id => offers.filter(l => l.buyerId === id))
 }
@@ -134,7 +134,7 @@ export const createUsersOffersSentLoader = () => new DataLoader(
 
 	// filter/sort options
 	offerQueryFilter(query, filters, sort)
-		
+
 	const offers = await query.getMany()
 	return ids.map(id => offers.filter(l => l.objkt.ownerId === id))
 }
@@ -171,21 +171,29 @@ const batchUsersGenerativeTokens = async (users: any) => {
 		filters,
 		sort,
 	)
-	
+
 	// add pagination
 	if (take) {
-		query.take(take)
+		if (sort?.relevance) {
+			query.limit(take)
+		} else {
+			query.take(take)
+		}
 	}
 	if (skip) {
-		query.skip(skip)
+		if (sort?.relevance) {
+			query.offset(skip)
+		} else {
+			query.skip(skip)
+		}
 	}
-		
+
 	const results = await query.getMany()
 
 	// map user to their work (either direct or collab)
 	return ids.map(
 		id => results.filter(
-			tok => 
+			tok =>
 				tok.author!.id === id
 				|| (tok.author!.type === UserType.COLLAB_CONTRACT_V1
 						&& tok.author!.collaborationContracts.find(
@@ -222,15 +230,23 @@ export const createUsersGenerativeTokensLoader = () => new DataLoader(
 		filters,
 		sort,
 	)
-	
+
 	// add pagination
 	if (take) {
-		query.take(take)
+		if (sort?.relevance) {
+			query.limit(take)
+		} else {
+			query.take(take)
+		}
 	}
 	if (skip) {
-		query.skip(skip)
+		if (sort?.relevance) {
+			query.offset(skip)
+		} else {
+			query.skip(skip)
+		}
 	}
-		
+
 	const results = await query.getMany()
 
 	// map user to their work (either direct or collab)
@@ -309,7 +325,7 @@ const batchUsersSales = async (inputs: any) => {
 			.getMany()
 	}
 
-	
+
 	// join all the actions, without duplicates
 	let actions: Action[] = sellerActions
 	const actionsMap: Record<string, boolean> = {}
@@ -324,7 +340,7 @@ const batchUsersSales = async (inputs: any) => {
 	}
 
 	// finally sort the actions
-	actions.sort((a, b) => 
+	actions.sort((a, b) =>
 		(a.createdAt < b.createdAt) ? 1 : ((a.createdAt > b.createdAt) ? -1 : 0)
 	)
 
@@ -336,7 +352,7 @@ const batchUsersSales = async (inputs: any) => {
 	// map each user to its results
 	// return userIds.map(
 	// 	(id: any) => actions.filter(
-	// 		action => action.targetId === id 
+	// 		action => action.targetId === id
 	// 			|| action.token?.authorId === id
 	// 			|| action.token?.author?.collaborationContracts.find(c => c.collaboratorId === id)
 	// 	)

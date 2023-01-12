@@ -18,15 +18,16 @@ export const objktQueryFilter: TQueryFilter<
 > = async (
   query,
   filtersObj,
-  sort,
+  baseSort,
 ) => {
+  const sort = { ...baseSort };
   // extract
   const { featureFilters, general: filters } = filtersObj
 
   // if we have some filters on the features
 	if (featureFilters && featureFilters.length > 0) {
 		const processed = processGentkFeatureFilters(featureFilters)
-		// filtering features is a little bit tricky, because we have to group 
+		// filtering features is a little bit tricky, because we have to group
     // where operations in a specific way. Let's say that we have 2 features:
 		// - A [a, b, c, d]
 		// - B [a, b, c, d]
@@ -39,7 +40,7 @@ export const objktQueryFilter: TQueryFilter<
 			query.andWhere(new Brackets(qb => {
 				for (let j = 0; j < filterGroup.length; j++) {
 					const filter = filterGroup[j]
-					qb.orWhere(`objkt.features::jsonb @> :filter_${i}_${j}`, { 
+					qb.orWhere(`objkt.features::jsonb @> :filter_${i}_${j}`, {
 						[`filter_${i}_${j}`]: filter
 					})
 				}
@@ -59,7 +60,7 @@ export const objktQueryFilter: TQueryFilter<
   else if (sort && (sort.listingPrice || sort.listingCreatedAt)) {
     query.leftJoinAndSelect(
       "objkt.listings",
-      "listing", 
+      "listing",
       "listing.acceptedAt is null AND listing.cancelledAt is null"
     )
   }
@@ -68,7 +69,7 @@ export const objktQueryFilter: TQueryFilter<
   // using the Generative Token index, because they are all children of it
   if (filters?.searchQuery_eq) {
     const searchResults = await searchIndexGenerative.search(
-      filters.searchQuery_eq, { 
+      filters.searchQuery_eq, {
         hitsPerPage: 5000
       }
     )
@@ -77,13 +78,13 @@ export const objktQueryFilter: TQueryFilter<
 
     // if the sort option is relevance, we remove the sort arguments as the order
     // of the search results needs to be preserved
-    if (sort && sort.relevance) {
+    if (sort?.relevance) {
       // remove the relevance from the object as it's applied here
       delete sort.relevance
       if (ids.length > 0) {
         // then we manually set the order using array_position
-        const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
-        query.addOrderBy(`array_position(array[${relevanceList}], objkt.id)`)
+        const relevanceList = ids.join(',')
+        query.addOrderBy(`array_position(array[${relevanceList}], objkt.issuerId)`)
       }
     }
   }
@@ -102,7 +103,7 @@ export const objktQueryFilter: TQueryFilter<
       query.leftJoinAndSelect("issuer.author", "author")
       // filter for a specific author
       if (filters.author_in != null) {
-        query.andWhere("author.id IN (:...authorId)", { 
+        query.andWhere("author.id IN (:...authorId)", {
           authorId: filters.author_in
         })
       }
@@ -135,8 +136,8 @@ export const objktQueryFilter: TQueryFilter<
 
     // filter for some issuers only
     if (filters.issuer_in != null) {
-      query.andWhere("issuer.id IN (:...issuerIdFilters)", { 
-        issuerIdFilters: filters.issuer_in 
+      query.andWhere("issuer.id IN (:...issuerIdFilters)", {
+        issuerIdFilters: filters.issuer_in
       })
     }
 

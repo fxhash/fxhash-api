@@ -16,11 +16,12 @@ export const generativeQueryFilter: TQueryFilter<
 > = async (
   query,
   filters,
-  sort,
+  baseSort,
 ) => {
+  const sort = {...baseSort}
   // if their is a search string, we first make a request to the search engine to get results
   if (filters?.searchQuery_eq) {
-    const searchResults = await searchIndexGenerative.search(filters.searchQuery_eq, { 
+    const searchResults = await searchIndexGenerative.search(filters.searchQuery_eq, {
       hitsPerPage: 5000
     })
     const ids = searchResults.hits.map(hit => hit.objectID)
@@ -65,7 +66,7 @@ export const generativeQueryFilter: TQueryFilter<
     else if (filters.locked_eq === true) {
       query.andWhere({
         lockEnd: MoreThan(new Date())
-      })	
+      })
     }
   }
 
@@ -81,7 +82,7 @@ export const generativeQueryFilter: TQueryFilter<
     else if (filters.locked_eq === true) {
       query.andWhere({
         lockEnd: MoreThan(new Date())
-      })	
+      })
     }
   }
 
@@ -97,7 +98,7 @@ export const generativeQueryFilter: TQueryFilter<
     else if (filters.mintOpened_eq === true) {
       query.andWhere({
         mintOpensAt: LessThanOrEqual(new Date()),
-      })	
+      })
     }
   }
 
@@ -139,21 +140,21 @@ export const generativeQueryFilter: TQueryFilter<
   // process the filters on the prices
   if (filters?.price_gte) {
     query.andWhere(new Brackets(qb => {
-      qb.where("pricingFixed.price >= :price_gte", { 
-          price_gte: filters.price_gte 
+      qb.where("pricingFixed.price >= :price_gte", {
+          price_gte: filters.price_gte
         })
-        .orWhere("pricingDutchAuction.restingPrice >= :price_gte", { 
-          price_gte: filters.price_gte 
+        .orWhere("pricingDutchAuction.restingPrice >= :price_gte", {
+          price_gte: filters.price_gte
         })
     }))
   }
   if (filters?.price_lte) {
     query.andWhere(new Brackets(qb => {
-      qb.where("pricingFixed.price <= :price_lte", { 
-          price_lte: filters.price_lte 
+      qb.where("pricingFixed.price <= :price_lte", {
+          price_lte: filters.price_lte
         })
-        .orWhere("pricingDutchAuction.restingPrice <= :price_lte", { 
-          price_lte: filters.price_lte 
+        .orWhere("pricingDutchAuction.restingPrice <= :price_lte", {
+          price_lte: filters.price_lte
         })
     }))
   }

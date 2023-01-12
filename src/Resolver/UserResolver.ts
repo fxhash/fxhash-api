@@ -29,8 +29,8 @@ export class UserResolver {
 		return mapUserAuthorizationIdsToEnum(user.authorizations)
 	}
 
-  @FieldResolver(returns => [Objkt], { 
-		description: "The gentks owned by the user. Can be used to explore their collection using various filters." 
+  @FieldResolver(returns => [Objkt], {
+		description: "The gentks owned by the user. Can be used to explore their collection using various filters."
 	})
 	async objkts(
 		@Root() user: User,
@@ -46,17 +46,17 @@ export class UserResolver {
 				id: "DESC"
 			}
 		}
-		
+
 		let query = Objkt.createQueryBuilder("objkt")
 		query.where("objkt.ownerId = :ownerId", { ownerId: user.id })
 
-		// we add the issuer relationship because it's required for most of the 
+		// we add the issuer relationship because it's required for most of the
 		// tasks, and also requested most of the time by the API calls
 		query.leftJoinAndSelect("objkt.issuer", "issuer")
 
 		// FILTER / SORT
 		query = await objktQueryFilter(
-			query, 
+			query,
 			{
 				general: filters
 			},
@@ -98,16 +98,16 @@ export class UserResolver {
 
 		// FILTER / SORT
 		query = await objktQueryFilter(
-			query, 
+			query,
 			{
 				general: filters
 			},
 		)
-		
+
 		return query.getMany()
 	}
 
-	@FieldResolver(returns => [Objkt], { 
+	@FieldResolver(returns => [Objkt], {
 		description: "Returns the entire collection of a user, in token ID order"
 	})
 	entireCollection(
@@ -116,7 +116,7 @@ export class UserResolver {
 	) {
 		return ctx.userObjktsLoader.load(user.id)
 	}
-	
+
 	@FieldResolver(returns => [User], {
 		description: "Given a list of filters to apply to a user's collection, outputs a list of Authors returned by the search on the Gentks, without a limit on the number of results."
 	})
@@ -133,12 +133,12 @@ export class UserResolver {
 
 		// apply the filters
 		query = await objktQueryFilter(
-			query, 
+			query,
 			{
 				general: filters
 			},
 		)
-		
+
 		return query.getMany()
 	}
 
@@ -154,7 +154,7 @@ export class UserResolver {
 	) {
 		// default skip/takr
 		[skip, take] = useDefaultValues([skip, take], [0, 20])
-		// default sort 
+		// default sort
 		if (!sort || Object.keys(sort).length === 0) {
 			sort = {
 				mintOpensAt: "DESC"
@@ -316,7 +316,7 @@ export class UserResolver {
 		sortArgs = defaultSort(sortArgs, {
 			createdAt: "DESC"
 		})
-	
+
 		// create the query
 		let query = Action.createQueryBuilder("action").select()
 
@@ -365,7 +365,7 @@ export class UserResolver {
 		if (user.moderationReason) return user.moderationReason
 		return ctx.moderationReasonsLoader.load(user.moderationReasonId)
 	}
-  
+
   @Query(returns => [User], {
 		description: "Some unfiltered exploration of the users, with pagination."
 	})
@@ -389,7 +389,7 @@ export class UserResolver {
 		if (filters?.searchQuery_eq) {
 			const searchResults = await searchIndexUser.search(
 				filters.searchQuery_eq,
-				{ 
+				{
 					hitsPerPage: 200
 				}
 			)
@@ -422,9 +422,13 @@ export class UserResolver {
 		}
 
 		// pagination
-		query.skip(skip)
-		query.take(take)
-
+		if (sortArgs.relevance) {
+			query.offset(skip)
+			query.limit(take)
+		} else {
+			query.skip(skip)
+			query.take(take)
+		}
 		return query.getMany()
 	}
 
@@ -438,12 +442,12 @@ export class UserResolver {
 	): Promise<User|undefined|null> {
 		let user: User|null|undefined = null
 		if (id)
-			user = await User.findOne(id, { 
-				// cache: 10000 
+			user = await User.findOne(id, {
+				// cache: 10000
 			})
 		else if (name)
-			user = await User.findOne({ where: { name }, 
-				// cache: 10000 
+			user = await User.findOne({ where: { name },
+				// cache: 10000
 			})
 		return user
 	}
