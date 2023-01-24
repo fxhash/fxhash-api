@@ -14,6 +14,7 @@ import { RequestContext } from "../types/RequestContext";
 import { processFilters } from "../Utils/Filters";
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination";
 import { ActionsSortInput, ArticleSortInput, defaultSort, ListingsSortInput } from "./Arguments/Sort";
+import { searchIndexArticles } from "../Services/Search";
 
 @Resolver(Article)
 export class ArticleResolver {
@@ -200,6 +201,8 @@ export class ArticleResolver {
 		@Root() article: Article,
 		@Args() { skip, take }: PaginationArgs,
 	) {
+		if (article.tags.length === 0) return [];
+
 		// default arguments
 		[skip, take] = useDefaultValues([skip, take], [0, 5])
 
@@ -211,14 +214,27 @@ export class ArticleResolver {
 		// create the select query & the filters
 		let query = Article.createQueryBuilder("article").select()
 
-		// apply the filters/sort
-		query = await articleQueryFilter(
-			query,
-			{
-				searchQuery_eq: article.title + " " + article.tags.join(" ")
-			},
-			sort,
-		)
+		// const { results } = await algoliaRecommendClient.getRelatedProducts([{
+		// 	indexName: searchIndexArticles.indexName,
+		// 	maxRecommendations: take,
+		// 	objectID: article.id.toString(),
+		// }])
+		const facetFilters = [article.tags.slice(0, 10).map(tag => `tags:${tag}`)]
+		console.log(facetFilters)
+		const results = await searchIndexArticles.search('', {
+			facetFilters: [
+				['tags:test']
+			],
+			//hitsPerPage: take || 1
+		});
+		console.log(results)
+		const ids = results.hits.map(hit => hit.objectID)
+		query.whereInIds(ids)
+
+		if (ids.length > 1) {
+			const relevanceList = ids.map((id, idx) => `${id}`).join(', ')
+			query.addOrderBy(`array_position(array[${relevanceList}], article.id)`)
+		}
 
 		// we remove the current article from related
 		query.andWhere("article.id != :id", { id: article.id })
