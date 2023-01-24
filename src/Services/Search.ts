@@ -1,5 +1,7 @@
-import algoliasearch from "algoliasearch/lite"
+import algoliasearch from "algoliasearch"
+import algoliarecommend from "@algolia/recommend"
 
+// ALGOLIA SEARCH
 
 export const algoliaClient = algoliasearch(
   process.env.ALGOLIA_APP_ID,
@@ -18,3 +20,11 @@ export const searchIndexUser = algoliaClient.initIndex(
 export const searchIndexArticles = algoliaClient.initIndex(
   process.env.ALGOLIA_INDEX_ARTICLES
 )
+
+// ALGOLIA RECOMMEND
+
+export const algoliaRecommendClient = algoliarecommend(
+  process.env.ALGOLIA_APP_ID,
+  process.env.ALGOLIA_SEARCH_KEY,
+)
+
