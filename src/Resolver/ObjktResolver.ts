@@ -138,14 +138,8 @@ export class ObjktResolver {
   }
 
   @FieldResolver(returns => Number)
-  async mintedPrice(@Root() objkt: Objkt) {
-    const query = Action.createQueryBuilder("action").select()
-      .leftJoin('action.objkt', "objkt")
-      .where("objkt.id = :id", { id: objkt.id })
-      .andWhere("type = 'MINTED_FROM'", { id: objkt.id })
-      .orderBy('action.createdAt', 'DESC')
-    const action = await query.getOne()
-    return action?.numericValue
+  async mintedPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    return ctx.objktMintedPriceLoader.load(objkt.id)
   }
 
   @Query(returns => [Objkt], {

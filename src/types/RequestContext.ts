@@ -31,7 +31,7 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
-  createObjktListingsLoader,
+  createObjktListingsLoader, createObjktMintedPriceLoader,
   createObjktOffersLoader,
   createObjktRedemptionsLoader,
   createObjktRoyaltiesSplitsLoader,
@@ -109,6 +109,9 @@ export interface RequestContext extends ExpressRequest {
   objktRedemptionsLoader: ReturnType<typeof createObjktRedemptionsLoader>
   objktAvailableRedeemablesLoader: ReturnType<
     typeof createObjktAvailableRedeemablesLoader
+  >
+  objktMintedPriceLoader: ReturnType<
+    typeof createObjktMintedPriceLoader
   >
 
   // ARTICLES loaders
