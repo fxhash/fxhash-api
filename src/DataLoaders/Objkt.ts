@@ -148,3 +148,23 @@ const batchObjktAvailableRedeemables = async ids => {
 }
 export const createObjktAvailableRedeemablesLoader = () =>
   new DataLoader(batchObjktAvailableRedeemables)
+
+
+/**
+ * Given a list of objkt IDs, outputs their minted price
+ */
+const batchObjktMintedPriceLoader = async ids => {
+  const actions = await Action.createQueryBuilder("a")
+    .select(['a.id', 'a.objktId', 'a.type', 'a.numericValue'])
+    .addSelect('min("createdAt")', 'createdAt')
+    .where("a.objktId IN (:...ids)", { ids })
+    .andWhere("a.type = 'MINTED_FROM'")
+    .groupBy('a.id')
+    .addGroupBy('a."objktId"')
+    .getMany()
+
+  return ids.map((id: number) =>
+    actions.find(action => action.objktId === id)?.numericValue
+  )
+}
+export const createObjktMintedPriceLoader = () => new DataLoader(batchObjktMintedPriceLoader)
