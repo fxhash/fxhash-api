@@ -231,6 +231,13 @@ export class Objkt extends BaseEntity {
   @Filter(["gt", "lt"])
   assignedAt: string
 
+  @Field(() => Number, {
+    nullable: true,
+    description:
+      "Price (in tezos) from the first time it has been minted",
+  })
+  mintedPrice: number
+
   //
   // FILTERS FOR THE GQL ENDPOINT
   //

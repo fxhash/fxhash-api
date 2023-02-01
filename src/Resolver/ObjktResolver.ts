@@ -137,6 +137,11 @@ export class ObjktResolver {
     return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
   }
 
+  @FieldResolver(returns => Number)
+  async mintedPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    return ctx.objktMintedPriceLoader.load(objkt.id)
+  }
+
   @Query(returns => [Objkt], {
     description: "Generic paginated endpoint to query the gentks. Filtrable.",
   })
