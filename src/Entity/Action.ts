@@ -13,7 +13,7 @@ import { HistoryMetadata } from "../types/Metadata"
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
 import { Objkt } from "./Objkt"
-import { Redeemable } from "./Redeemable"
+// import { Redeemable } from "./Redeemable"
 import { DateTransformer } from "./Transformers/DateTransformer"
 import { User } from "./User"
 
@@ -106,10 +106,10 @@ export class Action extends BaseEntity {
   @Column()
   objktId: number
 
-  @ManyToOne(() => Redeemable, red => red.actions, {
-    onDelete: "CASCADE",
-  })
-  redeemable?: Redeemable
+  // @ManyToOne(() => Redeemable, red => red.actions, {
+  //   onDelete: "CASCADE",
+  // })
+  // redeemable?: Redeemable
 
   @Column({ nullable: true, default: null })
   redeemableAddress: number

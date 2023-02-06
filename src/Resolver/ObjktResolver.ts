@@ -20,8 +20,8 @@ import { FiltersOffer, Offer } from "../Entity/Offer"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 import { MediaImage } from "../Entity/MediaImage"
-import { Redemption } from "../Entity/Redemption"
-import { Redeemable } from "../Entity/Redeemable"
+// import { Redemption } from "../Entity/Redemption"
+// import { Redeemable } from "../Entity/Redeemable"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -119,23 +119,23 @@ export class ObjktResolver {
     return ctx.objktActionsLoader.load(objkt.id)
   }
 
-  @FieldResolver(returns => [Redemption], {
-    description:
-      "All the single redemption events which occured on this gentk.",
-  })
-  redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    if (objkt.redemptions) return objkt.redemptions
-    return ctx.objktRedemptionsLoader.load(objkt.id)
-  }
+  // @FieldResolver(returns => [Redemption], {
+  //   description:
+  //     "All the single redemption events which occured on this gentk.",
+  // })
+  // redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+  //   if (objkt.redemptions) return objkt.redemptions
+  //   return ctx.objktRedemptionsLoader.load(objkt.id)
+  // }
 
-  @FieldResolver(returns => [Redeemable], {
-    description:
-      "A list of the Redeemables for which the token can be redeemed",
-  })
-  availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
-    return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
-  }
+  // @FieldResolver(returns => [Redeemable], {
+  //   description:
+  //     "A list of the Redeemables for which the token can be redeemed",
+  // })
+  // availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+  //   if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
+  //   return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
+  // }
 
   @FieldResolver(returns => Number)
   async mintedPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {

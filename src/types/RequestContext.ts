@@ -9,7 +9,7 @@ import {
 } from "../DataLoaders/Articles"
 import {
   createGentkTokPrimarySplitsLoader,
-  createGentkTokRedeemablesLoader,
+  // createGentkTokRedeemablesLoader,
   createGentkTokSecondarySplitsLoader,
   createGenTokArticleMentionsLoader,
   createGenTokLoader,
@@ -30,18 +30,18 @@ import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
-  createObjktAvailableRedeemablesLoader,
+  // createObjktAvailableRedeemablesLoader,
   createObjktListingsLoader, createObjktMintedPriceLoader,
   createObjktOffersLoader,
-  createObjktRedemptionsLoader,
+  // createObjktRedemptionsLoader,
   createObjktRoyaltiesSplitsLoader,
   createObjktsLoader,
 } from "../DataLoaders/Objkt"
-import {
-  createRedeemableLoader,
-  createRedeemableRedemptionsLoader,
-  createRedeemableSplitsLoader,
-} from "../DataLoaders/Redeemable"
+// import {
+//   createRedeemableLoader,
+//   createRedeemableRedemptionsLoader,
+//   createRedeemableSplitsLoader,
+// } from "../DataLoaders/Redeemable"
 import {
   createUsersObjktLoader,
   createUsersLoader,
@@ -95,7 +95,7 @@ export interface RequestContext extends ExpressRequest {
   genTokArticleMentionsLoader: ReturnType<
     typeof createGenTokArticleMentionsLoader
   >
-  genTokRedeemablesLoader: ReturnType<typeof createGentkTokRedeemablesLoader>
+  // genTokRedeemablesLoader: ReturnType<typeof createGentkTokRedeemablesLoader>
 
   // OBJKTS loaders
   objktsLoader: ReturnType<typeof createObjktsLoader>
@@ -106,10 +106,10 @@ export interface RequestContext extends ExpressRequest {
   objktListingsLoader: ReturnType<typeof createObjktListingsLoader>
   objktActiveListingsLoader: ReturnType<typeof createObjktActiveListingsLoader>
   objktOffersLoader: ReturnType<typeof createObjktOffersLoader>
-  objktRedemptionsLoader: ReturnType<typeof createObjktRedemptionsLoader>
-  objktAvailableRedeemablesLoader: ReturnType<
-    typeof createObjktAvailableRedeemablesLoader
-  >
+  // objktRedemptionsLoader: ReturnType<typeof createObjktRedemptionsLoader>
+  // objktAvailableRedeemablesLoader: ReturnType<
+  //   typeof createObjktAvailableRedeemablesLoader
+  // >
   objktMintedPriceLoader: ReturnType<
     typeof createObjktMintedPriceLoader
   >
@@ -138,9 +138,9 @@ export interface RequestContext extends ExpressRequest {
   moderationReasonsLoader: ReturnType<typeof createModerationReasonsLoader>
 
   // REDEEMABLE loaders
-  redeemableLoader: ReturnType<typeof createRedeemableLoader>
-  reedemableSplitsLoader: ReturnType<typeof createRedeemableSplitsLoader>
-  reedemableRedemptionsLoader: ReturnType<
-    typeof createRedeemableRedemptionsLoader
-  >
+  // redeemableLoader: ReturnType<typeof createRedeemableLoader>
+  // reedemableSplitsLoader: ReturnType<typeof createRedeemableSplitsLoader>
+  // reedemableRedemptionsLoader: ReturnType<
+  //   typeof createRedeemableRedemptionsLoader
+  // >
 }

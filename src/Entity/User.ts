@@ -20,7 +20,7 @@ import { MediaImage } from "./MediaImage"
 import { ModerationReason } from "./ModerationReason"
 import { Objkt } from "./Objkt"
 import { Offer } from "./Offer"
-import { Redemption } from "./Redemption"
+// import { Redemption } from "./Redemption"
 import { Report } from "./Report"
 import { Split } from "./Split"
 import { DateTransformer } from "./Transformers/DateTransformer"
@@ -200,8 +200,8 @@ export class User extends BaseEntity {
   @OneToMany(() => Split, split => split.user)
   splits: Split[]
 
-  @OneToMany(() => Redemption, redemption => redemption.redeemer)
-  redemptions: Redemption[]
+  // @OneToMany(() => Redemption, redemption => redemption.redeemer)
+  // redemptions: Redemption[]
 
   @Field({
     description:

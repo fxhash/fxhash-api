@@ -33,7 +33,7 @@ import { GenerativeToken } from "./GenerativeToken"
 import { Listing } from "./Listing"
 import { MediaImage } from "./MediaImage"
 import { Offer } from "./Offer"
-import { Redemption } from "./Redemption"
+// import { Redemption } from "./Redemption"
 import { Split } from "./Split"
 import { Transaction } from "./Transaction"
 import { DateTransformer } from "./Transformers/DateTransformer"
@@ -212,8 +212,8 @@ export class Objkt extends BaseEntity {
   @OneToMany(() => Action, action => action.objkt)
   actions: Action[]
 
-  @OneToMany(() => Redemption, redemption => redemption.objkt)
-  redemptions: Redemption[]
+  // @OneToMany(() => Redemption, redemption => redemption.objkt)
+  // redemptions: Redemption[]
 
   @Field({
     description: "The time at which the gentk was minted on the blockchain.",

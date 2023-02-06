@@ -13,7 +13,7 @@ import {
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
 import { Objkt } from "./Objkt"
-import { Redeemable } from "./Redeemable"
+// import { Redeemable } from "./Redeemable"
 import { User } from "./User"
 
 /**
@@ -73,10 +73,10 @@ export class Split extends BaseEntity {
   @Column()
   articleId: number
 
-  @ManyToOne(() => Redeemable, redeemable => redeemable.splits, {
-    onDelete: "CASCADE",
-  })
-  redeemable: Redeemable
+  // @ManyToOne(() => Redeemable, redeemable => redeemable.splits, {
+  //   onDelete: "CASCADE",
+  // })
+  // redeemable: Redeemable
 
   @Column()
   redeemableAddress: string

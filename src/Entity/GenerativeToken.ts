@@ -26,7 +26,7 @@ import { ModerationReason } from "./ModerationReason"
 import { Objkt } from "./Objkt"
 import { PricingDutchAuction } from "./PricingDutchAuction"
 import { PricingFixed } from "./PricingFixed"
-import { Redeemable } from "./Redeemable"
+// import { Redeemable } from "./Redeemable"
 import { Report } from "./Report"
 import { Reserve } from "./Reserve"
 import { Split } from "./Split"
@@ -272,8 +272,8 @@ export class GenerativeToken extends BaseEntity {
   @OneToMany(() => MarketStatsHistory, stats => stats.token)
   marketStatsHistory: MarketStatsHistory
 
-  @OneToMany(() => Redeemable, redeemable => redeemable.token)
-  redeemables: Redeemable[]
+  // @OneToMany(() => Redeemable, redeemable => redeemable.token)
+  // redeemables: Redeemable[]
 
   @Field()
   @Column({ type: "timestamptz", transformer: DateTransformer })
