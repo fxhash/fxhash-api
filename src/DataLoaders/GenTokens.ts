@@ -8,7 +8,7 @@ import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
-import { Redeemable } from "../Entity/Redeemable"
+// import { Redeemable } from "../Entity/Redeemable"
 import { Report } from "../Entity/Report"
 import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
@@ -350,15 +350,15 @@ const batchGenTokReserves = async ids => {
 export const createGenTokReservesLoader = () =>
   new DataLoader(batchGenTokReserves)
 
-/**
- * Given a list of Generative Token IDs, outputs their redeemables
- */
-const batchGenTokRedeemables = async ids => {
-  const reds = await Redeemable.createQueryBuilder("red")
-    .select()
-    .where("red.tokenId IN(:...ids)", { ids })
-    .getMany()
-  return ids.map(id => reds.filter(r => r.tokenId === id))
-}
-export const createGentkTokRedeemablesLoader = () =>
-  new DataLoader(batchGenTokRedeemables)
+// /**
+//  * Given a list of Generative Token IDs, outputs their redeemables
+//  */
+// const batchGenTokRedeemables = async ids => {
+//   const reds = await Redeemable.createQueryBuilder("red")
+//     .select()
+//     .where("red.tokenId IN(:...ids)", { ids })
+//     .getMany()
+//   return ids.map(id => reds.filter(r => r.tokenId === id))
+// }
+// export const createGentkTokRedeemablesLoader = () =>
+//   new DataLoader(batchGenTokRedeemables)

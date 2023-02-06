@@ -5,8 +5,8 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
-import { Redeemable } from "../Entity/Redeemable"
-import { Redemption } from "../Entity/Redemption"
+// import { Redeemable } from "../Entity/Redeemable"
+// import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
 import { offerQueryFilter } from "../Query/Filters/Offer"
 
@@ -106,48 +106,48 @@ const batchObjktOffers = async (inputs: any) => {
 }
 export const createObjktOffersLoader = () => new DataLoader(batchObjktOffers)
 
-/**
- * Given a list of objkt IDs, outputs a list of a list of redemptions associated
- * to each objkt
- */
-const batchObjktRedemptions = async ids => {
-  const red = await Redemption.createQueryBuilder("red")
-    .select()
-    .where("red.objktId IN (:...ids)", { ids })
-    .orderBy("red.createdAt", "DESC")
-    .getMany()
-  return ids.map((id: number) => red.filter(r => r.objktId === id))
-}
-export const createObjktRedemptionsLoader = () =>
-  new DataLoader(batchObjktRedemptions)
+// /**
+//  * Given a list of objkt IDs, outputs a list of a list of redemptions associated
+//  * to each objkt
+//  */
+// const batchObjktRedemptions = async ids => {
+//   const red = await Redemption.createQueryBuilder("red")
+//     .select()
+//     .where("red.objktId IN (:...ids)", { ids })
+//     .orderBy("red.createdAt", "DESC")
+//     .getMany()
+//   return ids.map((id: number) => red.filter(r => r.objktId === id))
+// }
+// export const createObjktRedemptionsLoader = () =>
+//   new DataLoader(batchObjktRedemptions)
 
-/**
- * Given a list of objkt IDs, outputs a list of a list of available redeemables
- * for each objkt. A redeemable is available if this objkt has not been
- * redeemed more than the redeemable max consumption.
- */
-const batchObjktAvailableRedeemables = async ids => {
-  // select the redeemables associated with the objkts
-  const objkts = await Objkt.createQueryBuilder("O")
-    .leftJoinAndSelect("O.issuer", "G")
-    .leftJoinAndSelect("G.redeemables", "Ra")
-    .leftJoinAndSelect("O.redemptions", "Re")
-    .where("O.id IN (:...ids)", { ids })
-    .getMany()
-
-  return ids.map((id: number) => {
-    const objkt = objkts.find(o => o.id === id)
-    if (!objkt) return null
-    return objkt.issuer!.redeemables.filter(
-      redeemable =>
-        objkt.redemptions.filter(
-          r => r.redeemableAddress === redeemable.address
-        ).length < redeemable.maxConsumptionsPerToken
-    )
-  })
-}
-export const createObjktAvailableRedeemablesLoader = () =>
-  new DataLoader(batchObjktAvailableRedeemables)
+// /**
+//  * Given a list of objkt IDs, outputs a list of a list of available redeemables
+//  * for each objkt. A redeemable is available if this objkt has not been
+//  * redeemed more than the redeemable max consumption.
+//  */
+// const batchObjktAvailableRedeemables = async ids => {
+//   // select the redeemables associated with the objkts
+//   const objkts = await Objkt.createQueryBuilder("O")
+//     .leftJoinAndSelect("O.issuer", "G")
+//     .leftJoinAndSelect("G.redeemables", "Ra")
+//     .leftJoinAndSelect("O.redemptions", "Re")
+//     .where("O.id IN (:...ids)", { ids })
+//     .getMany()
+//
+//   return ids.map((id: number) => {
+//     const objkt = objkts.find(o => o.id === id)
+//     if (!objkt) return null
+//     return objkt.issuer!.redeemables.filter(
+//       redeemable =>
+//         objkt.redemptions.filter(
+//           r => r.redeemableAddress === redeemable.address
+//         ).length < redeemable.maxConsumptionsPerToken
+//     )
+//   })
+// }
+// export const createObjktAvailableRedeemablesLoader = () =>
+//   new DataLoader(batchObjktAvailableRedeemables)
 
 
 /**
