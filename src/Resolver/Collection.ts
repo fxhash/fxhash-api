@@ -15,8 +15,8 @@ import { SearchResolver } from "./SearchResolver"
 import { ArticleResolver } from "./ArticleResolver"
 import { ArticleLedgerResolver } from "./ArticleLedgerResolver"
 import { ArticleGenerativeTokenResolver } from "./ArticleGenerativeTokenResolver"
-import { RedeemableResolver } from "./RedeemableResolver"
-import { RedemptionResolver } from "./RedemptionResolver"
+// import { RedeemableResolver } from "./RedeemableResolver"
+// import { RedemptionResolver } from "./RedemptionResolver"
 
 export const ResolverCollection: NonEmptyArray<Function> = [
   UserResolver,
@@ -35,6 +35,6 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   ArticleResolver,
   ArticleLedgerResolver,
   ArticleGenerativeTokenResolver,
-  RedeemableResolver,
-  RedemptionResolver,
+  // RedeemableResolver,
+  // RedemptionResolver,
 ]
