@@ -22,7 +22,10 @@ import {
   JoinColumn,
 } from "typeorm"
 import { TokenId } from "../Scalar/TokenId"
-import { GenMintProgressFilter } from "../types/GenerativeToken"
+import {
+  GenerativeTokenVersion,
+  GenMintProgressFilter,
+} from "../types/GenerativeToken"
 import {
   ObjktMetadata,
   TokenFeature,
@@ -46,11 +49,18 @@ import { User } from "./User"
     "Unique iterations of Generative Tokens. They are the NFT entities. Called *Objkt* in the API but is actually a **Gentk** (@ciphrd: my bad there, we're too deep now)",
 })
 export class Objkt extends BaseEntity {
-  @Field({
-    description: "Unique identifier, corresponds to the ID stored on-chain",
-  })
   @PrimaryColumn()
   id: number
+
+  // no need to expose the issuer version to the API
+  @Column({
+    primary: true,
+    type: "enum",
+    enum: GenerativeTokenVersion,
+    enumName: "generative_token_version",
+    default: GenerativeTokenVersion.PRE_V3,
+  })
+  issuerVersion: GenerativeTokenVersion
 
   @Field({
     nullable: true,

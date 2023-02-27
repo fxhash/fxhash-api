@@ -22,9 +22,17 @@ import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
+import { TokenId } from "../Scalar/TokenId"
 
 @Resolver(Objkt)
 export class ObjktResolver {
+  @FieldResolver(returns => TokenId, {
+    description: "The unique identifier of the token.",
+  })
+  id(@Root() objkt: Objkt) {
+    return new TokenId({ id: objkt.id, version: objkt.issuerVersion })
+  }
+
   @FieldResolver(returns => User, {
     description:
       "The current owner of this gentk. The fxhash marketplace contracts are ignored when there's a transfer of ownerhsip to their contracts.",
@@ -185,13 +193,16 @@ export class ObjktResolver {
       "Endpoint to query a single gentk, using different trivial search criteria (id, hash or slug).",
   })
   async objkt(
-    @Arg("id", { nullable: true }) id: number,
+    @Arg("id", { nullable: true }) id: TokenId,
     @Arg("hash", { nullable: true }) hash: string,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<Objkt | undefined> {
     if (id == null && hash == null && slug == null) return undefined
     let args: Record<string, any> = {}
-    if (!(id == null)) args.id = id
+    if (!(id == null)) {
+      args.id = id.id
+      args.issuerVersion = id.version
+    }
     if (!(hash == null)) args.generationHash = hash
     if (!(slug == null)) args.slug = slug
     return Objkt.findOne({

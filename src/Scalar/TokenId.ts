@@ -1,12 +1,13 @@
 import { GraphQLScalarType, Kind } from "graphql"
 import { GenerativeToken } from "../Entity/GenerativeToken"
+import { Objkt } from "../Entity/Objkt"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 
 export class TokenId {
   id: number
   version: GenerativeTokenVersion
 
-  constructor(token: GenerativeToken) {
+  constructor(token: { id: number; version: GenerativeTokenVersion }) {
     this.id = token.id
     this.version = token.version
   }
