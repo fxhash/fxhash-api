@@ -21,6 +21,7 @@ import {
   RelationId,
   JoinColumn,
 } from "typeorm"
+import { TokenId } from "../Scalar/TokenId"
 import { GenMintProgressFilter } from "../types/GenerativeToken"
 import {
   ObjktMetadata,
@@ -60,7 +61,7 @@ export class Objkt extends BaseEntity {
   slug?: string
 
   @ManyToOne(() => GenerativeToken, token => token.objkts)
-  @Filter(["in"], type => Int)
+  @Filter(["in"], type => TokenId)
   issuer?: GenerativeToken
 
   @Column({ nullable: false })
@@ -233,8 +234,7 @@ export class Objkt extends BaseEntity {
 
   @Field(() => Number, {
     nullable: true,
-    description:
-      "Price (in tezos) from the first time it has been minted",
+    description: "Price (in tezos) from the first time it has been minted",
   })
   mintedPrice: number
 

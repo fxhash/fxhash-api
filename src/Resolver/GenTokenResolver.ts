@@ -43,6 +43,7 @@ import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
+import { serializeTokenId, TokenId } from "../Scalar/TokenId"
 import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters, processGenerativeFilters } from "../Utils/Filters"
@@ -60,6 +61,13 @@ import {
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
+  @FieldResolver(returns => TokenId, {
+    description: "The unique identifier of the token.",
+  })
+  id(@Root() token: GenerativeToken) {
+    return new TokenId(token)
+  }
+
   @FieldResolver(returns => [Objkt], {
     description:
       "Get the unique iterations generated from the Generative Token. This is the go-to endpoint to get the gentks as it's the most optimized and is built to support sort and filter options.",
@@ -401,8 +409,8 @@ export class GenTokenResolver {
     description:
       "Get a Generative Token by its ID or SLUG. One of those 2 must be provided for the endpoint to perform a search in the DB.",
   })
-  generativeToken(
-    @Arg("id", { nullable: true }) id: number,
+  async generativeToken(
+    @Arg("id", { nullable: true }) id: TokenId,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<GenerativeToken | undefined> {
     if (id == null && slug == null) {
