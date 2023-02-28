@@ -23,7 +23,9 @@ const main = async () => {
       logging: process.env.TYPEORM_LOGGING === "true",
       synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
       entities: [process.env.TYPEORM_ENTITIES],
-      ssl: false,
+      ssl: {
+        rejectUnauthorized: false,
+      },
       extra: {
         rejectUnauthorized: false,
         max: 40,
