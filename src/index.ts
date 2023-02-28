@@ -3,7 +3,6 @@ import "reflect-metadata"
 import express from "express"
 import cors from "cors"
 import { buildSchema } from "type-graphql"
-import { createConnections } from "typeorm"
 import { ResolverCollection } from "./Resolver/Collection"
 import { createServer } from "./Server/Http"
 import { ApolloServer } from "apollo-server-express"
@@ -12,26 +11,11 @@ import { routeGraphiql } from "./routes/graphiql"
 import { ApolloMetricsPlugin } from "./Plugins/MetricsPlugin"
 import { routeGetHello } from "./routes/hello"
 import { TokenId, TokenIdScalar } from "./Scalar/TokenId"
+import { createConnection } from "./createConnection"
 
 const main = async () => {
   // connect to the DB
-  await createConnections([
-    {
-      name: "default",
-      type: process.env.DATABASE_TYPE,
-      url: process.env.DATABASE_URL,
-      logging: process.env.TYPEORM_LOGGING === "true",
-      synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
-      entities: [process.env.TYPEORM_ENTITIES],
-      ssl: {
-        rejectUnauthorized: false,
-      },
-      extra: {
-        rejectUnauthorized: false,
-        max: 40,
-      },
-    },
-  ])
+  await createConnection()
 
   // now bootstrap the rest of the server (gQL API)
   const schema = await buildSchema({
