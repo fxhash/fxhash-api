@@ -119,23 +119,23 @@ export class ObjktResolver {
     return ctx.objktActionsLoader.load(objkt.id)
   }
 
-  // @FieldResolver(returns => [Redemption], {
-  //   description:
-  //     "All the single redemption events which occured on this gentk.",
-  // })
-  // redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-  //   if (objkt.redemptions) return objkt.redemptions
-  //   return ctx.objktRedemptionsLoader.load(objkt.id)
-  // }
+  @FieldResolver(returns => [Redemption], {
+    description:
+      "All the single redemption events which occured on this gentk.",
+  })
+  redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    if (objkt.redemptions) return objkt.redemptions
+    return ctx.objktRedemptionsLoader.load(objkt.id)
+  }
 
-  // @FieldResolver(returns => [Redeemable], {
-  //   description:
-  //     "A list of the Redeemables for which the token can be redeemed",
-  // })
-  // availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-  //   if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
-  //   return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
-  // }
+  @FieldResolver(returns => [Redeemable], {
+    description:
+      "A list of the Redeemables for which the token can be redeemed",
+  })
+  availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
+    return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
+  }
 
   @FieldResolver(returns => Number)
   async mintedPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
