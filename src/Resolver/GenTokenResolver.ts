@@ -447,7 +447,7 @@ export class GenTokenResolver {
       ) {
         id = (Math.random() * count) | 0
         // confirm this returns different token versions with equal probability
-        token = await GenerativeToken.findOne(id)
+        token = await GenerativeToken.findOne({ id })
         if (++i > 6) {
           return undefined
         }
