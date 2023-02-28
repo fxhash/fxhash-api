@@ -22,7 +22,11 @@ export const generativeQueryFilter: TQueryFilter<
         hitsPerPage: 5000,
       }
     )
-    const ids = searchResults.hits.map(hit => hit.objectID)
+    // extract the IDs and format those to have pairs of (id, version)
+    const ids = searchResults.hits.map(hit => {
+      const [id, version] = hit.objectID.split("-")
+      return { id, version }
+    })
     query.whereInIds(ids)
 
     // if the sort option is relevance, we remove the sort arguments as the order

@@ -75,8 +75,13 @@ export const objktQueryFilter: TQueryFilter<
         hitsPerPage: 5000,
       }
     )
-    const ids = searchResults.hits.map(hit => hit.objectID)
-    query.andWhere("issuer.id IN (:...issuerIds)", { issuerIds: ids })
+    // extract the IDs and format those to have pairs of (id, version)
+    const ids = searchResults.hits.map(hit => hit.objectID.split("-"))
+    const formatted = ids.map(id => `(${id[0]}, '${id[1]}')`)
+    if (ids.length > 0) {
+      // filter the results by their (id, version) pair
+      query.andWhere(`(issuer.id, issuer.version) IN (${formatted})`)
+    }
 
     // if the sort option is relevance, we remove the sort arguments as the order
     // of the search results needs to be preserved
@@ -139,12 +144,12 @@ export const objktQueryFilter: TQueryFilter<
 
     // filter for some issuers only
     if (filters.issuer_in != null) {
-      // is this safe without parameters? i can't get it to work otherwise
-      query.andWhere(
-        `(issuer.id, issuer.version) IN (${filters.issuer_in
-          .map(({ id, version }) => `(${id}, '${version}')`)
-          .join(", ")})`
+      // extract the ids and versions
+      const issuerIds = filters.issuer_in.map(
+        ({ id, version }) => `(${id}, '${version}')`
       )
+      // filter results by (id, version) pair
+      query.andWhere(`(issuer.id, issuer.version) IN (${issuerIds})`)
     }
 
     // if we only want the items with an offer
