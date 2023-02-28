@@ -22,6 +22,9 @@ import {
   createGenTokPricingFixedLoader,
   createGenTokReportsLoader,
   createGenTokReservesLoader,
+  createGenTokMintTicketSettingsLoader,
+  createGenTokMintTicketsLoader,
+  createGenTokCodexLoader,
 } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
@@ -30,7 +33,8 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
-  createObjktListingsLoader, createObjktMintedPriceLoader,
+  createObjktListingsLoader,
+  createObjktMintedPriceLoader,
   createObjktOffersLoader,
   createObjktRedemptionsLoader,
   createObjktRoyaltiesSplitsLoader,
@@ -88,6 +92,9 @@ export const createContext = (req: any, res: any): RequestContext => {
     genTokArticleMentionsLoader: createGenTokArticleMentionsLoader(),
     genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
     genTokRedeemablesLoader: createGentkTokRedeemablesLoader(),
+    genTokMintTicketSettingsLoader: createGenTokMintTicketSettingsLoader(),
+    genTokMintTicketsLoader: createGenTokMintTicketsLoader(),
+    genTokCodexLoader: createGenTokCodexLoader(),
 
     // OBJKTS loaders
     objktsLoader: createObjktsLoader(),

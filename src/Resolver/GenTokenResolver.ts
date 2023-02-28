@@ -11,6 +11,7 @@ import {
 } from "type-graphql"
 import { Action, FiltersAction } from "../Entity/Action"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
+import { Codex } from "../Entity/Codex"
 import {
   GenerativeFilters,
   GenerativeToken,
@@ -19,6 +20,7 @@ import {
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { MediaImage } from "../Entity/MediaImage"
+import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { FiltersOffer, Offer } from "../Entity/Offer"
@@ -42,6 +44,7 @@ import {
   ActionsSortInput,
   defaultSort,
   GenerativeSortInput,
+  MintTicketSortInput,
   ObjktsSortInput,
   OffersSortInput,
 } from "./Arguments/Sort"
@@ -53,6 +56,13 @@ export class GenTokenResolver {
   })
   id(@Root() token: GenerativeToken) {
     return new TokenId(token)
+  }
+
+  @FieldResolver(returns => Codex, {
+    description: "The Codex of the token.",
+  })
+  codex(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
+    return token.codex || ctx.genTokCodexLoader.load(new TokenId(token))
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -178,10 +188,9 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return (
-      token.pricingFixed ||
-      ctx.gentkTokPricingFixedLoader.load(new TokenId(token))
-    )
+    const thing = await ctx.gentkTokPricingFixedLoader.load(new TokenId(token))
+    console.log(thing)
+    return token.pricingFixed || thing
   }
 
   @FieldResolver(returns => PricingDutchAuction, {
@@ -445,5 +454,32 @@ export class GenTokenResolver {
       }
     }
     return token
+  }
+
+  @FieldResolver(returns => [MintTicket], {
+    description: "Get the unique mint tickets for a Generative Token.",
+  })
+  async mintTickets(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersMintTicket, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: MintTicketSortInput,
+    @Args() { skip, take }: PaginationArgs
+  ) {
+    // defaults
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        id: "ASC",
+      }
+    }
+    ;[skip, take] = useDefaultValues([skip, take], [0, 20])
+
+    return ctx.genTokMintTicketsLoader.load({
+      ...new TokenId(token),
+      filters,
+      sort,
+      skip,
+      take,
+    })
   }
 }

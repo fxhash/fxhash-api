@@ -1,9 +1,12 @@
 import DataLoader from "dataloader"
 import { Brackets, In } from "typeorm"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
+import { Codex } from "../Entity/Codex"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
+import { MintTicket } from "../Entity/MintTicket"
+import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
@@ -12,6 +15,7 @@ import { Redeemable } from "../Entity/Redeemable"
 import { Report } from "../Entity/Report"
 import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
+import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { offerQueryFilter } from "../Query/Filters/Offer"
 import { TokenId } from "../Scalar/TokenId"
@@ -426,3 +430,84 @@ const batchGenTokRedeemables = async (ids: readonly TokenId[]) => {
 }
 export const createGentkTokRedeemablesLoader = () =>
   new DataLoader(batchGenTokRedeemables)
+
+/**
+ * Given a list of Generative Token IDs, outputs their mint ticket settings
+ */
+const batchGenTokMintTicketSettings = async (ids: readonly TokenId[]) => {
+  const settings = await MintTicketSettings.createQueryBuilder("settings")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "settings"))
+    .getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    settings.find(s => s.tokenId === id && s.tokenVersion === version)
+  )
+}
+export const createGenTokMintTicketSettingsLoader = () =>
+  new DataLoader(batchGenTokMintTicketSettings)
+
+/**
+ * Get the MintTickets of a Generative Token, with some filters and sorting options,
+ * as well as a skip/take limit
+ */
+const batchGenTokMintTicket = async genIds => {
+  // extract the IDs from the params
+  const ids = genIds.map(({ id, version }) => ({ id, version }))
+
+  // extract the filters from the params
+  const filters = genIds[0].filters
+  const sorts = genIds[0].sort || {}
+  const take = genIds[0].take
+  const skip = genIds[0].skip
+
+  // if there is not sort, add ID desc
+  if (Object.keys(sorts).length === 0) {
+    sorts.id = "DESC"
+  }
+
+  let query = MintTicket.createQueryBuilder("mintTicket")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "mintTicket"))
+  // .leftJoin("mintTicket.token", "token")
+
+  // we apply the filters and the sort arguments
+  query = await mintTicketQueryFilter(
+    query,
+    {
+      general: filters,
+    },
+    sorts
+  )
+
+  // pagination
+  if (take !== null && take !== undefined) {
+    query = query.take(take)
+  }
+  if (skip !== null && skip !== undefined) {
+    query = query.skip(skip)
+  }
+
+  const mintTickets = await query.getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    mintTickets.filter(
+      mintTicket =>
+        mintTicket.tokenId === id && mintTicket.tokenVersion === version
+    )
+  )
+}
+export const createGenTokMintTicketsLoader = () =>
+  new DataLoader(batchGenTokMintTicket)
+
+const batchGenTokCodex = async (ids: readonly TokenId[]) => {
+  const codex = await Codex.createQueryBuilder("codex")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "codex"))
+    .getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    codex.find(c => c.id === id && c.tokenVersion === version)
+  )
+}
+export const createGenTokCodexLoader = () => new DataLoader(batchGenTokCodex)

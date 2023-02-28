@@ -16,6 +16,8 @@ import { ArticleResolver } from "./ArticleResolver"
 import { ArticleLedgerResolver } from "./ArticleLedgerResolver"
 import { ArticleGenerativeTokenResolver } from "./ArticleGenerativeTokenResolver"
 import { GentkAssignResolver } from "./GentkAssignResolver"
+import { MintTicketResolver } from "./MintTicketResolver"
+import { MintTicketSettingsResolver } from "./MintTicketSettingsResolver"
 // import { RedeemableResolver } from "./RedeemableResolver"
 // import { RedemptionResolver } from "./RedemptionResolver"
 
@@ -39,4 +41,6 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   ArticleGenerativeTokenResolver,
   // RedeemableResolver,
   // RedemptionResolver,
+  MintTicketResolver,
+  MintTicketSettingsResolver,
 ]

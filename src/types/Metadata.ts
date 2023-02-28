@@ -10,11 +10,11 @@ export interface HistoryMetadata {
 }
 
 export interface TokenFormat {
-  uri: string,
+  uri: string
   mimeType: string
 }
 
-export type TokenFeatureValueType = string|number|boolean
+export type TokenFeatureValueType = string | number | boolean
 
 export interface TokenMetadataFeature {
   name: string
@@ -22,16 +22,16 @@ export interface TokenMetadataFeature {
 }
 
 export interface GenerativeTokenMetadata {
-  name: string,
-  description: string,
-  tags: string[],
-  symbol: string,
-  artifactUri: string,
-  displayUri: string,
-  thumbnailUri: string,
-  creators: string[],
-  formats: TokenFormat[],
-  decimals: number,
+  name: string
+  description: string
+  tags: string[]
+  symbol: string
+  artifactUri: string
+  displayUri: string
+  thumbnailUri: string
+  creators: string[]
+  formats: TokenFormat[]
+  decimals: number
 }
 
 export interface ObjktMetadata extends GenerativeTokenMetadata {
@@ -42,6 +42,7 @@ export interface TokenFeature extends TokenMetadataFeature {
   rarity?: number
 }
 
+export interface MintTicketMetadata extends GenerativeTokenMetadata {}
 
 //
 // Articles
