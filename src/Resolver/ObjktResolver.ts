@@ -22,7 +22,7 @@ import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
-import { TokenId } from "../Scalar/TokenId"
+import { ObjktId, TokenId } from "../Scalar/TokenId"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -30,7 +30,7 @@ export class ObjktResolver {
     description: "The unique identifier of the token.",
   })
   id(@Root() objkt: Objkt) {
-    return new TokenId({ id: objkt.id, version: objkt.issuerVersion })
+    return new ObjktId(objkt)
   }
 
   @FieldResolver(returns => User, {
@@ -56,7 +56,10 @@ export class ObjktResolver {
   issuer(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.issuer) return objkt.issuer
     return ctx.genTokLoader.load(
-      new TokenId({ id: objkt.issuerId, version: objkt.issuerVersion })
+      new TokenId({
+        id: objkt.issuerId,
+        version: objkt.issuerVersion,
+      })
     )
   }
 
@@ -65,7 +68,7 @@ export class ObjktResolver {
   })
   royaltiesSplit(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.royaltiesSplit) return objkt.royaltiesSplit
-    return ctx.objktRoyaltiesSplitsLoader.load(objkt.id)
+    return ctx.objktRoyaltiesSplitsLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => [Listing], {
@@ -74,7 +77,7 @@ export class ObjktResolver {
       "All the listings for the gentk. Includes all the listings related to the gentk, even those which were cancelled / accepted.",
   })
   listings(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    return ctx.objktListingsLoader.load(objkt.id)
+    return ctx.objktListingsLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => Listing, {
@@ -82,7 +85,7 @@ export class ObjktResolver {
     description: "The Listing currently active for the gentk, if any.",
   })
   activeListing(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    return ctx.objktActiveListingsLoader.load(objkt.id)
+    return ctx.objktActiveListingsLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => MediaImage, {
@@ -114,7 +117,7 @@ export class ObjktResolver {
     }
 
     return ctx.objktOffersLoader.load({
-      id: objkt.id,
+      ...new ObjktId(objkt),
       filters: filters,
       sort: sort,
     })
@@ -126,7 +129,7 @@ export class ObjktResolver {
   })
   actions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.actions) return objkt.actions
-    return ctx.objktActionsLoader.load(objkt.id)
+    return ctx.objktActionsLoader.load(new ObjktId(objkt))
   }
 
   // @FieldResolver(returns => [Redemption], {
@@ -135,7 +138,7 @@ export class ObjktResolver {
   // })
   // redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
   //   if (objkt.redemptions) return objkt.redemptions
-  //   return ctx.objktRedemptionsLoader.load(objkt.id)
+  //   return ctx.objktRedemptionsLoader.load(new ObjktId(objkt))
   // }
 
   // @FieldResolver(returns => [Redeemable], {
@@ -144,12 +147,12 @@ export class ObjktResolver {
   // })
   // availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
   //   if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
-  //   return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
+  //   return ctx.objktAvailableRedeemablesLoader.load(new ObjktId(objkt))
   // }
 
   @FieldResolver(returns => Number)
   async mintedPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    return ctx.objktMintedPriceLoader.load(objkt.id)
+    return ctx.objktMintedPriceLoader.load(new ObjktId(objkt))
   }
 
   @Query(returns => [Objkt], {

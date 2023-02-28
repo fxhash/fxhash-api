@@ -79,8 +79,7 @@ export class GenTokenResolver {
     // we parse the feature filters
     if (token.objkts) return token.objkts
     return ctx.genTokObjktsLoader.load({
-      id: token.id,
-      version: token.version,
+      ...new TokenId(token),
       filters,
       featureFilters,
       sort,
@@ -109,7 +108,7 @@ export class GenTokenResolver {
     @Ctx() ctx: RequestContext
   ) {
     if (token.objkts) return token.objkts
-    return ctx.genTokObjktsLoader.load({ id: token.id })
+    return ctx.genTokObjktsLoader.load(new TokenId(token))
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -131,7 +130,7 @@ export class GenTokenResolver {
     }
     if (token.objkts) return token.objkts
     return ctx.genTokObjktsLoader.load({
-      id: token.id,
+      ...new TokenId(token),
       filters,
       sort,
       skip,

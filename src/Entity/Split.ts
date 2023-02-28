@@ -78,6 +78,13 @@ export class Split extends BaseEntity {
   @Column()
   objktId: number
 
+  @Column({
+    type: "enum",
+    enum: GenerativeTokenVersion,
+    enumName: "generative_token_version",
+  })
+  objktIssuerVersion: GenerativeTokenVersion
+
   @Index()
   @ManyToOne(() => Article, article => article.royaltiesSplit, {
     onDelete: "CASCADE",

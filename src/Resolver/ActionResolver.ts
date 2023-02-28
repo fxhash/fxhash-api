@@ -64,7 +64,9 @@ export class ActionResolver {
   objkt(@Root() action: Action, @Ctx() ctx: RequestContext) {
     if (action.objktId == null) return null
     if (action.objkt) return action.objkt
-    return ctx.objktsLoader.load(action.objktId)
+    return ctx.objktsLoader.load(
+      new TokenId({ id: action.objktId, version: action.objktIssuerVersion })
+    )
   }
 
   @FieldResolver(returns => Article, {

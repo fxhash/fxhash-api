@@ -15,18 +15,10 @@ import { Split } from "../Entity/Split"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { offerQueryFilter } from "../Query/Filters/Offer"
 import { TokenId } from "../Scalar/TokenId"
-
-const formatTokenIdTuples = (ids: TokenId[]) =>
-  ids.map(({ id, version }) => `(${id}, '${version}')`)
-
-const matchesEntityTokenIdAndVersion = (
-  ids: TokenId[],
-  entityName: string,
-  tokenFieldName = "token"
-) =>
-  `(${entityName}.${tokenFieldName}Id, ${entityName}.${tokenFieldName}Version) IN (${formatTokenIdTuples(
-    ids
-  )})`
+import {
+  formatTokenIdTuples,
+  matchesEntityTokenIdAndVersion,
+} from "../Utils/GenerativeToken"
 
 const matchesObjktIssuerIdAndVersion = (ids: TokenId[]) =>
   matchesEntityTokenIdAndVersion(ids, "objkt", "issuer")

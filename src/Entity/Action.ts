@@ -114,6 +114,13 @@ export class Action extends BaseEntity {
   @Column()
   objktId: number
 
+  @Column({
+    type: "enum",
+    enumName: "generative_token_version",
+    enum: GenerativeTokenVersion,
+  })
+  objktIssuerVersion: GenerativeTokenVersion
+
   @ManyToOne(() => Redeemable, red => red.actions, {
     onDelete: "CASCADE",
   })

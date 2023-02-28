@@ -9,18 +9,31 @@ import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
 import { offerQueryFilter } from "../Query/Filters/Offer"
+import { TokenId } from "../Scalar/TokenId"
+import { matchesEntityTokenIdAndVersion } from "../Utils/GenerativeToken"
+
+const tokenIdToObjktId = (tokenId: TokenId) => ({
+  id: tokenId.id,
+  issuerVersion: tokenId.version,
+})
+
+const matchesEntityObjktIdAndVersion = (ids: TokenId[], entity: string) =>
+  matchesEntityTokenIdAndVersion(ids, entity, "objkt", "objktIssuer")
 
 /**
  * Given a list of objkt IDs, outputs a list of Objkt entities
  */
 const batchObjkts = async ids => {
-  const objkts = await Objkt.find({
-    where: {
-      id: In(ids),
-    },
-    // cache: 10000
-  })
-  return ids.map(id => objkts.find(objkt => objkt.id === id))
+  const query = Objkt.createQueryBuilder("objkt")
+    .select()
+    .whereInIds(ids.map(tokenIdToObjktId))
+    .cache(10000)
+
+  const objkts = await query.getMany()
+
+  return ids.map(({ id, version }) =>
+    objkts.find(objkt => objkt.id === id && objkt.issuerVersion === version)
+  )
 }
 export const createObjktsLoader = () => new DataLoader(batchObjkts)
 
@@ -31,11 +44,13 @@ export const createObjktsLoader = () => new DataLoader(batchObjkts)
 const batchObjktActions = async ids => {
   const actions = await Action.createQueryBuilder("action")
     .select()
-    .where("action.objktId IN (:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "action"))
     .orderBy("action.createdAt", "DESC")
     .getMany()
-  return ids.map((id: number) =>
-    actions.filter(action => action.objktId === id)
+  return ids.map(({ id, version }: TokenId) =>
+    actions.filter(
+      action => action.objktId === id && action.objktIssuerVersion === version
+    )
   )
 }
 export const createObjktActionsLoader = () => new DataLoader(batchObjktActions)
@@ -47,9 +62,14 @@ export const createObjktActionsLoader = () => new DataLoader(batchObjktActions)
 const batchObjktRoyaltiesSplits = async ids => {
   const splits = await Split.createQueryBuilder("split")
     .select()
-    .where("split.objktId IN(:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "split"))
     .getMany()
-  return ids.map(id => splits.filter(split => split.objktId === id))
+
+  return ids.map(({ id, version }: TokenId) =>
+    splits.filter(
+      split => split.objktId === id && split.objktIssuerVersion === version
+    )
+  )
 }
 export const createObjktRoyaltiesSplitsLoader = () =>
   new DataLoader(batchObjktRoyaltiesSplits)
@@ -60,10 +80,12 @@ export const createObjktRoyaltiesSplitsLoader = () =>
 const batchObjktListings = async (ids: any) => {
   const listings = await Listing.createQueryBuilder("listing")
     .select()
-    .where("listing.objktId IN(:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "listing"))
     .getMany()
 
-  return ids.map(id => listings.filter(l => l.objktId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    listings.filter(l => l.objktId === id && l.objktIssuerVersion === version)
+  )
 }
 export const createObjktListingsLoader = () =>
   new DataLoader(batchObjktListings)
@@ -76,11 +98,16 @@ export const createObjktListingsLoader = () =>
 const batchObjktActiveListings = async (ids: any) => {
   const listings = await Listing.createQueryBuilder("listing")
     .select()
-    .where("listing.objktId IN(:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "listing"))
     .andWhere("listing.cancelledAt is null")
     .andWhere("listing.acceptedAt is null")
     .getMany()
-  return ids.map(id => listings.find(l => l.objktId === id) || null)
+  return ids.map(
+    ({ id, version }: TokenId) =>
+      listings.find(
+        l => l.objktId === id && l.objktIssuerVersion === version
+      ) || null
+  )
 }
 export const createObjktActiveListingsLoader = () =>
   new DataLoader(batchObjktActiveListings)
@@ -90,19 +117,21 @@ export const createObjktActiveListingsLoader = () =>
  */
 const batchObjktOffers = async (inputs: any) => {
   // we extract the ids and the filters if any
-  const ids = inputs.map(input => input.id)
+  const ids = inputs.map(({ id, version }) => ({ id, version }))
   const filters = inputs[0]?.filters
   const sort = inputs[0]?.sort
 
   const query = Offer.createQueryBuilder("offer")
     .select()
-    .where("offer.objktId IN(:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "offer"))
 
   // apply filter/sort options
   offerQueryFilter(query, filters, sort)
 
   const offers = await query.getMany()
-  return ids.map(id => offers.filter(l => l.objktId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    offers.filter(l => l.objktId === id && l.objktIssuerVersion === version)
+  )
 }
 export const createObjktOffersLoader = () => new DataLoader(batchObjktOffers)
 
@@ -113,10 +142,12 @@ export const createObjktOffersLoader = () => new DataLoader(batchObjktOffers)
 const batchObjktRedemptions = async ids => {
   const red = await Redemption.createQueryBuilder("red")
     .select()
-    .where("red.objktId IN (:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "red"))
     .orderBy("red.createdAt", "DESC")
     .getMany()
-  return ids.map((id: number) => red.filter(r => r.objktId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    red.filter(r => r.objktId === id && r.objktIssuerVersion === version)
+  )
 }
 export const createObjktRedemptionsLoader = () =>
   new DataLoader(batchObjktRedemptions)
@@ -132,11 +163,11 @@ const batchObjktAvailableRedeemables = async ids => {
     .leftJoinAndSelect("O.issuer", "G")
     .leftJoinAndSelect("G.redeemables", "Ra")
     .leftJoinAndSelect("O.redemptions", "Re")
-    .where("O.id IN (:...ids)", { ids })
+    .where(matchesEntityObjktIdAndVersion(ids, "O"))
     .getMany()
 
-  return ids.map((id: number) => {
-    const objkt = objkts.find(o => o.id === id)
+  return ids.map(({ id, version }: TokenId) => {
+    const objkt = objkts.find(o => o.id === id && o.issuerVersion === version)
     if (!objkt) return null
     return objkt.issuer!.redeemables.filter(
       redeemable =>
@@ -149,22 +180,31 @@ const batchObjktAvailableRedeemables = async ids => {
 export const createObjktAvailableRedeemablesLoader = () =>
   new DataLoader(batchObjktAvailableRedeemables)
 
-
 /**
  * Given a list of objkt IDs, outputs their minted price
  */
 const batchObjktMintedPriceLoader = async ids => {
   const actions = await Action.createQueryBuilder("a")
-    .select(['a.id', 'a.objktId', 'a.type', 'a.numericValue'])
-    .addSelect('min("createdAt")', 'createdAt')
-    .where("a.objktId IN (:...ids)", { ids })
+    .select([
+      "a.id",
+      "a.objktId",
+      "a.objktIssuerVersion",
+      "a.type",
+      "a.numericValue",
+    ])
+    .addSelect('min("createdAt")', "createdAt")
+    .where(matchesEntityObjktIdAndVersion(ids, "a"))
     .andWhere("a.type = 'MINTED_FROM'")
-    .groupBy('a.id')
+    .groupBy("a.id")
     .addGroupBy('a."objktId"')
     .getMany()
 
-  return ids.map((id: number) =>
-    actions.find(action => action.objktId === id)?.numericValue
+  return ids.map(
+    ({ id, version }: TokenId) =>
+      actions.find(
+        action => action.objktId === id && action.objktIssuerVersion === version
+      )?.numericValue
   )
 }
-export const createObjktMintedPriceLoader = () => new DataLoader(batchObjktMintedPriceLoader)
+export const createObjktMintedPriceLoader = () =>
+  new DataLoader(batchObjktMintedPriceLoader)

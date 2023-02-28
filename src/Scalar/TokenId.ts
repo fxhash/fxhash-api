@@ -41,6 +41,13 @@ export class TokenId {
   }
 }
 
+// convenience class for Objkt IDs
+export class ObjktId extends TokenId {
+  constructor(objkt: { id: number; issuerVersion: GenerativeTokenVersion }) {
+    super({ id: objkt.id, version: objkt.issuerVersion })
+  }
+}
+
 export const TokenIdScalar = new GraphQLScalarType({
   name: "TokenId",
   description: "Encapsulates the version and numeric ID for a generative token",
