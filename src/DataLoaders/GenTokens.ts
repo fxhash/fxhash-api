@@ -469,7 +469,6 @@ const batchGenTokMintTicket = async genIds => {
   let query = MintTicket.createQueryBuilder("mintTicket")
     .select()
     .where(matchesEntityTokenIdAndVersion(ids, "mintTicket"))
-  // .leftJoin("mintTicket.token", "token")
 
   // we apply the filters and the sort arguments
   query = await mintTicketQueryFilter(
