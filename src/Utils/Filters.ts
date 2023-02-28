@@ -113,7 +113,7 @@ const generativeFiltersDbFields: (keyof GenerativeToken)[] = [
  * This method processes the offer filters which can be run against the DB fields.
  * If a filter doesn't target a DB field, it will be ignored by this method
  */
-export const processGenerativeFilters = ({ id_in, ...filters }: any) => {
+export const processGenerativeFilters = ({ id_in, ...filters }: any = {}) => {
   // id_in will be an array of { id, version } objects
   if (id_in) {
     return processSelectiveFilters(

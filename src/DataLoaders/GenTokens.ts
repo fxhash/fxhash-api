@@ -14,7 +14,25 @@ import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { offerQueryFilter } from "../Query/Filters/Offer"
-import { processGentkFeatureFilters } from "../Utils/Filters"
+import { TokenId } from "../Scalar/TokenId"
+
+const formatTokenIdTuples = (ids: TokenId[]) =>
+  ids.map(({ id, version }) => `(${id}, '${version}')`)
+
+const matchesEntityTokenIdAndVersion = (
+  ids: TokenId[],
+  entityName: string,
+  tokenFieldName = "token"
+) =>
+  `(${entityName}.${tokenFieldName}Id, ${entityName}.${tokenFieldName}Version) IN (${formatTokenIdTuples(
+    ids
+  )})`
+
+const matchesObjktIssuerIdAndVersion = (ids: TokenId[]) =>
+  matchesEntityTokenIdAndVersion(ids, "objkt", "issuer")
+
+const matchesPricingTokenIdAndVersion = (ids: TokenId[]) =>
+  matchesEntityTokenIdAndVersion(ids, "pricing")
 
 /**
  * Given a list of Generative Token IDs, outputs the corresponding Generative
@@ -27,7 +45,7 @@ const batchGenTokens = async ids => {
     .cache(10000)
 
   const tokens = await query.getMany()
-  return ids.map(({ id, version }) =>
+  return ids.map(({ id, version }: TokenId) =>
     tokens.find(token => token.id === id && token.version === version)
   )
 }
@@ -39,7 +57,8 @@ export const createGenTokLoader = () => new DataLoader(batchGenTokens)
  */
 const batchGenTokObjkt = async genIds => {
   // extract the IDs from the params
-  const ids = genIds.map(id => id.id)
+  const ids = genIds.map(({ id, version }) => ({ id, version }))
+
   // extract the filters from the params
   const filters = genIds[0].filters
   const featureFilters = genIds[0].featureFilters
@@ -54,7 +73,7 @@ const batchGenTokObjkt = async genIds => {
 
   let query = Objkt.createQueryBuilder("objkt")
     .select()
-    .where("objkt.issuerId IN (:...issuers)", { issuers: ids })
+    .where(matchesObjktIssuerIdAndVersion(ids))
     .leftJoin("objkt.issuer", "issuer")
 
   // we apply the filters and the sort arguments
@@ -77,7 +96,11 @@ const batchGenTokObjkt = async genIds => {
 
   const objkts = await query.getMany()
 
-  return ids.map((id: number) => objkts.filter(objkt => objkt.issuerId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    objkts.filter(
+      objkt => objkt.issuerId === id && objkt.issuerVersion === version
+    )
+  )
 }
 export const createGenTokObjktsLoader = () => new DataLoader(batchGenTokObjkt)
 
@@ -86,12 +109,12 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
   const counts = await Objkt.createQueryBuilder("objkt")
     .select("COUNT(objkt)", "count")
     .addSelect("objkt.issuerId", "issuerId")
-    .where("objkt.issuerId IN (:...genIds)", { genIds })
+    .where(matchesObjktIssuerIdAndVersion(genIds))
     .groupBy("objkt.issuerId")
     // .cache(10000)
     .getRawMany()
 
-  return genIds.map((id: number) => {
+  return genIds.map(({ id }) => {
     const f = counts.find(count => count.issuerId === id)
     return f ? parseInt(f.count) : 0
   })
@@ -105,9 +128,14 @@ export const createGenTokObjktsCountLoader = () =>
 const batchGenTokPricingFixed = async ids => {
   const pricings = await PricingFixed.createQueryBuilder("pricing")
     .select()
-    .where("pricing.tokenId IN(:...ids)", { ids })
+    .where(matchesPricingTokenIdAndVersion(ids))
     .getMany()
-  return ids.map(id => pricings.find(pricing => pricing.tokenId === id) || null)
+  return ids.map(
+    ({ id, version }: TokenId) =>
+      pricings.find(
+        pricing => pricing.tokenId === id && pricing.tokenVersion === version
+      ) || null
+  )
 }
 export const createGenTokPricingFixedLoader = () =>
   new DataLoader(batchGenTokPricingFixed)
@@ -118,9 +146,14 @@ export const createGenTokPricingFixedLoader = () =>
 const batchGenTokPricingDutchAuction = async ids => {
   const pricings = await PricingDutchAuction.createQueryBuilder("pricing")
     .select()
-    .where("pricing.tokenId IN(:...ids)", { ids })
+    .where(matchesPricingTokenIdAndVersion(ids))
     .getMany()
-  return ids.map(id => pricings.find(pricing => pricing.tokenId === id) || null)
+  return ids.map(
+    ({ id, version }: TokenId) =>
+      pricings.find(
+        pricing => pricing.tokenId === id && pricing.tokenVersion === version
+      ) || null
+  )
 }
 export const createGenTokPricingDutchAuctionLoader = () =>
   new DataLoader(batchGenTokPricingDutchAuction)
@@ -132,10 +165,16 @@ export const createGenTokPricingDutchAuctionLoader = () =>
 const batchGenTokPrimarySplits = async ids => {
   const splits = await Split.createQueryBuilder("split")
     .select()
-    .where("split.generativeTokenPrimaryId IN(:...ids)", { ids })
+    .where(
+      matchesEntityTokenIdAndVersion(ids, "split", "generativeTokenPrimary")
+    )
     .getMany()
-  return ids.map(id =>
-    splits.filter(split => split.generativeTokenPrimaryId === id)
+  return ids.map(({ id, version }: TokenId) =>
+    splits.filter(
+      split =>
+        split.generativeTokenPrimaryId === id &&
+        split.generativeTokenPrimaryVersion === version
+    )
   )
 }
 export const createGentkTokPrimarySplitsLoader = () =>
@@ -148,10 +187,16 @@ export const createGentkTokPrimarySplitsLoader = () =>
 const batchGenTokSecondarySplits = async ids => {
   const splits = await Split.createQueryBuilder("split")
     .select()
-    .where("split.generativeTokenSecondaryId IN(:...ids)", { ids })
+    .where(
+      matchesEntityTokenIdAndVersion(ids, "split", "generativeTokenSecondary")
+    )
     .getMany()
-  return ids.map(id =>
-    splits.filter(split => split.generativeTokenSecondaryId === id)
+  return ids.map(({ id, version }: TokenId) =>
+    splits.filter(
+      split =>
+        split.generativeTokenSecondaryId === id &&
+        split.generativeTokenSecondaryVersion === version
+    )
   )
 }
 export const createGentkTokSecondarySplitsLoader = () =>
@@ -199,11 +244,13 @@ const batchGenTokMarketStats = async (ids): Promise<MarketStats[]> => {
   // first grab the marketplace stats for each token
   const stats = await MarketStats.createQueryBuilder("stats")
     .select()
-    .where("stats.tokenId IN (:...ids)", { ids })
+    .where(matchesEntityTokenIdAndVersion(ids, "stats"))
     // .cache(10000)
     .getMany()
 
-  return ids.map((id: number) => stats.find(stat => stat.tokenId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    stats.find(stat => stat.tokenId === id && stat.tokenVersion === version)
+  )
 }
 export const createGenTokMarketStatsLoader = () =>
   new DataLoader(batchGenTokMarketStats)
@@ -220,18 +267,20 @@ const batchGenTokMarketStatsHistory = async (
   params
 ): Promise<MarketStatsHistory[]> => {
   const { from, to } = params[0]
-  const ids = params.map(param => param.id)
+  const ids = params.map(({ id, version }) => ({ id, version }))
 
   const query = MarketStatsHistory.createQueryBuilder("hist")
     .select()
-    .where("hist.tokenId IN (:...ids)", { ids })
+    .where(matchesEntityTokenIdAndVersion(ids, "hist"))
     .andWhere("hist.from >= :from", { from })
     .andWhere("hist.to < :to", { to })
     .orderBy("hist.from", "ASC")
 
   const hists = await query.getMany()
 
-  return ids.map(id => hists.filter(hist => hist.tokenId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    hists.filter(hist => hist.tokenId === id && hist.tokenVersion === version)
+  )
 }
 export const createGenTokMarketStatsHistoryLoader = () =>
   new DataLoader(batchGenTokMarketStatsHistory)
@@ -244,17 +293,19 @@ export const createGenTokMarketStatsHistoryLoader = () =>
  */
 const batchGenTokObjktFeatures = async ids => {
   const objkts = await Objkt.createQueryBuilder("objkt")
-    .select(["objkt.issuerId", "objkt.features"])
-    .where("objkt.issuerId IN (:...ids)", { ids })
+    .select(["objkt.issuerId", "objkt.issuerVersion", "objkt.features"])
+    .where(matchesEntityTokenIdAndVersion(ids, "objkt", "issuer"))
     .getMany()
 
   const featuresByIds: any[] = []
 
   // for each token in the list, we compute the features
-  for (const id of ids) {
+  for (const tokenId of ids) {
+    const { id, version } = tokenId
+
     // most of the time will only run once
     const features = objkts
-      .filter(objkt => objkt.issuerId === id)
+      .filter(objkt => objkt.issuerId === id && objkt.issuerVersion === version)
       .map(objkt => objkt.features)
 
     // the map will store each feature and their values for faster access
@@ -318,22 +369,31 @@ export const createGenTokObjktFeaturesLoader = () =>
  */
 const batchGenTokOffers = async (inputs: any) => {
   // we extract the ids and the filters if any
-  const ids = inputs.map(input => input.id)
+  const ids = inputs.map(({ id, version }) => ({ id, version }))
   const filters = inputs[0]?.filters
   const sort = inputs[0]?.sort
 
   const query = Offer.createQueryBuilder("offer")
     .select()
     .leftJoinAndSelect("offer.objkt", "objkt")
-    .leftJoinAndSelect("objkt.issuer", "issuer", "issuer.id IN(:...ids)")
-    .where("issuer.id IN(:...ids)", { ids })
+    .leftJoinAndSelect(
+      "objkt.issuer",
+      "issuer",
+      `(issuer.id, issuer.version) IN (${formatTokenIdTuples(ids)})`
+    )
+    .where(`(issuer.id, issuer.version) IN (${formatTokenIdTuples(ids)})`)
 
   // apply filter/sort options
   offerQueryFilter(query, filters, sort)
 
   const offers = await query.getMany()
 
-  return ids.map(id => offers.filter(offer => offer.objkt.issuerId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    offers.filter(
+      offer =>
+        offer.objkt.issuerId === id && offer.objkt.issuerVersion === version
+    )
+  )
 }
 export const createGenTokOffersLoader = () => new DataLoader(batchGenTokOffers)
 
@@ -344,10 +404,14 @@ export const createGenTokOffersLoader = () => new DataLoader(batchGenTokOffers)
 const batchGenTokReserves = async ids => {
   const reserves = await Reserve.createQueryBuilder("reserve")
     .select()
-    .where("reserve.tokenId IN(:...ids)", { ids })
+    .where(matchesEntityTokenIdAndVersion(ids, "reserve"))
     .getMany()
 
-  return ids.map(id => reserves.filter(reserve => reserve.tokenId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    reserves.filter(
+      reserve => reserve.tokenId === id && reserve.tokenVersion === version
+    )
+  )
 }
 export const createGenTokReservesLoader = () =>
   new DataLoader(batchGenTokReserves)
@@ -358,9 +422,11 @@ export const createGenTokReservesLoader = () =>
 const batchGenTokRedeemables = async ids => {
   const reds = await Redeemable.createQueryBuilder("red")
     .select()
-    .where("red.tokenId IN(:...ids)", { ids })
+    .where(matchesEntityTokenIdAndVersion(ids, "red"))
     .getMany()
-  return ids.map(id => reds.filter(r => r.tokenId === id))
+  return ids.map(({ id, version }: TokenId) =>
+    reds.filter(r => r.tokenId === id && r.tokenVersion === version)
+  )
 }
 export const createGentkTokRedeemablesLoader = () =>
   new DataLoader(batchGenTokRedeemables)
