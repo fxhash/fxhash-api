@@ -55,7 +55,7 @@
 //   })
 //   async token(@Root() redeemable: Redeemable, @Ctx() ctx: RequestContext) {
 //     if (redeemable.token) return redeemable.token
-//     return ctx.genTokLoader.load(redeemable.tokenId)
+//     return ctx.genTokLoader.load(new TokenId({ id: redeemable.tokenId, version: redeemable.tokenVersion }))
 //   }
 //
 //   @FieldResolver(() => [Redemption], {

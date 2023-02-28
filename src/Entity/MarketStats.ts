@@ -1,15 +1,33 @@
-import { Field, ObjectType } from 'type-graphql'
-import { Entity, Column, PrimaryColumn, UpdateDateColumn, BaseEntity, OneToOne, JoinColumn, RelationId } from 'typeorm'
-import { GenerativeToken } from './GenerativeToken'
-import { DateTransformer } from './Transformers/DateTransformer'
+import { Field, ObjectType } from "type-graphql"
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  UpdateDateColumn,
+  BaseEntity,
+  OneToOne,
+  JoinColumn,
+  RelationId,
+} from "typeorm"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import { GenerativeToken } from "./GenerativeToken"
+import { DateTransformer } from "./Transformers/DateTransformer"
 
 @Entity()
 @ObjectType({
-  description: "The market stats for **Generative Tokens**. Computed periodically by a side-worker."
+  description:
+    "The market stats for **Generative Tokens**. Computed periodically by a side-worker.",
 })
 export class MarketStats extends BaseEntity {
   @PrimaryColumn()
   tokenId: number
+
+  @PrimaryColumn({
+    type: "enum",
+    enum: GenerativeTokenVersion,
+    enumName: "generative_token_version",
+  })
+  tokenVersion: GenerativeTokenVersion
 
   @OneToOne(() => GenerativeToken)
   @JoinColumn()
@@ -17,63 +35,63 @@ export class MarketStats extends BaseEntity {
 
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
-  floor: number|null
-  
+  floor: number | null
+
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
-  median: number|null
-  
+  median: number | null
+
   @Field(type => Number, { nullable: true })
   @Column({ type: "int", nullable: true })
-  listed: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-  highestSold: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-  lowestSold: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-  primVolumeNb: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-  primVolumeTz: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeTz: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeNb: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeTz24: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeNb24: number|null
-  
-  @Field(type => Number, { nullable: true })
-  @Column({ type: "bigint", nullable: true })
-	secVolumeTz7d: number|null
+  listed: number | null
 
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
-	secVolumeNb7d: number|null
+  highestSold: number | null
 
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
-	secVolumeTz30d: number|null
+  lowestSold: number | null
 
   @Field(type => Number, { nullable: true })
   @Column({ type: "bigint", nullable: true })
-	secVolumeNb30d: number|null
+  primVolumeNb: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  primVolumeTz: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeTz: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeNb: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeTz24: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeNb24: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeTz7d: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeNb7d: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeTz30d: number | null
+
+  @Field(type => Number, { nullable: true })
+  @Column({ type: "bigint", nullable: true })
+  secVolumeNb30d: number | null
 
   @Field()
   @Column({ type: "timestamptz" })

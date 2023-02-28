@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   RelationId,
 } from "typeorm"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { HistoryMetadata } from "../types/Metadata"
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
@@ -99,6 +100,13 @@ export class Action extends BaseEntity {
 
   @Column()
   tokenId: number
+
+  @Column({
+    type: "enum",
+    enumName: "generative_token_version",
+    enum: GenerativeTokenVersion,
+  })
+  tokenVersion: GenerativeTokenVersion
 
   @ManyToOne(() => Objkt, token => token.actions)
   objkt?: Objkt

@@ -55,7 +55,9 @@ export class ObjktResolver {
   })
   issuer(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.issuer) return objkt.issuer
-    return ctx.genTokLoader.load(objkt.issuerId)
+    return ctx.genTokLoader.load(
+      new TokenId({ id: objkt.issuerId, version: objkt.issuerVersion })
+    )
   }
 
   @FieldResolver(returns => [Split], {

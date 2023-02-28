@@ -13,6 +13,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 // import { Redeemable } from "../Entity/Redeemable"
 import { User } from "../Entity/User"
+import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
@@ -50,7 +51,9 @@ export class ActionResolver {
   token(@Root() action: Action, @Ctx() ctx: RequestContext) {
     if (action.tokenId == null) return null
     if (action.token) return action.token
-    return ctx.genTokLoader.load(action.tokenId)
+    return ctx.genTokLoader.load(
+      new TokenId({ id: action.tokenId, version: action.tokenVersion })
+    )
   }
 
   @FieldResolver(returns => Objkt, {

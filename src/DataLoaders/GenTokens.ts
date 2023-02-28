@@ -21,13 +21,15 @@ import { processGentkFeatureFilters } from "../Utils/Filters"
  * Tokens.
  */
 const batchGenTokens = async ids => {
-  const tokens = await GenerativeToken.find({
-    where: {
-      id: In(ids),
-    },
-    cache: 10000,
-  })
-  return ids.map(id => tokens.find(token => token.id === id))
+  const query = GenerativeToken.createQueryBuilder("token")
+    .select()
+    .whereInIds(ids)
+    .cache(10000)
+
+  const tokens = await query.getMany()
+  return ids.map(({ id, version }) =>
+    tokens.find(token => token.id === id && token.version === version)
+  )
 }
 export const createGenTokLoader = () => new DataLoader(batchGenTokens)
 
