@@ -20,17 +20,17 @@ import {
   matchesEntityTokenIdAndVersion,
 } from "../Utils/GenerativeToken"
 
-const matchesObjktIssuerIdAndVersion = (ids: TokenId[]) =>
+const matchesObjktIssuerIdAndVersion = (ids: readonly TokenId[]) =>
   matchesEntityTokenIdAndVersion(ids, "objkt", "issuer")
 
-const matchesPricingTokenIdAndVersion = (ids: TokenId[]) =>
+const matchesPricingTokenIdAndVersion = (ids: readonly TokenId[]) =>
   matchesEntityTokenIdAndVersion(ids, "pricing")
 
 /**
  * Given a list of Generative Token IDs, outputs the corresponding Generative
  * Tokens.
  */
-const batchGenTokens = async ids => {
+const batchGenTokens = async (ids: readonly TokenId[]) => {
   const query = GenerativeToken.createQueryBuilder("token")
     .select()
     .whereInIds(ids)
@@ -117,7 +117,7 @@ export const createGenTokObjktsCountLoader = () =>
 /**
  * Given a list of Generative Tokens, outputs their PricingFixed if any
  */
-const batchGenTokPricingFixed = async ids => {
+const batchGenTokPricingFixed = async (ids: readonly TokenId[]) => {
   const pricings = await PricingFixed.createQueryBuilder("pricing")
     .select()
     .where(matchesPricingTokenIdAndVersion(ids))
@@ -135,7 +135,7 @@ export const createGenTokPricingFixedLoader = () =>
 /**
  * Given a list of Generative Tokens, outputs their PricingFixed if any
  */
-const batchGenTokPricingDutchAuction = async ids => {
+const batchGenTokPricingDutchAuction = async (ids: readonly TokenId[]) => {
   const pricings = await PricingDutchAuction.createQueryBuilder("pricing")
     .select()
     .where(matchesPricingTokenIdAndVersion(ids))
@@ -154,7 +154,7 @@ export const createGenTokPricingDutchAuctionLoader = () =>
  * Given a list of Generative Token IDs, outputs their splits on the
  * **primary** market.
  */
-const batchGenTokPrimarySplits = async ids => {
+const batchGenTokPrimarySplits = async (ids: readonly TokenId[]) => {
   const splits = await Split.createQueryBuilder("split")
     .select()
     .where(
@@ -176,7 +176,7 @@ export const createGentkTokPrimarySplitsLoader = () =>
  * Given a list of Generative Token IDs, outputs their splits on the
  * **secondary** market.
  */
-const batchGenTokSecondarySplits = async ids => {
+const batchGenTokSecondarySplits = async (ids: readonly TokenId[]) => {
   const splits = await Split.createQueryBuilder("split")
     .select()
     .where(
@@ -199,14 +199,18 @@ export const createGentkTokSecondarySplitsLoader = () =>
  * instances related to the article (the mentions of a Generative Token in an
  * article)
  */
-const batchGenTokArticleMentions = async ids => {
-  const mentions = await ArticleGenerativeToken.find({
-    where: {
-      generativeTokenId: In(ids),
-    },
-  })
-  return ids.map(id =>
-    mentions.filter(mention => mention.generativeTokenId === id)
+const batchGenTokArticleMentions = async (ids: readonly TokenId[]) => {
+  const mentions = await ArticleGenerativeToken.createQueryBuilder("m")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "m", "generativeToken"))
+    .getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    mentions.filter(
+      mention =>
+        mention.generativeTokenId === id &&
+        mention.generativeTokenVersion === version
+    )
   )
 }
 export const createGenTokArticleMentionsLoader = () =>
@@ -283,7 +287,7 @@ export const createGenTokMarketStatsHistoryLoader = () =>
  * This list is determined by checking all the features of all the gentks
  * generated, by grouping features and by counting occurences of each trait
  */
-const batchGenTokObjktFeatures = async ids => {
+const batchGenTokObjktFeatures = async (ids: readonly TokenId[]) => {
   const objkts = await Objkt.createQueryBuilder("objkt")
     .select(["objkt.issuerId", "objkt.issuerVersion", "objkt.features"])
     .where(matchesEntityTokenIdAndVersion(ids, "objkt", "issuer"))
@@ -393,7 +397,7 @@ export const createGenTokOffersLoader = () => new DataLoader(batchGenTokOffers)
  * Given a list of Generative Tokens, outputs a list of the reserves for each
  * Generative Token
  */
-const batchGenTokReserves = async ids => {
+const batchGenTokReserves = async (ids: readonly TokenId[]) => {
   const reserves = await Reserve.createQueryBuilder("reserve")
     .select()
     .where(matchesEntityTokenIdAndVersion(ids, "reserve"))
@@ -411,7 +415,7 @@ export const createGenTokReservesLoader = () =>
 /**
  * Given a list of Generative Token IDs, outputs their redeemables
  */
-const batchGenTokRedeemables = async ids => {
+const batchGenTokRedeemables = async (ids: readonly TokenId[]) => {
   const reds = await Redeemable.createQueryBuilder("red")
     .select()
     .where(matchesEntityTokenIdAndVersion(ids, "red"))

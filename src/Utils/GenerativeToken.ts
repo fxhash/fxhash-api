@@ -35,7 +35,7 @@ export function getGenerativeTokenPrice(token: GenerativeToken): number {
  * Given a list of TokenIds, outputs a list of tuples of the form
  * (id, version) that can be used in a SQL query.
  */
-export const formatTokenIdTuples = (ids: TokenId[]) =>
+export const formatTokenIdTuples = (ids: readonly TokenId[]) =>
   ids.map(({ id, version }) => `(${id}, '${version}')`)
 
 /**
@@ -43,7 +43,7 @@ export const formatTokenIdTuples = (ids: TokenId[]) =>
  * entities by their token ID and version.
  */
 export const matchesEntityTokenIdAndVersion = (
-  ids: TokenId[],
+  ids: readonly TokenId[],
   entityName: string,
   idFieldName = "token",
   versionFieldName = idFieldName

@@ -17,13 +17,15 @@ const tokenIdToObjktId = (tokenId: TokenId) => ({
   issuerVersion: tokenId.version,
 })
 
-const matchesEntityObjktIdAndVersion = (ids: TokenId[], entity: string) =>
-  matchesEntityTokenIdAndVersion(ids, entity, "objkt", "objktIssuer")
+const matchesEntityObjktIdAndVersion = (
+  ids: readonly TokenId[],
+  entity: string
+) => matchesEntityTokenIdAndVersion(ids, entity, "objkt", "objktIssuer")
 
 /**
  * Given a list of objkt IDs, outputs a list of Objkt entities
  */
-const batchObjkts = async ids => {
+const batchObjkts = async (ids: readonly TokenId[]) => {
   const query = Objkt.createQueryBuilder("objkt")
     .select()
     .whereInIds(ids.map(tokenIdToObjktId))
@@ -41,7 +43,7 @@ export const createObjktsLoader = () => new DataLoader(batchObjkts)
  * Given a list of objkt IDs, outputs a list of a list of actions associated
  * to each objkt
  */
-const batchObjktActions = async ids => {
+const batchObjktActions = async (ids: readonly TokenId[]) => {
   const actions = await Action.createQueryBuilder("action")
     .select()
     .where(matchesEntityObjktIdAndVersion(ids, "action"))
