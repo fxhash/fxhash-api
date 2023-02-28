@@ -5,6 +5,7 @@ import {
   processGentkFeatureFilters,
   processObjktFilters,
 } from "../../Utils/Filters"
+import { formatTokenIdTuples } from "../../Utils/GenerativeToken"
 import { TQueryFilter } from "./QueryFilter"
 
 interface ObjktFilters {
@@ -145,9 +146,7 @@ export const objktQueryFilter: TQueryFilter<
     // filter for some issuers only
     if (filters.issuer_in != null) {
       // extract the ids and versions
-      const issuerIds = filters.issuer_in.map(
-        ({ id, version }) => `(${id}, '${version}')`
-      )
+      const issuerIds = formatTokenIdTuples(filters.issuer_in)
       // filter results by (id, version) pair
       query.andWhere(`(issuer.id, issuer.version) IN (${issuerIds})`)
     }

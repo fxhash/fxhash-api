@@ -156,8 +156,7 @@ export class GenTokenResolver {
     }
 
     return ctx.genTokOffersLoader.load({
-      id: token.id,
-      version: token.version,
+      ...new TokenId(token),
       filters: filters,
       sort: sort,
     })
@@ -327,8 +326,7 @@ export class GenTokenResolver {
     @Arg("filters", { nullable: false }) filters: MarketStatsHistoryInput
   ) {
     return ctx.genTokMarketStatsHistoryLoader.load({
-      id: token.id,
-      version: token.version,
+      ...new TokenId(token),
       from: filters.from,
       to: filters.to,
     })

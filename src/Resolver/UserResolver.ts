@@ -118,7 +118,11 @@ export class UserResolver {
   ): Promise<GenerativeToken[]> {
     // basic query to get all the user's Generative Tokens linked to gentks they own
     let query = GenerativeToken.createQueryBuilder("issuer")
-      .leftJoin("objkt", "objkt", "objkt.issuerId = issuer.id")
+      .leftJoin(
+        "objkt",
+        "objkt",
+        "objkt.issuerId = issuer.id AND objkt.issuerVersion = issuer.version"
+      )
       .where("objkt.ownerId = :ownerId", { ownerId: user.id })
 
     // FILTER / SORT

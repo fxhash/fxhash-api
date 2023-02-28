@@ -6,6 +6,9 @@ const serializedVersionMap = {
   "1": GenerativeTokenVersion.V3,
 }
 
+/**
+ * Encapsulates the version and numeric ID for a generative token or objkt.
+ */
 export class TokenId {
   id: number
   version: GenerativeTokenVersion
@@ -15,11 +18,17 @@ export class TokenId {
     this.version = token.version
   }
 
+  /**
+   * Validates that a string is a valid serialized TokenId
+   */
   static validate(value: string): boolean {
     const [version, id] = value.split("-")
     return version && id && serializedVersionMap[version]
   }
 
+  /**
+   * Parses a serialized TokenId into a TokenId instance
+   */
   static parse(value: string): TokenId {
     const [version, id] = value.split("-")
     return new TokenId({
@@ -28,6 +37,9 @@ export class TokenId {
     })
   }
 
+  /**
+   * Serializes a TokenId instance into a string
+   */
   serialize(): string {
     const prefix = (() => {
       if (this.version === GenerativeTokenVersion.PRE_V3) return "0-"
@@ -48,9 +60,13 @@ export class ObjktId extends TokenId {
   }
 }
 
+/**
+ * A GraphQL scalar type for TokenId
+ */
 export const TokenIdScalar = new GraphQLScalarType({
   name: "TokenId",
-  description: "Encapsulates the version and numeric ID for a generative token",
+  description:
+    "Encapsulates the version and numeric ID for a generative token or objkt",
   serialize(value: unknown): string {
     if (!(value instanceof TokenId))
       throw new Error("TokenIdScalar can only serialize TokenId values")
