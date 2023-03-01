@@ -47,7 +47,7 @@ export const generativeQueryFilter: TQueryFilter<
 
   // filter for id/version
   if (filters?.id_in != null) {
-    query.andWhereInIds
+    query.andWhereInIds(filters.id_in)
   }
 
   // filter for the field author verified
