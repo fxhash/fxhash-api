@@ -102,30 +102,13 @@ export const processListingFilters = (filters: any) => {
   return processSelectiveFilters(filters, listingFiltersDbFields)
 }
 
-const generativeFiltersDbFields: (keyof GenerativeToken)[] = [
-  "supply",
-  "id",
-  "version",
-  "flag",
-]
+const generativeFiltersDbFields: (keyof GenerativeToken)[] = ["supply", "flag"]
 
 /**
  * This method processes the offer filters which can be run against the DB fields.
  * If a filter doesn't target a DB field, it will be ignored by this method
  */
-export const processGenerativeFilters = ({ id_in, ...filters }: any = {}) => {
-  // id_in will be an array of { id, version } objects
-  if (id_in) {
-    return processSelectiveFilters(
-      {
-        ...filters,
-        // we need to split the id_in and version_in filters
-        id_in: id_in.map(({ id }) => id),
-        version_in: id_in.map(({ version }) => version),
-      },
-      generativeFiltersDbFields
-    )
-  }
+export const processGenerativeFilters = (filters: any = {}) => {
   return processSelectiveFilters(filters, generativeFiltersDbFields)
 }
 
