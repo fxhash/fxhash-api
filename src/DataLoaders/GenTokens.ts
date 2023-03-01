@@ -504,7 +504,7 @@ export const createGenTokMintTicketsLoader = () =>
 const batchGenTokCodex = async (ids: readonly TokenId[]) => {
   const codex = await Codex.createQueryBuilder("codex")
     .select()
-    .where(matchesEntityTokenIdAndVersion(ids, "codex"))
+    .whereInIds(ids.map(({ id, version }) => ({ id, tokenVersion: version })))
     .getMany()
 
   return ids.map(({ id, version }: TokenId) =>

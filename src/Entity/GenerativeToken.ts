@@ -139,7 +139,14 @@ export class GenerativeToken extends BaseEntity {
   @Column({ nullable: true })
   metadataUri?: string
 
-  @OneToOne(() => Codex, codex => codex.token)
+  @Column({ nullable: true })
+  codexId: number
+
+  @ManyToOne(() => Codex)
+  @JoinColumn([
+    { name: "codexId", referencedColumnName: "id" },
+    { name: "version", referencedColumnName: "tokenVersion" },
+  ])
   codex: Codex
 
   @OneToOne(() => CodexUpdateRequest, updateRequest => updateRequest.token, {

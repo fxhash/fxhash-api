@@ -19,7 +19,6 @@ module.exports = [
     logging: process.env.TYPEORM_LOGGING === "true",
     synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
     entities: [process.env.TYPEORM_ENTITIES],
-    dropSchema: true,
     cache: true,
     ssl: false,
     extra: {
