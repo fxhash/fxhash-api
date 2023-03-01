@@ -188,9 +188,10 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    const thing = await ctx.gentkTokPricingFixedLoader.load(new TokenId(token))
-    console.log(thing)
-    return token.pricingFixed || thing
+    return (
+      token.pricingFixed ||
+      ctx.gentkTokPricingFixedLoader.load(new TokenId(token))
+    )
   }
 
   @FieldResolver(returns => PricingDutchAuction, {
