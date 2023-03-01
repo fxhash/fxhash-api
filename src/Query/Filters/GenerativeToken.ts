@@ -45,6 +45,11 @@ export const generativeQueryFilter: TQueryFilter<
 
   // CUSTOM FILTERS
 
+  // filter for id/version
+  if (filters?.id_in != null) {
+    query.andWhereInIds
+  }
+
   // filter for the field author verified
   if (filters?.authorVerified_eq != null) {
     query.leftJoin("token.author", "author")
