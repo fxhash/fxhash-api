@@ -12,6 +12,7 @@ import { ApolloMetricsPlugin } from "./Plugins/MetricsPlugin"
 import { routeGetHello } from "./routes/hello"
 import { TokenId, TokenIdScalar } from "./Scalar/TokenId"
 import { createConnection } from "./createConnection"
+import { ScalarCollection } from "./Scalar/Collection"
 
 const main = async () => {
   // connect to the DB
@@ -20,7 +21,7 @@ const main = async () => {
   // now bootstrap the rest of the server (gQL API)
   const schema = await buildSchema({
     resolvers: [...ResolverCollection],
-    scalarsMap: [{ type: TokenId, scalar: TokenIdScalar }],
+    scalarsMap: [...ScalarCollection],
   })
   const app = express()
   app.use(express.json())
