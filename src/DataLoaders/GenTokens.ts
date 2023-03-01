@@ -110,8 +110,10 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
     // .cache(10000)
     .getRawMany()
 
-  return genIds.map(({ id }) => {
-    const f = counts.find(count => count.issuerId === id)
+  return genIds.map(({ id, version }: TokenId) => {
+    const f = counts.find(
+      count => count.issuerId === id && count.issuerVersion === version
+    )
     return f ? parseInt(f.count) : 0
   })
 }
