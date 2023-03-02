@@ -11,7 +11,7 @@ import { Action, FiltersAction } from "../Entity/Action"
 import { Article } from "../Entity/Article"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
-// import { Redeemable } from "../Entity/Redeemable"
+import { Redeemable } from "../Entity/Redeemable"
 import { User } from "../Entity/User"
 import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
@@ -79,15 +79,15 @@ export class ActionResolver {
     return ctx.articlesLoader.load(action.articleId)
   }
 
-  // @FieldResolver(returns => Redeemable, {
-  //   nullable: true,
-  //   description: "The redeemable associated with the action, if any.",
-  // })
-  // redeemable(@Root() action: Action, @Ctx() ctx: RequestContext) {
-  //   if (action.redeemableAddress == null) return null
-  //   if (action.redeemable) return action.redeemable
-  //   return ctx.redeemableLoader.load(action.redeemableAddress)
-  // }
+  @FieldResolver(returns => Redeemable, {
+    nullable: true,
+    description: "The redeemable associated with the action, if any.",
+  })
+  redeemable(@Root() action: Action, @Ctx() ctx: RequestContext) {
+    if (action.redeemableAddress == null) return null
+    if (action.redeemable) return action.redeemable
+    return ctx.redeemableLoader.load(action.redeemableAddress)
+  }
 
   @Query(returns => [Action], {
     description: "A general purpose paginated endpoint to explore the actions.",

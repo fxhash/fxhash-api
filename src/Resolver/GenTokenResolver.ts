@@ -24,7 +24,7 @@ import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
-// import { Redeemable } from "../Entity/Redeemable"
+import { Redeemable } from "../Entity/Redeemable"
 import { Report } from "../Entity/Report"
 import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
@@ -237,17 +237,17 @@ export class GenTokenResolver {
     return ctx.genTokObjktsCountLoader.load(new TokenId(token))
   }
 
-  // @FieldResolver(() => [Redeemable], {
-  //   description:
-  //     "A list of Redeemable Smart Contracts associated with this token",
-  // })
-  // async redeemables(
-  //   @Root() token: GenerativeToken,
-  //   @Ctx() ctx: RequestContext
-  // ) {
-  //   if (token.redeemables) return token.redeemables
-  //   return ctx.genTokRedeemablesLoader.load(new TokenId(token))
-  // }
+  @FieldResolver(() => [Redeemable], {
+    description:
+      "A list of Redeemable Smart Contracts associated with this token",
+  })
+  async redeemables(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (token.redeemables) return token.redeemables
+    return ctx.genTokRedeemablesLoader.load(new TokenId(token))
+  }
 
   @FieldResolver(returns => [Report], {
     description: "A list of the reports made on the Generative Token",
