@@ -94,8 +94,6 @@ describe("ActionResolver", () => {
           variables: {},
         })
 
-        console.log(result)
-
         expect(result).toMatchObject({
           data: {
             actions: [
