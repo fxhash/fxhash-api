@@ -10,6 +10,7 @@ import {
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
 import { MintTicketSettings } from "../Entity/MintTicketSettings"
+import { User } from "../Entity/User"
 import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
 import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
@@ -29,6 +30,11 @@ export class MintTicketResolver {
         })
       )
     )
+  }
+
+  @FieldResolver(returns => User)
+  owner(@Root() mintTicket: MintTicket, @Ctx() ctx: RequestContext) {
+    return mintTicket.owner || ctx.usersLoader.load(mintTicket.ownerId)
   }
 
   @FieldResolver(returns => MintTicketSettings)
