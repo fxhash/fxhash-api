@@ -149,8 +149,9 @@ export const mintTicketFactory = async (
   mintTicket.token = generativeToken
   mintTicket.ownerId = config.ownerId || (await userFactory("tz1")).id
   mintTicket.createdAt = config.createdAt || new Date()
-  mintTicket.taxationStart = new Date()
+  mintTicket.taxationStart = config.taxationStart || new Date()
   mintTicket.taxationLocked = config.taxationLocked || "2000000"
+  mintTicket.price = config.price || 1000000
   await mintTicket.save()
   return mintTicket
 }

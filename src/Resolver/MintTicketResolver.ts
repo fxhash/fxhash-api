@@ -53,6 +53,7 @@ export class MintTicketResolver {
   async taxationPaidUntil(
     @Root() { price, taxationLocked, taxationStart }: MintTicket
   ) {
+    // what happens if price is 0?
     const numberOfDaysCovered = Number(taxationLocked) / (TAX_FEES * price)
     return new Date(
       taxationStart.getTime() + numberOfDaysCovered * 24 * 60 * 60 * 1000
