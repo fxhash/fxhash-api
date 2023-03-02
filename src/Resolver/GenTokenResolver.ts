@@ -469,6 +469,8 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return null
     if (token.mintTicketSettings) return token.mintTicketSettings
     return ctx.genTokMintTicketSettingsLoader.load(new TokenId(token))
   }
@@ -483,6 +485,9 @@ export class GenTokenResolver {
     @Arg("sort", { nullable: true }) sort: MintTicketSortInput,
     @Args() { skip, take }: PaginationArgs
   ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return []
+
     // defaults
     if (!sort || Object.keys(sort).length === 0) {
       sort = {
