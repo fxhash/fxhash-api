@@ -5,6 +5,7 @@ import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { Codex, CodexType } from "../Entity/Codex"
 import { CodexUpdateRequest } from "../Entity/CodexUpdateRequest"
 import { GenerativeToken } from "../Entity/GenerativeToken"
+import { GentkAssign } from "../Entity/GentkAssign"
 import { Listing } from "../Entity/Listing"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
@@ -137,19 +138,17 @@ export const mintTicketSettingsFactory = async (
 export const mintTicketFactory = async (
   id: number,
   tokenId: number,
-  userId: string,
-  config: any = {}
+  config: Partial<MintTicket> = {}
 ) => {
   const generativeToken = await generativeTokenFactory(
     tokenId,
     GenerativeTokenVersion.V3
   )
-  const user = await userFactory(userId)
   const mintTicket = new MintTicket()
   mintTicket.id = id
   mintTicket.token = generativeToken
-  mintTicket.owner = user
-  mintTicket.createdAt = new Date()
+  mintTicket.ownerId = config.ownerId || (await userFactory("tz1")).id
+  mintTicket.createdAt = config.createdAt || new Date()
   mintTicket.taxationStart = new Date()
   mintTicket.taxationLocked = config.taxationLocked || "2000000"
   await mintTicket.save()
@@ -382,4 +381,16 @@ export const redemptionFactory = async (
   redemption.createdAt = config.createdAt || new Date()
   await redemption.save()
   return redemption
+}
+
+export const gentkAssignFactory = async (
+  gentkId: number,
+  gentkIssuerVersion = GenerativeTokenVersion.V3,
+  config: Partial<GentkAssign> = {}
+) => {
+  const gentkAssign = new GentkAssign()
+  gentkAssign.gentkId = gentkId
+  gentkAssign.gentkIssuerVersion = gentkIssuerVersion
+  await gentkAssign.save()
+  return gentkAssign
 }
