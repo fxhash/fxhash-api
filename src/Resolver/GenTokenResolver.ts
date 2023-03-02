@@ -21,6 +21,7 @@ import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { MediaImage } from "../Entity/MediaImage"
 import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
+import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { FiltersOffer, Offer } from "../Entity/Offer"
@@ -455,6 +456,18 @@ export class GenTokenResolver {
       }
     }
     return token
+  }
+
+  @FieldResolver(returns => MintTicketSettings, {
+    description: "The settings for the mint tickets of a Generative Token.",
+    nullable: true,
+  })
+  async mintTicketSettings(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (token.mintTicketSettings) return token.mintTicketSettings
+    return ctx.genTokMintTicketSettingsLoader.load(new TokenId(token))
   }
 
   @FieldResolver(returns => [MintTicket], {
