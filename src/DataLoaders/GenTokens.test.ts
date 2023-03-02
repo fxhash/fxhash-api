@@ -664,8 +664,8 @@ describe("GenTokens dataloaders", () => {
       await seedTokens()
 
       // create some mint tickets
-      await mintTicketFactory(0, 0, "tz1")
-      await mintTicketFactory(1, 1, "tz1")
+      await mintTicketFactory(0, 0)
+      await mintTicketFactory(1, 1)
     })
 
     it("should return the correct mint tickets", async () => {
