@@ -1,8 +1,7 @@
 import { ApolloServer } from "apollo-server"
 import { Connection, EntityManager } from "typeorm"
-import { GenerativeToken } from "../Entity/GenerativeToken"
 import { createTestServer } from "../tests/apollo"
-import { codexFactory, generativeTokenFactory } from "../tests/factories"
+import { actionFactory, generativeTokenFactory } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
 
@@ -25,12 +24,66 @@ afterAll(() => {
 const cleanup = async () => {
   await manager.query("DELETE FROM generative_token")
   await manager.query("DELETE FROM codex")
+  await manager.query("DELETE FROM action")
 }
 
 afterEach(cleanup)
 
 describe("GenTokenResolver", () => {
-  describe("actions", () => {})
+  describe("field resolvers", () => {
+    describe("actions", () => {
+      let result
+      let expectedIds
+
+      beforeAll(async () => {
+        // create a generative token
+        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
+
+        // create some actions matching the generative token
+        const action1 = await actionFactory({
+          tokenId: 0,
+          tokenVersion: GenerativeTokenVersion.V3,
+        })
+        const action2 = await actionFactory({
+          tokenId: 0,
+          tokenVersion: GenerativeTokenVersion.V3,
+        })
+        const action3 = await actionFactory({
+          tokenId: 0,
+          tokenVersion: GenerativeTokenVersion.V3,
+        })
+
+        expectedIds = [action3.id, action2.id, action1.id]
+
+        // create some actions for a token with the same id but a different version
+        await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+        await actionFactory({
+          tokenId: 0,
+          tokenVersion: GenerativeTokenVersion.PRE_V3,
+        })
+        await actionFactory({
+          tokenId: 0,
+          tokenVersion: GenerativeTokenVersion.PRE_V3,
+        })
+
+        result = await testServer.executeOperation({
+          query:
+            "query TestQuery($id: TokenId!) { generativeToken(id: $id) { actions { id } } }",
+          variables: { id: "1-0" },
+        })
+      })
+
+      it("returns the actions", () => {
+        expect(result).toMatchObject({
+          data: {
+            generativeToken: {
+              actions: expectedIds.map(id => ({ id })),
+            },
+          },
+        })
+      })
+    })
+  })
 
   describe("generativeToken", () => {
     describe("using legacy id", () => {

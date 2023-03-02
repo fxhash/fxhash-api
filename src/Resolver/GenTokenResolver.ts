@@ -299,7 +299,10 @@ export class GenTokenResolver {
     query.where(processFilters(filters))
 
     // add the filters to target the token only
-    query.andWhere("action.tokenId = :id", { id: token.id })
+    query.andWhere("action.tokenId = :id AND action.tokenVersion = :version", {
+      id: token.id,
+      version: token.version,
+    })
 
     // add the sort arguments
     for (const sort in sortArgs) {
