@@ -11,6 +11,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
+import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 
