@@ -7,7 +7,9 @@ module.exports = [
     synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
     entities: [process.env.TYPEORM_ENTITIES],
     cache: true,
-    ssl: false,
+    ssl: {
+      rejectUnauthorized: false,
+    },
     extra: {
       rejectUnauthorized: false,
     },
