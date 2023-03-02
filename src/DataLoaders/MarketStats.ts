@@ -1,6 +1,7 @@
 import DataLoader from "dataloader"
 import { MarketStats } from "../Entity/MarketStats"
 import { TokenId } from "../Scalar/TokenId"
+import { matchesEntityTokenIdAndVersion } from "../Utils/GenerativeToken"
 
 /**
  * Given a list of MarketStats ids, returns a list of Generative Tokens
@@ -8,8 +9,8 @@ import { TokenId } from "../Scalar/TokenId"
  */
 const batchMarketStatsGenToken = async (ids: readonly TokenId[]) => {
   const stats = await MarketStats.createQueryBuilder("stat")
-    .select("stat.id")
-    .whereInIds(ids)
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "stat"))
     .leftJoinAndSelect("stat.token", "token")
     .getMany()
 

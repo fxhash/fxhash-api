@@ -5,6 +5,7 @@ import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { Codex, CodexType } from "../Entity/Codex"
 import { CodexUpdateRequest } from "../Entity/CodexUpdateRequest"
 import { GenerativeToken } from "../Entity/GenerativeToken"
+import { Listing } from "../Entity/Listing"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { MintTicket } from "../Entity/MintTicket"
@@ -15,6 +16,7 @@ import { Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
 import { Redeemable } from "../Entity/Redeemable"
+import { Redemption } from "../Entity/Redemption"
 import { Report } from "../Entity/Report"
 import { EReserveMethod, Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
@@ -36,6 +38,7 @@ export const generativeTokenFactory = async (
   generativeToken.createdAt = new Date().toISOString()
   generativeToken.codexId =
     config.codexId || (await codexFactory(0, { tokenVersion: version })).id
+  generativeToken.authorId = config.authorId || null
   await generativeToken.save()
   return generativeToken
 }
@@ -45,12 +48,15 @@ export const actionFactory = async (config: any = {}) => {
   action.opHash = config.opHash || "opHash"
   action.tokenId = "tokenId" in config ? config.tokenId : null
   action.tokenVersion = config.tokenVersion || null
+  action.objktId = "objktId" in config ? config.objktId : null
+  action.objktIssuerVersion = config.objktIssuerVersion || null
   // randomly select an action type if none is provided
   action.type =
     config.type ||
     TokenActionType[
       Math.floor(Math.random() * Object.keys(TokenActionType).length)
     ]
+  action.numericValue = config.numericValue || null
   action.createdAt = new Date().toISOString()
   await action.save()
   return action
@@ -203,6 +209,19 @@ export const secondarySplitFactory = async (
   return split
 }
 
+export const objktSplitFactory = async (
+  objktId: number,
+  objktIssuerVersion: GenerativeTokenVersion = GenerativeTokenVersion.V3,
+  config: any = {}
+) => {
+  const split = new Split()
+  split.objktId = objktId || 0
+  split.objktIssuerVersion = objktIssuerVersion
+  split.pct = config.pct || 100
+  await split.save()
+  return split
+}
+
 export const articleFactory = async (id: number, config: any = {}) => {
   const article = new Article()
   article.id = id
@@ -260,7 +279,7 @@ export const reportFactory = async (config: any = {}) => {
 export const marketStatsFactory = async (
   tokenId: number,
   tokenVersion = GenerativeTokenVersion.V3,
-  config: any = {}
+  config: Partial<MarketStats> = {}
 ) => {
   const stats = new MarketStats()
   stats.tokenId = tokenId
@@ -273,7 +292,7 @@ export const marketStatsFactory = async (
 export const marketStatsHistoryFactory = async (
   tokenId: number,
   tokenVersion = GenerativeTokenVersion.V3,
-  config: any = {}
+  config: Partial<MarketStatsHistory> = {}
 ) => {
   const history = new MarketStatsHistory()
   history.tokenId = tokenId
@@ -285,11 +304,28 @@ export const marketStatsHistoryFactory = async (
   return history
 }
 
+export const listingFactory = async (
+  listingId: number,
+  objktId: number,
+  objktIssuerVersion = GenerativeTokenVersion.PRE_V3,
+  config: Partial<Listing> = {}
+) => {
+  const listing = new Listing()
+  listing.id = listingId
+  listing.version = config.version || 0
+  listing.objktId = objktId
+  listing.objktIssuerVersion = objktIssuerVersion
+  listing.price = config.price || 0
+  listing.createdAt = config.createdAt || new Date()
+  await listing.save()
+  return listing
+}
+
 export const offerFactory = async (
   offerId: number,
   objktId: number,
   objktIssuerVersion = GenerativeTokenVersion.PRE_V3,
-  config: any = {}
+  config: Partial<Offer> = {}
 ) => {
   const offer = new Offer()
   offer.id = offerId
@@ -305,7 +341,7 @@ export const offerFactory = async (
 export const reserveFactory = async (
   tokenId: number,
   tokenVersion = GenerativeTokenVersion.V3,
-  config: any = {}
+  config: Partial<Reserve> = {}
 ) => {
   const reserve = new Reserve()
   reserve.tokenId = tokenId
@@ -319,15 +355,31 @@ export const reserveFactory = async (
 export const redeemableFactory = async (
   tokenId: number,
   tokenVersion = GenerativeTokenVersion.V3,
-  config: any = {}
+  config: Partial<Redeemable> = {}
 ) => {
   const redeemable = new Redeemable()
   redeemable.tokenId = tokenId
   redeemable.tokenVersion = tokenVersion
-  redeemable.baseAmount = config.amount || 0
+  redeemable.baseAmount = config.baseAmount || 0
   redeemable.address = config.address || v4()
   redeemable.maxConsumptionsPerToken = config.maxConsumptionsPerToken || 0
   redeemable.createdAt = config.createdAt || new Date()
   await redeemable.save()
   return redeemable
+}
+
+export const redemptionFactory = async (
+  objktId: number,
+  objktIssuerVersion = GenerativeTokenVersion.PRE_V3,
+  config: Partial<Redemption> = {}
+) => {
+  const redemption = new Redemption()
+  redemption.objktId = objktId
+  redemption.objktIssuerVersion = objktIssuerVersion
+  redemption.redeemableAddress =
+    config.redeemableAddress || (await redeemableFactory(0)).address
+  redemption.redeemerId = config.redeemerId || "tz1"
+  redemption.createdAt = config.createdAt || new Date()
+  await redemption.save()
+  return redemption
 }
