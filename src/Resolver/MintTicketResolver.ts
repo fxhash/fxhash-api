@@ -17,6 +17,8 @@ import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { MintTicketSortInput } from "./Arguments/Sort"
 
+const TAX_FEES = 14 / 1000
+
 @Resolver(MintTicket)
 export class MintTicketResolver {
   @FieldResolver(returns => GenerativeToken)
@@ -44,6 +46,16 @@ export class MintTicketResolver {
         id: mintTicket.tokenId,
         version: mintTicket.tokenVersion,
       })
+    )
+  }
+
+  @FieldResolver(returns => Date)
+  async taxationPaidUntil(
+    @Root() { price, taxationLocked, taxationStart }: MintTicket
+  ) {
+    const numberOfDaysCovered = Number(taxationLocked) / (TAX_FEES * price)
+    return new Date(
+      taxationStart.getTime() + numberOfDaysCovered * 24 * 60 * 60 * 1000
     )
   }
 
