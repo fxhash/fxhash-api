@@ -62,6 +62,13 @@ export class MintTicket extends BaseEntity {
   @Column()
   @Filter(["gt", "lt"])
   taxationStart: Date
+
+  @Field({
+    description: "The date until which the taxation is covered",
+  })
+  @Column()
+  @Filter(["gt", "lt"])
+  taxationPaidUntil: Date
 }
 
 // the Type for the filters of the GraphQL query for MintTicket

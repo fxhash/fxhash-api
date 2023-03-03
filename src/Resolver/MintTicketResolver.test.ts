@@ -94,35 +94,6 @@ describe("MintTicketResolver", () => {
         })
       })
     })
-
-    describe("taxationPaidUntil", () => {
-      beforeAll(async () => {
-        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
-        await mintTicketFactory(0, 0, {
-          price: 1000,
-          taxationLocked: "196",
-          taxationStart: new Date("2023-01-01T00:00:00.000Z"),
-        })
-      })
-
-      it("returns the correct taxationPaidUntil", async () => {
-        const result = await testServer.executeOperation({
-          query:
-            "query TestQuery($id: Float!) { mintTicket(id: $id) { taxationPaidUntil } }",
-          variables: {
-            id: 0,
-          },
-        })
-
-        expect(result).toMatchObject({
-          data: {
-            mintTicket: {
-              taxationPaidUntil: "2023-01-15T00:00:00.000Z",
-            },
-          },
-        })
-      })
-    })
   })
 
   describe("mintTickets", () => {

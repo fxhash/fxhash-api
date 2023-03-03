@@ -245,4 +245,8 @@ export class MintTicketSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   taxationStart?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  taxationPaidUntil?: "ASC" | "DESC"
 }
