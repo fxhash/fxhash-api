@@ -13,6 +13,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
 import { Redeemable } from "../Entity/Redeemable"
 import { User } from "../Entity/User"
+import { ObjktId } from "../Scalar/ObjktId"
 import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
@@ -65,7 +66,10 @@ export class ActionResolver {
     if (action.objktId == null) return null
     if (action.objkt) return action.objkt
     return ctx.objktsLoader.load(
-      new TokenId({ id: action.objktId, version: action.objktIssuerVersion })
+      new ObjktId({
+        id: action.objktId,
+        issuerVersion: action.objktIssuerVersion,
+      })
     )
   }
 

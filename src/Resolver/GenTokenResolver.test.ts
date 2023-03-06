@@ -4,6 +4,7 @@ import { createTestServer } from "../tests/apollo"
 import { actionFactory, generativeTokenFactory } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
+import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -69,7 +70,7 @@ describe("GenTokenResolver", () => {
         result = await testServer.executeOperation({
           query:
             "query TestQuery($id: TokenId!) { generativeToken(id: $id) { actions { id } } }",
-          variables: { id: "1-0" },
+          variables: { id: offsetV3TokenId(0) },
         })
       })
 
@@ -86,7 +87,7 @@ describe("GenTokenResolver", () => {
   })
 
   describe("generativeToken", () => {
-    describe("using legacy id", () => {
+    describe("when id is below v3 offset", () => {
       let result
 
       beforeAll(async () => {
@@ -103,14 +104,14 @@ describe("GenTokenResolver", () => {
         expect(result).toMatchObject({
           data: {
             generativeToken: {
-              id: "0-0",
+              id: 0,
             },
           },
         })
       })
     })
 
-    describe("using TokenId", () => {
+    describe("when id is above v3 offset", () => {
       let result
 
       beforeAll(async () => {
@@ -119,7 +120,7 @@ describe("GenTokenResolver", () => {
         result = await testServer.executeOperation({
           query:
             "query TestQuery($id: TokenId!) { generativeToken(id: $id) { id } }",
-          variables: { id: "1-0" },
+          variables: { id: offsetV3TokenId(0) },
         })
       })
 
@@ -127,7 +128,7 @@ describe("GenTokenResolver", () => {
         expect(result).toMatchObject({
           data: {
             generativeToken: {
-              id: "1-0",
+              id: offsetV3TokenId(0),
             },
           },
         })
@@ -147,8 +148,8 @@ describe("GenTokenResolver", () => {
         result = await testServer.executeOperation({
           query:
             "query TestQuery($ids: [TokenId!]!) { generativeTokens(filters: { id_in: $ids }) { id } }",
-          // use mix of legacy and TokenId
-          variables: { ids: [0, "1-0", "1-1"] },
+          // use mix of below and above v3 offset
+          variables: { ids: [0, offsetV3TokenId(0), offsetV3TokenId(1)] },
         })
       })
 
@@ -157,13 +158,13 @@ describe("GenTokenResolver", () => {
           data: {
             generativeTokens: [
               {
-                id: "1-1",
+                id: offsetV3TokenId(1),
               },
               {
-                id: "1-0",
+                id: offsetV3TokenId(0),
               },
               {
-                id: "0-0",
+                id: 0,
               },
             ],
           },
@@ -208,7 +209,7 @@ describe("GenTokenResolver", () => {
         expect(result).toMatchObject({
           data: {
             randomGenerativeToken: {
-              id: expect.any(String),
+              id: expect.any(Number),
             },
           },
         })

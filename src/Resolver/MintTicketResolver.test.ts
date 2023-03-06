@@ -8,6 +8,7 @@ import {
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
+import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -54,7 +55,7 @@ describe("MintTicketResolver", () => {
           data: {
             mintTicket: {
               token: {
-                id: "1-0",
+                id: offsetV3TokenId(0),
               },
             },
           },

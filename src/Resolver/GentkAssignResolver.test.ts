@@ -50,16 +50,16 @@ describe("GentkAssignResolver", () => {
       it("returns the serialized token id", async () => {
         const result = await testServer.executeOperation({
           query:
-            "query TestQuery($id: TokenId!) { statusGentkAssignation(id: $id) { gentkId } }",
+            "query TestQuery($id: ObjktId!) { statusGentkAssignation(id: $id) { gentkId } }",
           variables: {
-            id: "1-0",
+            id: "FX2-0",
           },
         })
 
         expect(result).toMatchObject({
           data: {
             statusGentkAssignation: {
-              gentkId: "1-0",
+              gentkId: "FX2-0",
             },
           },
         })

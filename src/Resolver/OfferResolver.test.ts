@@ -50,9 +50,9 @@ describe("OfferResolver", () => {
       it("returns the correct objkt", async () => {
         const result = await testServer.executeOperation({
           query:
-            "query TestQuery($id: TokenId!) { objkt(id: $id) { offers { objkt { id }}}}",
+            "query TestQuery($id: ObjktId!) { objkt(id: $id) { offers { objkt { id }}}}",
           variables: {
-            id: "1-0",
+            id: "FX2-0",
           },
         })
 
@@ -62,7 +62,7 @@ describe("OfferResolver", () => {
               offers: [
                 {
                   objkt: {
-                    id: "1-0",
+                    id: "FX2-0",
                   },
                 },
               ],

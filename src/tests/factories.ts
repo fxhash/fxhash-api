@@ -151,6 +151,7 @@ export const mintTicketFactory = async (
   mintTicket.createdAt = config.createdAt || new Date()
   mintTicket.taxationStart = config.taxationStart || new Date()
   mintTicket.taxationLocked = config.taxationLocked || "2000000"
+  mintTicket.taxationPaidUntil = config.taxationPaidUntil || new Date()
   mintTicket.price = config.price || 1000000
   await mintTicket.save()
   return mintTicket

@@ -123,18 +123,20 @@ describe("User dataloaders", () => {
         { id: "tz1", skip: 0, take: 10 },
       ])
       expect(result).toHaveLength(1)
-      expect(result).toMatchObject([
-        [
-          {
-            tokenId: 0,
-            tokenVersion: "V3",
-          },
-          {
-            tokenId: 0,
-            tokenVersion: "PRE_V3",
-          },
-        ],
-      ])
+      expect(result).toEqual(
+        expect.arrayContaining([
+          [
+            expect.objectContaining({
+              tokenId: 0,
+              tokenVersion: "V3",
+            }),
+            expect.objectContaining({
+              tokenId: 0,
+              tokenVersion: "PRE_V3",
+            }),
+          ],
+        ])
+      )
     })
   })
 })

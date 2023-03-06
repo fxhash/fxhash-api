@@ -12,6 +12,7 @@ import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { Offer } from "../Entity/Offer"
 import { TokenId } from "../Scalar/TokenId"
+import { ObjktId } from "../Scalar/ObjktId"
 
 @Resolver(Offer)
 export class OfferResolver {
@@ -28,12 +29,12 @@ export class OfferResolver {
     nullable: true,
     description: "The objkt associated with the offer.",
   })
-  objkt(@Root() offer: Offer, @Ctx() ctx: RequestContext) {
+  async objkt(@Root() offer: Offer, @Ctx() ctx: RequestContext) {
     if (offer.objkt) return offer.objkt
     return ctx.objktsLoader.load(
-      new TokenId({
+      new ObjktId({
         id: offer.objktId,
-        version: offer.objktIssuerVersion,
+        issuerVersion: offer.objktIssuerVersion,
       })
     )
   }

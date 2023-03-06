@@ -22,12 +22,13 @@ import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
-import { ObjktId, TokenId } from "../Scalar/TokenId"
+import { ObjktId } from "../Scalar/ObjktId"
+import { TokenId } from "../Scalar/TokenId"
 
 @Resolver(Objkt)
 export class ObjktResolver {
-  @FieldResolver(returns => TokenId, {
-    description: "The unique identifier of the token.",
+  @FieldResolver(returns => ObjktId, {
+    description: "The unique identifier of the objkt.",
   })
   id(@Root() objkt: Objkt) {
     return new ObjktId(objkt)
@@ -198,15 +199,15 @@ export class ObjktResolver {
       "Endpoint to query a single gentk, using different trivial search criteria (id, hash or slug).",
   })
   async objkt(
-    @Arg("id", { nullable: true }) id: TokenId,
+    @Arg("id", { nullable: true }) { id, issuerVersion }: ObjktId,
     @Arg("hash", { nullable: true }) hash: string,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<Objkt | undefined> {
     if (id == null && hash == null && slug == null) return undefined
     let args: Record<string, any> = {}
     if (!(id == null)) {
-      args.id = id.id
-      args.issuerVersion = id.version
+      args.id = id
+      args.issuerVersion = issuerVersion
     }
     if (!(hash == null)) args.generationHash = hash
     if (!(slug == null)) args.slug = slug

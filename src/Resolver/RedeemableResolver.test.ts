@@ -4,6 +4,7 @@ import { createTestServer } from "../tests/apollo"
 import { generativeTokenFactory, redeemableFactory } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
+import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -50,13 +51,11 @@ describe("RedeemableResolver", () => {
           },
         })
 
-        console.log(result)
-
         expect(result).toMatchObject({
           data: {
             redeemable: {
               token: {
-                id: "1-0",
+                id: offsetV3TokenId(0),
               },
             },
           },

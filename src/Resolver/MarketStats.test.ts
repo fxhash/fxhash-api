@@ -4,6 +4,7 @@ import { createTestServer } from "../tests/apollo"
 import { generativeTokenFactory, marketStatsFactory } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
+import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -44,7 +45,7 @@ describe("MarketStatsResolver", () => {
           query:
             "query TestQuery($id: TokenId!) { generativeToken(id: $id) { marketStats { generativeToken { id }}}}",
           variables: {
-            id: "1-0",
+            id: offsetV3TokenId(0),
           },
         })
 
@@ -53,7 +54,7 @@ describe("MarketStatsResolver", () => {
             generativeToken: {
               marketStats: {
                 generativeToken: {
-                  id: "1-0",
+                  id: offsetV3TokenId(0),
                 },
               },
             },

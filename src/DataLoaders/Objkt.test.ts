@@ -75,11 +75,11 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -125,11 +125,11 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -175,11 +175,11 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -223,15 +223,15 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -272,15 +272,15 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -317,15 +317,15 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -366,15 +366,15 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -437,15 +437,15 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject([
@@ -494,15 +494,15 @@ describe("Objkt dataloaders", () => {
       const results = await dataloader.loadMany([
         {
           id: 0,
-          version: GenerativeTokenVersion.PRE_V3,
+          issuerVersion: GenerativeTokenVersion.PRE_V3,
         },
         {
           id: 0,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
         {
           id: 1,
-          version: GenerativeTokenVersion.V3,
+          issuerVersion: GenerativeTokenVersion.V3,
         },
       ])
       expect(results).toMatchObject(["100", undefined, "200"])

@@ -9,32 +9,24 @@ import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
 import { offerQueryFilter } from "../Query/Filters/Offer"
-import { TokenId } from "../Scalar/TokenId"
-import { matchesEntityTokenIdAndVersion } from "../Utils/GenerativeToken"
-
-const tokenIdToObjktId = (tokenId: TokenId) => ({
-  id: tokenId.id,
-  issuerVersion: tokenId.version,
-})
-
-const matchesEntityObjktIdAndVersion = (
-  ids: readonly TokenId[],
-  entity: string
-) => matchesEntityTokenIdAndVersion(ids, entity, "objkt", "objktIssuer")
+import { ObjktId } from "../Scalar/ObjktId"
+import { matchesEntityObjktIdAndIssuerVersion } from "../Utils/GenerativeToken"
 
 /**
  * Given a list of objkt IDs, outputs a list of Objkt entities
  */
-const batchObjkts = async (ids: readonly TokenId[]) => {
+const batchObjkts = async (ids: readonly ObjktId[]) => {
   const query = Objkt.createQueryBuilder("objkt")
     .select()
-    .whereInIds(ids.map(tokenIdToObjktId))
+    .whereInIds(ids)
     .cache(10000)
 
   const objkts = await query.getMany()
 
-  return ids.map(({ id, version }) =>
-    objkts.find(objkt => objkt.id === id && objkt.issuerVersion === version)
+  return ids.map(({ id, issuerVersion }) =>
+    objkts.find(
+      objkt => objkt.id === id && objkt.issuerVersion === issuerVersion
+    )
   )
 }
 export const createObjktsLoader = () => new DataLoader(batchObjkts)
@@ -43,15 +35,16 @@ export const createObjktsLoader = () => new DataLoader(batchObjkts)
  * Given a list of objkt IDs, outputs a list of a list of actions associated
  * to each objkt
  */
-const batchObjktActions = async (ids: readonly TokenId[]) => {
+const batchObjktActions = async (ids: readonly ObjktId[]) => {
   const actions = await Action.createQueryBuilder("action")
     .select()
-    .where(matchesEntityObjktIdAndVersion(ids, "action"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "action"))
     .orderBy("action.createdAt", "DESC")
     .getMany()
-  return ids.map(({ id, version }: TokenId) =>
+  return ids.map(({ id, issuerVersion }: ObjktId) =>
     actions.filter(
-      action => action.objktId === id && action.objktIssuerVersion === version
+      action =>
+        action.objktId === id && action.objktIssuerVersion === issuerVersion
     )
   )
 }
@@ -64,12 +57,13 @@ export const createObjktActionsLoader = () => new DataLoader(batchObjktActions)
 const batchObjktRoyaltiesSplits = async ids => {
   const splits = await Split.createQueryBuilder("split")
     .select()
-    .where(matchesEntityObjktIdAndVersion(ids, "split"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "split"))
     .getMany()
 
-  return ids.map(({ id, version }: TokenId) =>
+  return ids.map(({ id, issuerVersion }: ObjktId) =>
     splits.filter(
-      split => split.objktId === id && split.objktIssuerVersion === version
+      split =>
+        split.objktId === id && split.objktIssuerVersion === issuerVersion
     )
   )
 }
@@ -82,11 +76,13 @@ export const createObjktRoyaltiesSplitsLoader = () =>
 const batchObjktListings = async (ids: any) => {
   const listings = await Listing.createQueryBuilder("listing")
     .select()
-    .where(matchesEntityObjktIdAndVersion(ids, "listing"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "listing"))
     .getMany()
 
-  return ids.map(({ id, version }: TokenId) =>
-    listings.filter(l => l.objktId === id && l.objktIssuerVersion === version)
+  return ids.map(({ id, issuerVersion }: ObjktId) =>
+    listings.filter(
+      l => l.objktId === id && l.objktIssuerVersion === issuerVersion
+    )
   )
 }
 export const createObjktListingsLoader = () =>
@@ -100,14 +96,14 @@ export const createObjktListingsLoader = () =>
 const batchObjktActiveListings = async (ids: any) => {
   const listings = await Listing.createQueryBuilder("listing")
     .select()
-    .where(matchesEntityObjktIdAndVersion(ids, "listing"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "listing"))
     .andWhere("listing.cancelledAt is null")
     .andWhere("listing.acceptedAt is null")
     .getMany()
   return ids.map(
-    ({ id, version }: TokenId) =>
+    ({ id, issuerVersion }: ObjktId) =>
       listings.find(
-        l => l.objktId === id && l.objktIssuerVersion === version
+        l => l.objktId === id && l.objktIssuerVersion === issuerVersion
       ) || null
   )
 }
@@ -119,20 +115,22 @@ export const createObjktActiveListingsLoader = () =>
  */
 const batchObjktOffers = async (inputs: any) => {
   // we extract the ids and the filters if any
-  const ids = inputs.map(({ id, version }) => ({ id, version }))
+  const ids = inputs.map(({ id, issuerVersion }) => ({ id, issuerVersion }))
   const filters = inputs[0]?.filters
   const sort = inputs[0]?.sort
 
   const query = Offer.createQueryBuilder("offer")
     .select()
-    .where(matchesEntityObjktIdAndVersion(ids, "offer"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "offer"))
 
   // apply filter/sort options
   offerQueryFilter(query, filters, sort)
 
   const offers = await query.getMany()
-  return ids.map(({ id, version }: TokenId) =>
-    offers.filter(l => l.objktId === id && l.objktIssuerVersion === version)
+  return ids.map(({ id, issuerVersion }: ObjktId) =>
+    offers.filter(
+      l => l.objktId === id && l.objktIssuerVersion === issuerVersion
+    )
   )
 }
 export const createObjktOffersLoader = () => new DataLoader(batchObjktOffers)
@@ -144,11 +142,11 @@ export const createObjktOffersLoader = () => new DataLoader(batchObjktOffers)
 const batchObjktRedemptions = async ids => {
   const red = await Redemption.createQueryBuilder("red")
     .select()
-    .where(matchesEntityObjktIdAndVersion(ids, "red"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "red"))
     .orderBy("red.createdAt", "DESC")
     .getMany()
-  return ids.map(({ id, version }: TokenId) =>
-    red.filter(r => r.objktId === id && r.objktIssuerVersion === version)
+  return ids.map(({ id, issuerVersion }: ObjktId) =>
+    red.filter(r => r.objktId === id && r.objktIssuerVersion === issuerVersion)
   )
 }
 export const createObjktRedemptionsLoader = () =>
@@ -165,11 +163,13 @@ const batchObjktAvailableRedeemables = async ids => {
     .leftJoinAndSelect("O.issuer", "G")
     .leftJoinAndSelect("G.redeemables", "Ra")
     .leftJoinAndSelect("O.redemptions", "Re")
-    .where(matchesEntityObjktIdAndVersion(ids, "Re"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "Re"))
     .getMany()
 
-  return ids.map(({ id, version }: TokenId) => {
-    const objkt = objkts.find(o => o.id === id && o.issuerVersion === version)
+  return ids.map(({ id, issuerVersion }: ObjktId) => {
+    const objkt = objkts.find(
+      o => o.id === id && o.issuerVersion === issuerVersion
+    )
     if (!objkt) return null
     return objkt.issuer!.redeemables.filter(
       redeemable =>
@@ -195,16 +195,17 @@ const batchObjktMintedPriceLoader = async ids => {
       "a.numericValue",
     ])
     .addSelect('min("createdAt")', "createdAt")
-    .where(matchesEntityObjktIdAndVersion(ids, "a"))
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "a"))
     .andWhere("a.type = 'MINTED_FROM'")
     .groupBy("a.id")
     .addGroupBy('a."objktId"')
     .getMany()
 
   return ids.map(
-    ({ id, version }: TokenId) =>
+    ({ id, issuerVersion }: ObjktId) =>
       actions.find(
-        action => action.objktId === id && action.objktIssuerVersion === version
+        action =>
+          action.objktId === id && action.objktIssuerVersion === issuerVersion
       )?.numericValue
   )
 }

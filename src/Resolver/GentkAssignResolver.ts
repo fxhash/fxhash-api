@@ -1,14 +1,15 @@
 import { FieldResolver, Resolver, Root } from "type-graphql"
 import { GentkAssign } from "../Entity/GentkAssign"
+import { ObjktId } from "../Scalar/ObjktId"
 import { TokenId } from "../Scalar/TokenId"
 
 @Resolver(GentkAssign)
 export class GentkAssignResolver {
-  @FieldResolver(returns => TokenId)
+  @FieldResolver(returns => ObjktId)
   gentkId(@Root() gentkAssign: GentkAssign) {
-    return new TokenId({
+    return new ObjktId({
       id: gentkAssign.gentkId,
-      version: gentkAssign.gentkIssuerVersion,
+      issuerVersion: gentkAssign.gentkIssuerVersion,
     })
   }
 }

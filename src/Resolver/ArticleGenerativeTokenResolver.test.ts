@@ -2,14 +2,13 @@ import { ApolloServer } from "apollo-server"
 import { Connection, EntityManager } from "typeorm"
 import { createTestServer } from "../tests/apollo"
 import {
-  actionFactory,
   articleFactory,
   articleMentionFactory,
   generativeTokenFactory,
-  objktFactory,
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
+import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -33,6 +32,7 @@ const cleanup = async () => {
   await manager.query("DELETE FROM generative_token")
 }
 
+beforeAll(cleanup)
 afterEach(cleanup)
 
 describe("ArticleGenerativeTokenResolver", () => {
@@ -64,7 +64,7 @@ describe("ArticleGenerativeTokenResolver", () => {
               generativeTokenMentions: [
                 {
                   generativeToken: {
-                    id: "1-0",
+                    id: offsetV3TokenId(0),
                   },
                 },
               ],

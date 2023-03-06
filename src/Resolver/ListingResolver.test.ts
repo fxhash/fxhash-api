@@ -58,7 +58,7 @@ describe("ListingResolver", () => {
             listings: [
               {
                 objkt: {
-                  id: "1-0",
+                  id: "FX2-0",
                 },
               },
             ],
