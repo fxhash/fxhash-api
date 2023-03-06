@@ -300,7 +300,10 @@ export class GenTokenResolver {
     query.where(processFilters(filters))
 
     // add the filters to target the token only
-    query.andWhere("action.tokenId = :id", { id: token.id })
+    query.andWhere("action.tokenId = :id AND action.tokenVersion = :version", {
+      id: token.id,
+      version: token.version,
+    })
 
     // add the sort arguments
     for (const sort in sortArgs) {
@@ -448,7 +451,7 @@ export class GenTokenResolver {
           token.flag !== undefined)
       ) {
         id = (Math.random() * count) | 0
-        // confirm this returns different token versions with equal probability
+        // figure out how to return different token versions with equal probability
         token = await GenerativeToken.findOne({ id })
         if (++i > 6) {
           return undefined
@@ -466,6 +469,8 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return null
     if (token.mintTicketSettings) return token.mintTicketSettings
     return ctx.genTokMintTicketSettingsLoader.load(new TokenId(token))
   }
@@ -480,6 +485,9 @@ export class GenTokenResolver {
     @Arg("sort", { nullable: true }) sort: MintTicketSortInput,
     @Args() { skip, take }: PaginationArgs
   ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return []
+
     // defaults
     if (!sort || Object.keys(sort).length === 0) {
       sort = {

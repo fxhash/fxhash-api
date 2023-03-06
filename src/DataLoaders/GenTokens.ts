@@ -105,8 +105,10 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
   const counts = await Objkt.createQueryBuilder("objkt")
     .select("COUNT(objkt)", "count")
     .addSelect("objkt.issuerId", "issuerId")
+    .addSelect("objkt.issuerVersion", "issuerVersion")
     .where(matchesObjktIssuerIdAndVersion(genIds))
     .groupBy("objkt.issuerId")
+    .addGroupBy("objkt.issuerVersion")
     // .cache(10000)
     .getRawMany()
 
@@ -222,18 +224,16 @@ const batchGenTokArticleMentions = async (ids: readonly TokenId[]) => {
 export const createGenTokArticleMentionsLoader = () =>
   new DataLoader(batchGenTokArticleMentions)
 
-const batchGenTokReports = async genIds => {
-  const reports = await Report.find({
-    where: {
-      token: In(genIds),
-    },
-    order: {
-      id: "DESC",
-    },
-    // cache: 10000
-  })
-  return genIds.map((id: number) =>
-    reports.filter(report => report.tokenId === id)
+const batchGenTokReports = async (ids: readonly TokenId[]) => {
+  const reports = await Report.createQueryBuilder("report")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "report"))
+    .getMany()
+
+  return ids.map(({ id, version }) =>
+    reports.filter(
+      report => report.tokenId === id && report.tokenVersion === version
+    )
   )
 }
 export const createGenTokReportsLoader = () =>
@@ -504,7 +504,7 @@ export const createGenTokMintTicketsLoader = () =>
 const batchGenTokCodex = async (ids: readonly TokenId[]) => {
   const codex = await Codex.createQueryBuilder("codex")
     .select()
-    .where(matchesEntityTokenIdAndVersion(ids, "codex"))
+    .whereInIds(ids.map(({ id, version }) => ({ id, tokenVersion: version })))
     .getMany()
 
   return ids.map(({ id, version }: TokenId) =>

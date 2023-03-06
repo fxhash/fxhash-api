@@ -5,6 +5,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
 } from "typeorm"
@@ -24,17 +25,14 @@ export class Codex extends BaseEntity {
   id: number
 
   @Column({
+    primary: true,
     type: "enum",
     enum: GenerativeTokenVersion,
     enumName: "generative_token_version",
   })
   tokenVersion: GenerativeTokenVersion
 
-  @OneToOne(() => GenerativeToken, token => token.codex, {
-    nullable: true,
-    onDelete: "CASCADE",
-  })
-  @JoinColumn()
+  @OneToMany(() => GenerativeToken, token => token.codex)
   token: GenerativeToken
 
   @Field({
