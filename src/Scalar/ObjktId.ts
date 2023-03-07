@@ -82,6 +82,12 @@ export const ObjktIdScalar = new GraphQLScalarType({
   },
   parseLiteral(ast): ObjktId {
     // handle legacy numeric IDs
+    if (ast.kind === Kind.INT)
+      return new ObjktId({
+        id: parseInt(ast.value),
+        issuerVersion: GenerativeTokenVersion.PRE_V3,
+      })
+
     if (ast.kind !== Kind.STRING)
       throw new Error(
         `ObjktIdScalar can only parse string values, received: ${ast}`
