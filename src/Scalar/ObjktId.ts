@@ -42,8 +42,8 @@ export class ObjktId {
    */
   serialize(): string {
     const prefix = (() => {
-      if (this.issuerVersion === GenerativeTokenVersion.PRE_V3) return "FX1-"
-      if (this.issuerVersion === GenerativeTokenVersion.V3) return "FX2-"
+      if (this.issuerVersion === GenerativeTokenVersion.PRE_V3) return "FX0-"
+      if (this.issuerVersion === GenerativeTokenVersion.V3) return "FX1-"
       throw new Error(
         `cannot serialize objkt id (version ${this.issuerVersion} not implemented)`
       )
@@ -82,6 +82,12 @@ export const ObjktIdScalar = new GraphQLScalarType({
   },
   parseLiteral(ast): ObjktId {
     // handle legacy numeric IDs
+    if (ast.kind === Kind.INT)
+      return new ObjktId({
+        id: parseInt(ast.value),
+        issuerVersion: GenerativeTokenVersion.PRE_V3,
+      })
+
     if (ast.kind !== Kind.STRING)
       throw new Error(
         `ObjktIdScalar can only parse string values, received: ${ast}`
