@@ -6,7 +6,7 @@ type TSortValue = "ASC" | "DESC"
 type TSortInput = Record<string, TSortValue>
 
 /**
- * Given an input sort (currentSort) and a default sort input, outputs the 
+ * Given an input sort (currentSort) and a default sort input, outputs the
  * default sort input only if the input sort is empty, otherwise outputs the
  * input sort.
  */
@@ -26,10 +26,14 @@ export class ListingsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   price?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   createdAt?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
+  acceptedAt?: "ASC" | "DESC"
 
   // search-related sort filter
   @Field(type => String, { nullable: true })
@@ -43,7 +47,7 @@ export class OffersSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   price?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   createdAt?: "ASC" | "DESC"
@@ -55,11 +59,11 @@ export class ObjktsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   id?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   listingPrice?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   listingCreatedAt?: "ASC" | "DESC"
@@ -75,7 +79,7 @@ export class ObjktsSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   iteration?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   collectedAt?: "ASC" | "DESC"
@@ -91,7 +95,7 @@ export class ObjktsSortInput {
 }
 
 @InputType()
-export class GenerativeSortInput {  
+export class GenerativeSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   lockEnd?: "ASC" | "DESC"
@@ -99,15 +103,15 @@ export class GenerativeSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   mintOpensAt?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   price?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   supply?: "ASC" | "DESC"
-  
+
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   balance?: "ASC" | "DESC"
@@ -193,11 +197,11 @@ export class ActionsSortInput {
 }
 
 @InputType()
-export class UserSortInput {  
+export class UserSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   createdAt?: "ASC" | "DESC"
-  
+
   // search-related sort filter
   @Field(type => String, { nullable: true })
   @IsIn(["DESC"])
@@ -221,7 +225,7 @@ export class ArticleSortInput {
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
   royalties?: "ASC" | "DESC"
-  
+
   // search-related sort filter
   @Field(type => String, { nullable: true })
   @IsIn(["DESC"])

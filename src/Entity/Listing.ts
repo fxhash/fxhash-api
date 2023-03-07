@@ -42,13 +42,13 @@ export class Listing extends BaseEntity {
 
   @ManyToOne(() => Objkt, objkt => objkt.listings)
   objkt: Objkt
-  
+
   @Column()
   objktId: number
-  
+
   @ManyToOne(() => Article, article => article.listings)
   article?: Article
-  
+
   @Column()
   articleId: number
 
@@ -56,7 +56,7 @@ export class Listing extends BaseEntity {
     description: "The amount of the asset in the listing. For NFTs it will always be 1."
   })
   @Column({ type: "bigint" })
-  amount: number 
+  amount: number
 
   @Field({
     description: "The listing price, **in mutez**"
@@ -77,7 +77,7 @@ export class Listing extends BaseEntity {
   @Column({ type: "timestamptz" })
   @Filter([ "gte", "lte" ], type => Date)
   createdAt: Date
-  
+
   @Field({
     nullable: true,
     description: "When the listing was cancelled by the seller (if null, listing was never cancelled)",
@@ -86,7 +86,7 @@ export class Listing extends BaseEntity {
   @Filter([ "gte", "lte" ], type => Date)
   @Filter([ "exist" ], type => Boolean)
   cancelledAt: Date
-  
+
   @Field({
     nullable: true,
     description: "When the listing was accepted by the buyer (if null, listing was never accepted)",
@@ -96,7 +96,17 @@ export class Listing extends BaseEntity {
   @Filter([ "exist" ], type => Boolean)
   acceptedAt: Date
 
-  
+  @Field(type => User, {
+    nullable: true,
+    description: "The buyer that has accepted the listing",
+  })
+  @Index()
+  @ManyToOne(() => User, user => user.acceptedListings)
+  acceptedBy: User
+
+  @Column()
+  acceptedById: string
+
   //
   // FILTERS FOR THE GQL ENDPOINT
   //
