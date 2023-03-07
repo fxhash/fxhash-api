@@ -1,6 +1,7 @@
 import { Arg, Field, Int, ObjectType, Query, Resolver } from "type-graphql"
 import { AssignationState, GentkAssign } from "../Entity/GentkAssign"
 import { IndexingCursor } from "../Entity/IndexingCursor"
+import { ObjktId } from "../Scalar/ObjktId"
 import { TokenId } from "../Scalar/TokenId"
 
 @ObjectType({
@@ -32,10 +33,10 @@ export class StatusResolver {
     description:
       "Get the assignation status of a particular gentk, identified by its ID.",
   })
-  statusGentkAssignation(@Arg("id") { id, version }: TokenId) {
+  statusGentkAssignation(@Arg("id") { id, issuerVersion }: ObjktId) {
     return GentkAssign.findOne({
       gentkId: id,
-      gentkIssuerVersion: version,
+      gentkIssuerVersion: issuerVersion,
     })
   }
 

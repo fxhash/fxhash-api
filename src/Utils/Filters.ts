@@ -14,6 +14,7 @@ import {
 import { Article } from "../Entity/Article"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
+import { MintTicket } from "../Entity/MintTicket"
 import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
 import { FeatureFilter, FeatureType } from "../Resolver/Arguments/Filter"
@@ -124,6 +125,17 @@ const objktFiltersDbFields: (keyof Objkt)[] = [
 ]
 export const processObjktFilters = (filters: any) => {
   return processSelectiveFilters(filters, objktFiltersDbFields)
+}
+
+const mintTicketFiltersDbFields: (keyof MintTicket)[] = [
+  "createdAt",
+  "owner",
+  "price",
+  "taxationLocked",
+  "taxationStart",
+]
+export const processMintTicketFilters = (filters: any) => {
+  return processSelectiveFilters(filters, mintTicketFiltersDbFields)
 }
 
 const articleFiltersDbFields: (keyof Article)[] = [

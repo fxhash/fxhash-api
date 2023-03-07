@@ -1,9 +1,12 @@
 import DataLoader from "dataloader"
 import { Brackets, In } from "typeorm"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
+import { Codex } from "../Entity/Codex"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
+import { MintTicket } from "../Entity/MintTicket"
+import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
@@ -12,6 +15,7 @@ import { Redeemable } from "../Entity/Redeemable"
 import { Report } from "../Entity/Report"
 import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
+import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { offerQueryFilter } from "../Query/Filters/Offer"
 import { TokenId } from "../Scalar/TokenId"
@@ -101,13 +105,17 @@ const batchGenTokObjktsCount = async (genIds): Promise<number[]> => {
   const counts = await Objkt.createQueryBuilder("objkt")
     .select("COUNT(objkt)", "count")
     .addSelect("objkt.issuerId", "issuerId")
+    .addSelect("objkt.issuerVersion", "issuerVersion")
     .where(matchesObjktIssuerIdAndVersion(genIds))
     .groupBy("objkt.issuerId")
+    .addGroupBy("objkt.issuerVersion")
     // .cache(10000)
     .getRawMany()
 
-  return genIds.map(({ id }) => {
-    const f = counts.find(count => count.issuerId === id)
+  return genIds.map(({ id, version }: TokenId) => {
+    const f = counts.find(
+      count => count.issuerId === id && count.issuerVersion === version
+    )
     return f ? parseInt(f.count) : 0
   })
 }
@@ -216,18 +224,16 @@ const batchGenTokArticleMentions = async (ids: readonly TokenId[]) => {
 export const createGenTokArticleMentionsLoader = () =>
   new DataLoader(batchGenTokArticleMentions)
 
-const batchGenTokReports = async genIds => {
-  const reports = await Report.find({
-    where: {
-      token: In(genIds),
-    },
-    order: {
-      id: "DESC",
-    },
-    // cache: 10000
-  })
-  return genIds.map((id: number) =>
-    reports.filter(report => report.tokenId === id)
+const batchGenTokReports = async (ids: readonly TokenId[]) => {
+  const reports = await Report.createQueryBuilder("report")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "report"))
+    .getMany()
+
+  return ids.map(({ id, version }) =>
+    reports.filter(
+      report => report.tokenId === id && report.tokenVersion === version
+    )
   )
 }
 export const createGenTokReportsLoader = () =>
@@ -426,3 +432,83 @@ const batchGenTokRedeemables = async (ids: readonly TokenId[]) => {
 }
 export const createGentkTokRedeemablesLoader = () =>
   new DataLoader(batchGenTokRedeemables)
+
+/**
+ * Given a list of Generative Token IDs, outputs their mint ticket settings
+ */
+const batchGenTokMintTicketSettings = async (ids: readonly TokenId[]) => {
+  const settings = await MintTicketSettings.createQueryBuilder("settings")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "settings"))
+    .getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    settings.find(s => s.tokenId === id && s.tokenVersion === version)
+  )
+}
+export const createGenTokMintTicketSettingsLoader = () =>
+  new DataLoader(batchGenTokMintTicketSettings)
+
+/**
+ * Get the MintTickets of a Generative Token, with some filters and sorting options,
+ * as well as a skip/take limit
+ */
+const batchGenTokMintTicket = async genIds => {
+  // extract the IDs from the params
+  const ids = genIds.map(({ id, version }) => ({ id, version }))
+
+  // extract the filters from the params
+  const filters = genIds[0].filters
+  const sorts = genIds[0].sort || {}
+  const take = genIds[0].take
+  const skip = genIds[0].skip
+
+  // if there is not sort, add ID desc
+  if (Object.keys(sorts).length === 0) {
+    sorts.id = "DESC"
+  }
+
+  let query = MintTicket.createQueryBuilder("mintTicket")
+    .select()
+    .where(matchesEntityTokenIdAndVersion(ids, "mintTicket"))
+
+  // we apply the filters and the sort arguments
+  query = await mintTicketQueryFilter(
+    query,
+    {
+      general: filters,
+    },
+    sorts
+  )
+
+  // pagination
+  if (take !== null && take !== undefined) {
+    query = query.take(take)
+  }
+  if (skip !== null && skip !== undefined) {
+    query = query.skip(skip)
+  }
+
+  const mintTickets = await query.getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    mintTickets.filter(
+      mintTicket =>
+        mintTicket.tokenId === id && mintTicket.tokenVersion === version
+    )
+  )
+}
+export const createGenTokMintTicketsLoader = () =>
+  new DataLoader(batchGenTokMintTicket)
+
+const batchGenTokCodex = async (ids: readonly TokenId[]) => {
+  const codex = await Codex.createQueryBuilder("codex")
+    .select()
+    .whereInIds(ids.map(({ id, version }) => ({ id, tokenVersion: version })))
+    .getMany()
+
+  return ids.map(({ id, version }: TokenId) =>
+    codex.find(c => c.id === id && c.tokenVersion === version)
+  )
+}
+export const createGenTokCodexLoader = () => new DataLoader(batchGenTokCodex)

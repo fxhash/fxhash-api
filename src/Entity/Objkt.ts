@@ -181,7 +181,7 @@ export class Objkt extends BaseEntity {
 
   @Field({
     description:
-      "The contract version on which this gentk NFT is stored. (0 = beta contract, 1 = release contract)",
+      "The contract version on which this gentk NFT is stored. (0 = beta contract, 1 = release contract, 2 = post-params contract)",
   })
   @Column({ default: 0 })
   version: number = 0

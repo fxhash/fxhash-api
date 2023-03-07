@@ -18,6 +18,7 @@ import { EListingAssetType, FiltersListing, Listing } from "../Entity/Listing"
 import { ListingID } from "./Arguments/Listing"
 import { Article } from "../Entity/Article"
 import { TokenId } from "../Scalar/TokenId"
+import { ObjktId } from "../Scalar/ObjktId"
 
 @Resolver(Listing)
 export class ListingResolver {
@@ -39,7 +40,10 @@ export class ListingResolver {
     if (listing.objktId == null) return null
     if (listing.objkt) return listing.objkt
     return ctx.objktsLoader.load(
-      new TokenId({ id: listing.objktId, version: listing.objktIssuerVersion })
+      new ObjktId({
+        id: listing.objktId,
+        issuerVersion: listing.objktIssuerVersion,
+      })
     )
   }
 

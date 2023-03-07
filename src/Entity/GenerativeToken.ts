@@ -1,17 +1,13 @@
 import { GraphQLJSONObject } from "graphql-type-json"
-import slugify from "slugify"
 import { Field, Int, ObjectType, registerEnumType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
 import {
   Entity,
   Column,
   PrimaryColumn,
-  UpdateDateColumn,
   BaseEntity,
-  CreateDateColumn,
   ManyToOne,
   OneToMany,
-  RelationId,
   OneToOne,
   JoinColumn,
 } from "typeorm"
@@ -21,11 +17,16 @@ import {
   GenMintProgressFilter,
 } from "../types/GenerativeToken"
 import { GenerativeTokenMetadata } from "../types/Metadata"
+import { FxParamDefinition } from "../types/Params"
 import { Action } from "./Action"
 import { ArticleGenerativeToken } from "./ArticleGenerativeToken"
+import { Codex } from "./Codex"
+import { CodexUpdateRequest } from "./CodexUpdateRequest"
 import { MarketStats } from "./MarketStats"
 import { MarketStatsHistory } from "./MarketStatsHistory"
 import { MediaImage } from "./MediaImage"
+import { MintTicket } from "./MintTicket"
+import { MintTicketSettings } from "./MintTicketSettings"
 import { ModerationReason } from "./ModerationReason"
 import { Objkt } from "./Objkt"
 import { PricingDutchAuction } from "./PricingDutchAuction"
@@ -131,6 +132,13 @@ export class GenerativeToken extends BaseEntity {
   @Column({ type: "json", nullable: true })
   metadata: GenerativeTokenMetadata
 
+  @Field(() => [GraphQLJSONObject], {
+    nullable: true,
+    description: "The JSON fx(params) definition for project using params",
+  })
+  @Column({ type: "json", nullable: true })
+  paramsDefinition?: FxParamDefinition[]
+
   @Field({
     nullable: true,
     description:
@@ -138,6 +146,21 @@ export class GenerativeToken extends BaseEntity {
   })
   @Column({ nullable: true })
   metadataUri?: string
+
+  @Column({ nullable: true })
+  codexId: number
+
+  @ManyToOne(() => Codex)
+  @JoinColumn([
+    { name: "codexId", referencedColumnName: "id" },
+    { name: "version", referencedColumnName: "tokenVersion" },
+  ])
+  codex: Codex
+
+  @OneToOne(() => CodexUpdateRequest, updateRequest => updateRequest.token, {
+    nullable: true,
+  })
+  codexUpdateRequest: CodexUpdateRequest
 
   @Field({
     nullable: true,
@@ -263,6 +286,40 @@ export class GenerativeToken extends BaseEntity {
   })
   @Column({ type: "timestamptz" })
   mintOpensAt: Date
+
+  @Field({
+    description: "Whether the token has open editions or not.",
+  })
+  @Column()
+  openEditions: boolean
+
+  @Field(() => Date, {
+    description:
+      "For tokens with open editions - indicates when the open editions end. Null if the open editions never end.",
+    nullable: true,
+  })
+  @Column({
+    type: "timestamptz",
+    nullable: true,
+  })
+  openEditionsEndsAt: Date | null
+
+  @Field({
+    description:
+      "The number of bytes required to mint an iteration of the project (if 0, no fxparams)",
+  })
+  @Column()
+  inputBytesSize: number = 0
+
+  @OneToOne(
+    () => MintTicketSettings,
+    mintTicketSettings => mintTicketSettings.token,
+    { nullable: true }
+  )
+  mintTicketSettings: MintTicketSettings
+
+  @OneToMany(() => MintTicket, mintTicket => mintTicket.token)
+  mintTickets: MintTicket[]
 
   @OneToMany(() => Objkt, objkt => objkt.issuer)
   objkts: Objkt[]

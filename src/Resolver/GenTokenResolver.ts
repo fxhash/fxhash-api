@@ -11,6 +11,7 @@ import {
 } from "type-graphql"
 import { Action, FiltersAction } from "../Entity/Action"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
+import { Codex } from "../Entity/Codex"
 import {
   GenerativeFilters,
   GenerativeToken,
@@ -19,6 +20,8 @@ import {
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { MediaImage } from "../Entity/MediaImage"
+import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
+import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { FiltersOffer, Offer } from "../Entity/Offer"
@@ -42,6 +45,7 @@ import {
   ActionsSortInput,
   defaultSort,
   GenerativeSortInput,
+  MintTicketSortInput,
   ObjktsSortInput,
   OffersSortInput,
 } from "./Arguments/Sort"
@@ -53,6 +57,13 @@ export class GenTokenResolver {
   })
   id(@Root() token: GenerativeToken) {
     return new TokenId(token)
+  }
+
+  @FieldResolver(returns => Codex, {
+    description: "The Codex of the token.",
+  })
+  codex(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
+    return token.codex || ctx.genTokCodexLoader.load(new TokenId(token))
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -289,7 +300,10 @@ export class GenTokenResolver {
     query.where(processFilters(filters))
 
     // add the filters to target the token only
-    query.andWhere("action.tokenId = :id", { id: token.id })
+    query.andWhere("action.tokenId = :id AND action.tokenVersion = :version", {
+      id: token.id,
+      version: token.version,
+    })
 
     // add the sort arguments
     for (const sort in sortArgs) {
@@ -437,13 +451,57 @@ export class GenTokenResolver {
           token.flag !== undefined)
       ) {
         id = (Math.random() * count) | 0
-        // confirm this returns different token versions with equal probability
-        token = await GenerativeToken.findOne(id)
+        // figure out how to return different token versions with equal probability
+        token = await GenerativeToken.findOne({ id })
         if (++i > 6) {
           return undefined
         }
       }
     }
     return token
+  }
+
+  @FieldResolver(returns => MintTicketSettings, {
+    description: "The settings for the mint tickets of a Generative Token.",
+    nullable: true,
+  })
+  async mintTicketSettings(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext
+  ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return null
+    if (token.mintTicketSettings) return token.mintTicketSettings
+    return ctx.genTokMintTicketSettingsLoader.load(new TokenId(token))
+  }
+
+  @FieldResolver(returns => [MintTicket], {
+    description: "Get the unique mint tickets for a Generative Token.",
+  })
+  async mintTickets(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersMintTicket, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: MintTicketSortInput,
+    @Args() { skip, take }: PaginationArgs
+  ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return []
+
+    // defaults
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        id: "ASC",
+      }
+    }
+    ;[skip, take] = useDefaultValues([skip, take], [0, 20])
+
+    return ctx.genTokMintTicketsLoader.load({
+      ...new TokenId(token),
+      filters,
+      sort,
+      skip,
+      take,
+    })
   }
 }
