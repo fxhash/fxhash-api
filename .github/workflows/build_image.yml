@@ -1,0 +1,64 @@
+name: Docker Image Build
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: fxhash/fxhash-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:${GITHUB_REF##*/} .
+          docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+  update-chart:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: fxhash/charts
+          ssh-key: ${{ secrets.CHARTS_SSH_KEY }}
+          ref: ${{ github.ref }}
+      - name: "Update dev Helm values"
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.fxh-api.image.tag = strenv(GITHUB_SHA)' 'dev-testnet/values.yaml'
+      - name: "Update staging Helm values"
+        if: ${{ github.ref == 'refs/heads/staging' }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.fxh-api.image.tag = strenv(GITHUB_SHA)' 'staging-mainnet/values.yaml'
+      - name: "Update production Helm values"
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.fxh-api.image.tag = strenv(GITHUB_SHA)' 'production/values.yaml'
+      - name: "Push Helm Chart values"
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "🤖 Github Actions: Update fxhash-api image version"
+          git push
