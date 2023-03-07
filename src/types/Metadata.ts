@@ -1,3 +1,5 @@
+import { FxParamDefinition } from "./Params"
+
 export interface TokenMetadata {
   "": string
   name: string
@@ -32,6 +34,9 @@ export interface GenerativeTokenMetadata {
   creators: string[]
   formats: TokenFormat[]
   decimals: number
+  params?: {
+    definition: FxParamDefinition[]
+  }
 }
 
 export interface ObjktMetadata extends GenerativeTokenMetadata {

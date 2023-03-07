@@ -17,6 +17,7 @@ import {
   GenMintProgressFilter,
 } from "../types/GenerativeToken"
 import { GenerativeTokenMetadata } from "../types/Metadata"
+import { FxParamDefinition } from "../types/Params"
 import { Action } from "./Action"
 import { ArticleGenerativeToken } from "./ArticleGenerativeToken"
 import { Codex } from "./Codex"
@@ -130,6 +131,13 @@ export class GenerativeToken extends BaseEntity {
   })
   @Column({ type: "json", nullable: true })
   metadata: GenerativeTokenMetadata
+
+  @Field(() => [GraphQLJSONObject], {
+    nullable: true,
+    description: "The JSON fx(params) definition for project using params",
+  })
+  @Column({ type: "json", nullable: true })
+  paramsDefinition?: FxParamDefinition[]
 
   @Field({
     nullable: true,
