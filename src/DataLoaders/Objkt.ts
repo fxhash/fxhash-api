@@ -10,7 +10,7 @@ import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
 import { offerQueryFilter } from "../Query/Filters/Offer"
 import { ObjktId } from "../Scalar/ObjktId"
-import { matchesEntityObjktIdAndIssuerVersion } from "../Utils/GenerativeToken"
+import { matchesEntityObjktIdAndIssuerVersion } from "../Utils/Objkt"
 
 /**
  * Given a list of objkt IDs, outputs a list of Objkt entities

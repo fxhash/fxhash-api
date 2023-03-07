@@ -23,7 +23,6 @@ import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
 import { ObjktId } from "../Scalar/ObjktId"
-import { TokenId } from "../Scalar/TokenId"
 
 @Resolver(Objkt)
 export class ObjktResolver {
@@ -56,12 +55,7 @@ export class ObjktResolver {
   })
   issuer(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.issuer) return objkt.issuer
-    return ctx.genTokLoader.load(
-      new TokenId({
-        id: objkt.issuerId,
-        version: objkt.issuerVersion,
-      })
-    )
+    return ctx.genTokLoader.load(objkt.issuerId)
   }
 
   @FieldResolver(returns => [Split], {

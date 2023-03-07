@@ -48,28 +48,12 @@ export class Split extends BaseEntity {
   @Column()
   generativeTokenPrimaryId: number
 
-  @Column({
-    primary: true,
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  generativeTokenPrimaryVersion: GenerativeTokenVersion
-
   @Index()
   @ManyToOne(() => GenerativeToken, token => token.splitsSecondary)
   generativeTokenSecondary: GenerativeToken
 
   @Column()
   generativeTokenSecondaryId: number
-
-  @Column({
-    primary: true,
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  generativeTokenSecondaryVersion: GenerativeTokenVersion
 
   @Index()
   @ManyToOne(() => Objkt, token => token.royaltiesSplit)

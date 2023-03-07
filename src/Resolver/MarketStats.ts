@@ -1,7 +1,6 @@
 import { Ctx, FieldResolver, Resolver, Root } from "type-graphql"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
-import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 
 @Resolver(MarketStats)
@@ -12,8 +11,6 @@ export class MarketStatsResolver {
   })
   generativeToken(@Root() stats: MarketStats, @Ctx() ctx: RequestContext) {
     if (stats.token) return stats.token
-    return ctx.genTokLoader.load(
-      new TokenId({ id: stats.tokenId, version: stats.tokenVersion })
-    )
+    return ctx.genTokLoader.load(stats.tokenId)
   }
 }

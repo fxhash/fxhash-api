@@ -19,7 +19,7 @@ import { PricingFixed } from "../Entity/PricingFixed"
 import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Report } from "../Entity/Report"
-import { EReserveMethod, Reserve } from "../Entity/Reserve"
+import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
@@ -48,7 +48,6 @@ export const actionFactory = async (config: any = {}) => {
   const action = new Action()
   action.opHash = config.opHash || "opHash"
   action.tokenId = "tokenId" in config ? config.tokenId : null
-  action.tokenVersion = config.tokenVersion || null
   action.objktId = "objktId" in config ? config.objktId : null
   action.objktIssuerVersion = config.objktIssuerVersion || null
   // randomly select an action type if none is provided
@@ -65,12 +64,10 @@ export const actionFactory = async (config: any = {}) => {
 
 export const pricingFixedFactory = async (
   tokenId: number,
-  tokenVersion: GenerativeTokenVersion = GenerativeTokenVersion.V3,
   config: any = {}
 ) => {
   const pricingFixed = new PricingFixed()
   pricingFixed.tokenId = tokenId
-  pricingFixed.tokenVersion = tokenVersion
   pricingFixed.price = config.price || 1000000
   await pricingFixed.save()
   return pricingFixed
@@ -78,12 +75,10 @@ export const pricingFixedFactory = async (
 
 export const pricingDutchAuctionFactory = async (
   tokenId: number,
-  tokenVersion: GenerativeTokenVersion = GenerativeTokenVersion.V3,
   config: any = {}
 ) => {
   const pricingDutchAuction = new PricingDutchAuction()
   pricingDutchAuction.tokenId = tokenId
-  pricingDutchAuction.tokenVersion = tokenVersion
   pricingDutchAuction.levels = config.level || [2000000, 1000000]
   pricingDutchAuction.restingPrice = config.restingPrice || 1000000
   pricingDutchAuction.decrementDuration = config.decrementDuration || 300
@@ -120,7 +115,6 @@ export const mintTicketSettingsFactory = async (
 ) => {
   const mintTicketSettings = new MintTicketSettings()
   mintTicketSettings.tokenId = tokenId
-  mintTicketSettings.tokenVersion = GenerativeTokenVersion.V3
   mintTicketSettings.gracingPeriod = config.gracingPeriod || 7
   mintTicketSettings.metadata = config.metadata || {
     name: "Test",
@@ -186,12 +180,10 @@ export const codexUpdateRequestFactory = async (
 
 export const primarySplitFactory = async (
   tokenId: number,
-  tokenVersion: GenerativeTokenVersion = GenerativeTokenVersion.V3,
   config: any = {}
 ) => {
   const split = new Split()
   split.generativeTokenPrimaryId = tokenId || 0
-  split.generativeTokenPrimaryVersion = tokenVersion
   split.pct = config.pct || 100
   await split.save()
   return split
@@ -199,12 +191,10 @@ export const primarySplitFactory = async (
 
 export const secondarySplitFactory = async (
   tokenId: number,
-  tokenVersion: GenerativeTokenVersion = GenerativeTokenVersion.V3,
   config: any = {}
 ) => {
   const split = new Split()
   split.generativeTokenSecondaryId = tokenId || 0
-  split.generativeTokenSecondaryVersion = tokenVersion
   split.pct = config.pct || 100
   await split.save()
   return split
@@ -249,13 +239,11 @@ export const articleFactory = async (id: number, config: any = {}) => {
 export const articleMentionFactory = async (
   articleId: number,
   tokenId: number,
-  tokenVersion = GenerativeTokenVersion.V3,
   config: any = {}
 ) => {
   const mention = new ArticleGenerativeToken()
   mention.articleId = articleId || 0
   mention.generativeTokenId = tokenId || 0
-  mention.generativeTokenVersion = tokenVersion || GenerativeTokenVersion.V3
   mention.line = config.line || 0
   await mention.save()
   return mention
@@ -269,7 +257,6 @@ export const moderationReasonFactory = async (config: any = {}) => {
 export const reportFactory = async (config: any = {}) => {
   const report = new Report()
   report.tokenId = config.tokenId
-  report.tokenVersion = config.tokenVersion
   report.userId = config.userId
   report.reason = config.reason || (await moderationReasonFactory())
   report.createdAt = config.createdAt || new Date()
@@ -279,12 +266,10 @@ export const reportFactory = async (config: any = {}) => {
 
 export const marketStatsFactory = async (
   tokenId: number,
-  tokenVersion = GenerativeTokenVersion.V3,
   config: Partial<MarketStats> = {}
 ) => {
   const stats = new MarketStats()
   stats.tokenId = tokenId
-  stats.tokenVersion = tokenVersion
   stats.floor = config.floor || 0
   await stats.save()
   return stats
@@ -292,12 +277,10 @@ export const marketStatsFactory = async (
 
 export const marketStatsHistoryFactory = async (
   tokenId: number,
-  tokenVersion = GenerativeTokenVersion.V3,
   config: Partial<MarketStatsHistory> = {}
 ) => {
   const history = new MarketStatsHistory()
   history.tokenId = tokenId
-  history.tokenVersion = tokenVersion
   history.floor = config.floor || 0
   history.from = config.from || new Date()
   history.to = config.to || new Date()
@@ -341,12 +324,10 @@ export const offerFactory = async (
 
 export const reserveFactory = async (
   tokenId: number,
-  tokenVersion = GenerativeTokenVersion.V3,
   config: Partial<Reserve> = {}
 ) => {
   const reserve = new Reserve()
   reserve.tokenId = tokenId
-  reserve.tokenVersion = tokenVersion
   reserve.amount = config.amount || 0
   reserve.method = config.method || 0
   await reserve.save()
@@ -355,12 +336,10 @@ export const reserveFactory = async (
 
 export const redeemableFactory = async (
   tokenId: number,
-  tokenVersion = GenerativeTokenVersion.V3,
   config: Partial<Redeemable> = {}
 ) => {
   const redeemable = new Redeemable()
   redeemable.tokenId = tokenId
-  redeemable.tokenVersion = tokenVersion
   redeemable.baseAmount = config.baseAmount || 0
   redeemable.address = config.address || v4()
   redeemable.maxConsumptionsPerToken = config.maxConsumptionsPerToken || 0

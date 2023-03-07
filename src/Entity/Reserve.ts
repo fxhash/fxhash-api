@@ -8,7 +8,6 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { GenerativeToken } from "./GenerativeToken"
 
 export enum EReserveMethod {
@@ -36,13 +35,6 @@ export class Reserve extends BaseEntity {
 
   @Column()
   tokenId: number
-
-  @Column({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
 
   @Field(() => GraphQLJSON, {
     description:

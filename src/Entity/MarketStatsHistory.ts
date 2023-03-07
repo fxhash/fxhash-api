@@ -28,13 +28,6 @@ export class MarketStatsHistory extends BaseEntity {
   @Column()
   tokenId: number
 
-  @Column({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
-
   @Field(type => Number, {
     nullable: true,
     description: "The floor of the collection at the end of the range covered",

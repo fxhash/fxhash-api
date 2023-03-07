@@ -11,7 +11,6 @@ import {
   OneToOne,
   JoinColumn,
 } from "typeorm"
-import { TokenId } from "../Scalar/TokenId"
 import {
   GenerativeTokenVersion,
   GenMintProgressFilter,
@@ -67,13 +66,16 @@ registerEnumType(GentkTokPricing, {
     "A Generative Token is a project published by artist(s), responsible for generating unique iterations (gentk)",
 })
 export class GenerativeToken extends BaseEntity {
+  @Field({
+    description:
+      "The ID of the Generative Token, matches the blockchain storage",
+  })
   @PrimaryColumn()
-  @Filter(["in"], () => TokenId)
+  @Filter(["in"], () => Int)
   id: number
 
   // no need to expose the version to the API
   @Column({
-    primary: true,
     type: "enum",
     enum: GenerativeTokenVersion,
     enumName: "generative_token_version",

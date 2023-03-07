@@ -21,7 +21,6 @@ import {
   RelationId,
   JoinColumn,
 } from "typeorm"
-import { TokenId } from "../Scalar/TokenId"
 import {
   GenerativeTokenVersion,
   GenMintProgressFilter,
@@ -52,7 +51,10 @@ export class Objkt extends BaseEntity {
   @PrimaryColumn()
   id: number
 
-  // no need to expose the issuer version to the API
+  /**
+   * The version of the generator that created this gentk - PRE_V3 means before
+   * the params update ~20/03/2023.
+   */
   @Column({
     primary: true,
     type: "enum",
@@ -71,7 +73,7 @@ export class Objkt extends BaseEntity {
   slug?: string
 
   @ManyToOne(() => GenerativeToken, token => token.objkts)
-  @Filter(["in"], type => TokenId)
+  @Filter(["in"], type => Int)
   issuer?: GenerativeToken
 
   @Column({ nullable: false })

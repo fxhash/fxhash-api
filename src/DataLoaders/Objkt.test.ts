@@ -407,22 +407,14 @@ describe("Objkt dataloaders", () => {
       await objktFactory(1, GenerativeTokenVersion.V3, { tokenId: 1 })
 
       // create some redeemables with defined max consumptions
-      const redeemable = await redeemableFactory(
-        0,
-        GenerativeTokenVersion.PRE_V3,
-        {
-          address: "KT1",
-          maxConsumptionsPerToken: 10,
-        }
-      )
-      const redeemable2 = await redeemableFactory(
-        1,
-        GenerativeTokenVersion.V3,
-        {
-          address: "KT2",
-          maxConsumptionsPerToken: 10,
-        }
-      )
+      const redeemable = await redeemableFactory(0, {
+        address: "KT1",
+        maxConsumptionsPerToken: 10,
+      })
+      const redeemable2 = await redeemableFactory(1, {
+        address: "KT2",
+        maxConsumptionsPerToken: 10,
+      })
 
       // create some redemptions
       await redemptionFactory(0, GenerativeTokenVersion.PRE_V3, {

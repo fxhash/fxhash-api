@@ -1,11 +1,10 @@
-import { Brackets, SelectQueryBuilder } from "typeorm"
+import { Brackets } from "typeorm"
 import { ObjktsSortInput } from "../../Resolver/Arguments/Sort"
 import { searchIndexGenerative } from "../../Services/Search"
 import {
   processGentkFeatureFilters,
   processObjktFilters,
 } from "../../Utils/Filters"
-import { formatTokenIdTuples } from "../../Utils/GenerativeToken"
 import { TQueryFilter } from "./QueryFilter"
 
 interface ObjktFilters {
@@ -76,13 +75,8 @@ export const objktQueryFilter: TQueryFilter<
         hitsPerPage: 5000,
       }
     )
-    // extract the IDs and format those to have pairs of (id, version)
-    const ids = searchResults.hits.map(hit => hit.objectID.split("-"))
-    const formatted = ids.map(id => `(${id[0]}, '${id[1]}')`)
-    if (ids.length > 0) {
-      // filter the results by their (id, version) pair
-      query.andWhere(`(issuer.id, issuer.version) IN (${formatted})`)
-    }
+    const ids = searchResults.hits.map(hit => hit.objectID)
+    query.andWhere("issuer.id IN (:...issuerIds)", { issuerIds: ids })
 
     // if the sort option is relevance, we remove the sort arguments as the order
     // of the search results needs to be preserved
@@ -145,10 +139,9 @@ export const objktQueryFilter: TQueryFilter<
 
     // filter for some issuers only
     if (filters.issuer_in != null) {
-      // extract the ids and versions
-      const issuerIds = formatTokenIdTuples(filters.issuer_in)
-      // filter results by (id, version) pair
-      query.andWhere(`(issuer.id, issuer.version) IN (${issuerIds})`)
+      query.andWhere("issuer.id IN (:...issuerIdFilters)", {
+        issuerIdFilters: filters.issuer_in,
+      })
     }
 
     // if we only want the items with an offer
