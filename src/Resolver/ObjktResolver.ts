@@ -199,15 +199,15 @@ export class ObjktResolver {
       "Endpoint to query a single gentk, using different trivial search criteria (id, hash or slug).",
   })
   async objkt(
-    @Arg("id", { nullable: true }) { id, issuerVersion }: ObjktId,
+    @Arg("id", { nullable: true }) id: ObjktId,
     @Arg("hash", { nullable: true }) hash: string,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<Objkt | undefined> {
     if (id == null && hash == null && slug == null) return undefined
     let args: Record<string, any> = {}
     if (!(id == null)) {
-      args.id = id
-      args.issuerVersion = issuerVersion
+      args.id = id.id
+      args.issuerVersion = id.issuerVersion
     }
     if (!(hash == null)) args.generationHash = hash
     if (!(slug == null)) args.slug = slug
