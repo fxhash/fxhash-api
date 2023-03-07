@@ -13,10 +13,12 @@ import {
 import { Action } from "./Action"
 import { Article } from "./Article"
 import { ArticleLedger } from "./ArticleLedger"
+import { Codex } from "./Codex"
 import { Collaboration } from "./Collaboration"
 import { GenerativeToken } from "./GenerativeToken"
 import { Listing } from "./Listing"
 import { MediaImage } from "./MediaImage"
+import { MintTicket } from "./MintTicket"
 import { ModerationReason } from "./ModerationReason"
 import { Objkt } from "./Objkt"
 import { Offer } from "./Offer"
@@ -175,6 +177,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => GenerativeToken, token => token.author)
   generativeTokens: GenerativeToken[]
+
+  @OneToMany(() => Codex, codex => codex.author)
+  codexEntries: Codex[]
+
+  @OneToMany(() => MintTicket, mintTicket => mintTicket.owner)
+  mintTickets: MintTicket[]
 
   @OneToMany(() => Action, action => action.issuer)
   actionsAsIssuer: Action[]

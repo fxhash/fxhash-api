@@ -12,9 +12,12 @@ import {
   createGentkTokRedeemablesLoader,
   createGentkTokSecondarySplitsLoader,
   createGenTokArticleMentionsLoader,
+  createGenTokCodexLoader,
   createGenTokLoader,
   createGenTokMarketStatsHistoryLoader,
   createGenTokMarketStatsLoader,
+  createGenTokMintTicketSettingsLoader,
+  createGenTokMintTicketsLoader,
   createGenTokObjktFeaturesLoader,
   createGenTokObjktsCountLoader,
   createGenTokObjktsLoader,
@@ -31,7 +34,8 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
-  createObjktListingsLoader, createObjktMintedPriceLoader,
+  createObjktListingsLoader,
+  createObjktMintedPriceLoader,
   createObjktOffersLoader,
   createObjktRedemptionsLoader,
   createObjktRoyaltiesSplitsLoader,
@@ -96,6 +100,11 @@ export interface RequestContext extends ExpressRequest {
     typeof createGenTokArticleMentionsLoader
   >
   genTokRedeemablesLoader: ReturnType<typeof createGentkTokRedeemablesLoader>
+  genTokMintTicketSettingsLoader: ReturnType<
+    typeof createGenTokMintTicketSettingsLoader
+  >
+  genTokMintTicketsLoader: ReturnType<typeof createGenTokMintTicketsLoader>
+  genTokCodexLoader: ReturnType<typeof createGenTokCodexLoader>
 
   // OBJKTS loaders
   objktsLoader: ReturnType<typeof createObjktsLoader>
@@ -110,9 +119,7 @@ export interface RequestContext extends ExpressRequest {
   objktAvailableRedeemablesLoader: ReturnType<
     typeof createObjktAvailableRedeemablesLoader
   >
-  objktMintedPriceLoader: ReturnType<
-    typeof createObjktMintedPriceLoader
-  >
+  objktMintedPriceLoader: ReturnType<typeof createObjktMintedPriceLoader>
 
   // ARTICLES loaders
   articlesLoader: ReturnType<typeof createArticlesLoader>

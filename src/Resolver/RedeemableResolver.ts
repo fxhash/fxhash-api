@@ -11,6 +11,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
+import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 
@@ -55,7 +56,9 @@ export class RedeemableResolver {
   })
   async token(@Root() redeemable: Redeemable, @Ctx() ctx: RequestContext) {
     if (redeemable.token) return redeemable.token
-    return ctx.genTokLoader.load(redeemable.tokenId)
+    return ctx.genTokLoader.load(
+      new TokenId({ id: redeemable.tokenId, version: redeemable.tokenVersion })
+    )
   }
 
   @FieldResolver(() => [Redemption], {

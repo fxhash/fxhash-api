@@ -8,6 +8,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { GenerativeToken } from "./GenerativeToken"
 import { Objkt } from "./Objkt"
 import { Redeemable } from "./Redeemable"
@@ -41,6 +42,13 @@ export class Redemption extends BaseEntity {
 
   @Column()
   objktId: number
+
+  @Column({
+    type: "enum",
+    enum: GenerativeTokenVersion,
+    enumName: "generative_token_version",
+  })
+  objktIssuerVersion: GenerativeTokenVersion
 
   @ManyToOne(() => User, user => user.redemptions)
   redeemer: User

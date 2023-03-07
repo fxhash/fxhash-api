@@ -1,4 +1,6 @@
 import { GenerativeToken } from "../Entity/GenerativeToken"
+import { ObjktId } from "../Scalar/ObjktId"
+import { TokenId } from "../Scalar/TokenId"
 
 /**
  * Given a Generative Token (with loaded pricingFixed OR pricingDutchAuction),
@@ -6,7 +8,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
  * For pricing fixed, the price will be the constant, for pricing dutch auction
  * the price will be derived from the transaction time.
  */
- export function getGenerativeTokenPrice(token: GenerativeToken): number {
+export function getGenerativeTokenPrice(token: GenerativeToken): number {
   // if the token has a pricing fixed, we can just return this value
   if (token.pricingFixed) {
     return token.pricingFixed.price
@@ -20,7 +22,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
     // find the index of the level based on this time difference
     const index = Math.min(
       Math.floor(timeDiff / decrementDuration),
-      levels.length-1
+      levels.length - 1
     )
 
     // return corresponding level
@@ -29,3 +31,45 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
 
   throw new Error("something definitely went wrong")
 }
+
+/**
+ * Given a list of TokenIds, outputs a list of tuples of the form
+ * (id, version) that can be used in a SQL query.
+ */
+export const formatTokenIdTuples = (ids: readonly TokenId[]) =>
+  ids.map(({ id, version }) => `(${id}, '${version}')`)
+
+/**
+ * Given a list of TokenIds, outputs a SQL query that can be used to filter
+ * entities by their token ID and version.
+ */
+export const matchesEntityTokenIdAndVersion = (
+  ids: readonly TokenId[],
+  entityName: string,
+  idFieldName = "token",
+  versionFieldName = idFieldName
+) =>
+  `(${entityName}.${idFieldName}Id, ${entityName}.${versionFieldName}Version) IN (${formatTokenIdTuples(
+    ids
+  )})`
+
+/**
+ * Given a list of ObjktIds, outputs a list of tuples of the form
+ * (id, version) that can be used in a SQL query.
+ */
+export const formatObjktIdTuples = (ids: readonly ObjktId[]) =>
+  ids.map(({ id, issuerVersion }) => `(${id}, '${issuerVersion}')`)
+
+/**
+ * Given a list of ObjktIds, outputs a SQL query that can be used to filter
+ * entities by their objkt ID and issuerVersion.
+ */
+export const matchesEntityObjktIdAndIssuerVersion = (
+  ids: readonly ObjktId[],
+  entityName: string,
+  idFieldName = "objkt",
+  versionFieldName = idFieldName
+) =>
+  `(${entityName}.${idFieldName}Id, ${entityName}.${versionFieldName}IssuerVersion) IN (${formatObjktIdTuples(
+    ids
+  )})`
