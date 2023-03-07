@@ -71,12 +71,11 @@ export class GenerativeToken extends BaseEntity {
   @Filter(["in"], () => TokenId)
   id: number
 
-  @Field({
+  @Field(() => GenerativeTokenVersion, {
     description:
       "The version of the Generative Token - PRE_V3 = tokens minted before the fx(params) contract upgrade.",
   })
   @Column({
-    primary: true,
     type: "enum",
     enum: GenerativeTokenVersion,
     enumName: "generative_token_version",
