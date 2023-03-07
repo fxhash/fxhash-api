@@ -313,6 +313,13 @@ export class GenerativeToken extends BaseEntity {
   @Column()
   inputBytesSize: number = 0
 
+  @Field(() => String, {
+    description: "The fx(params) input bytes which produce the token preview",
+    nullable: true,
+  })
+  @Column({ type: "text", nullable: true })
+  previewInputBytes: string | null
+
   @OneToOne(
     () => MintTicketSettings,
     mintTicketSettings => mintTicketSettings.token,
