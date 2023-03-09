@@ -52,7 +52,7 @@ describe("OfferResolver", () => {
           query:
             "query TestQuery($id: ObjktId!) { objkt(id: $id) { offers { objkt { id }}}}",
           variables: {
-            id: "FX2-0",
+            id: "FX1-0",
           },
         })
 
@@ -62,7 +62,7 @@ describe("OfferResolver", () => {
               offers: [
                 {
                   objkt: {
-                    id: "FX2-0",
+                    id: "FX1-0",
                   },
                 },
               ],

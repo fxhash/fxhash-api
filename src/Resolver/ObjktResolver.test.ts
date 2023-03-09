@@ -59,10 +59,10 @@ describe("ObjktResolver", () => {
           data: {
             objkts: [
               {
-                id: "FX1-0",
+                id: "FX0-0",
               },
               {
-                id: "FX2-0",
+                id: "FX1-0",
               },
             ],
           },
