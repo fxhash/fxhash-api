@@ -108,6 +108,45 @@ export const generativeQueryFilter: TQueryFilter<
     }
   }
 
+  // add filter for fxparams projects
+  if (filters?.fxparams_eq != null) {
+    // filter the tokens with params
+    if (filters.fxparams_eq === true) {
+      query.andWhere({
+        inputBytesSize: MoreThan(0),
+      })
+    }
+    // filter the tokens without params
+    else if (filters.fxparams_eq === false) {
+      query.andWhere({
+        inputBytesSize: 0,
+      })
+    }
+  }
+
+  // add filter for redeemable projects
+  if (filters?.redeemable_eq != null) {
+    // filter the tokens with redeemables
+    if (filters.redeemable_eq === true) {
+      query.where(
+        'EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = token.id)'
+      )
+    }
+    // filter the tokens without redeemables
+    else if (filters.redeemable_eq === false) {
+      query.where(
+        'NOT EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = token.id)'
+      )
+    }
+  }
+
+  // add filter for labels
+  if (filters?.labels_in != null) {
+    query.andWhere(
+      `token.labels @> ARRAY['{${filters.labels_in.join(", ")}}'::smallint[]]`
+    )
+  }
+
   // filter for the field mint progress
   if (filters?.mintProgress_eq != null) {
     // if we want to filter all completed collections

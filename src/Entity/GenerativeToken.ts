@@ -212,6 +212,7 @@ export class GenerativeToken extends BaseEntity {
     array: true,
     default: [],
   })
+  @Filter(["in"], () => Int)
   labels: number[]
 
   @OneToOne(() => PricingFixed, pricing => pricing.token, {
@@ -388,6 +389,12 @@ export class GenerativeToken extends BaseEntity {
 
   @Filter(["eq"], type => Boolean)
   mintOpened: boolean
+
+  @Filter(["eq"], type => Boolean)
+  fxparams: boolean
+
+  @Filter(["eq"], type => Boolean)
+  redeemable: boolean
 }
 
 export const GenerativeFilters = generateFilterType(GenerativeToken)
