@@ -1,7 +1,6 @@
-import { Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql"
+import { Ctx, FieldResolver, Resolver, Root } from "type-graphql"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { MintTicketSettings } from "../Entity/MintTicketSettings"
-import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 
 @Resolver(MintTicketSettings)
@@ -11,11 +10,6 @@ export class MintTicketSettingsResolver {
     @Root() mintTicketSettings: MintTicketSettings,
     @Ctx() ctx: RequestContext
   ) {
-    return ctx.genTokLoader.load(
-      new TokenId({
-        id: mintTicketSettings.tokenId,
-        version: mintTicketSettings.tokenVersion,
-      })
-    )
+    return ctx.genTokLoader.load(mintTicketSettings.tokenId)
   }
 }

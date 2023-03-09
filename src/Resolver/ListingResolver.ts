@@ -17,7 +17,6 @@ import { searchIndexMarketplace } from "../Services/Search"
 import { EListingAssetType, FiltersListing, Listing } from "../Entity/Listing"
 import { ListingID } from "./Arguments/Listing"
 import { Article } from "../Entity/Article"
-import { TokenId } from "../Scalar/TokenId"
 import { ObjktId } from "../Scalar/ObjktId"
 
 @Resolver(Listing)

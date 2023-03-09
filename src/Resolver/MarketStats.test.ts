@@ -4,7 +4,6 @@ import { createTestServer } from "../tests/apollo"
 import { generativeTokenFactory, marketStatsFactory } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
-import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -37,15 +36,15 @@ describe("MarketStatsResolver", () => {
         await generativeTokenFactory(0, GenerativeTokenVersion.V3)
 
         // create market stats matching the generative token
-        await marketStatsFactory(0, GenerativeTokenVersion.V3)
+        await marketStatsFactory(0)
       })
 
       it("returns the correct objkt", async () => {
         const result = await testServer.executeOperation({
           query:
-            "query TestQuery($id: TokenId!) { generativeToken(id: $id) { marketStats { generativeToken { id }}}}",
+            "query TestQuery($id: Float!) { generativeToken(id: $id) { marketStats { generativeToken { id }}}}",
           variables: {
-            id: offsetV3TokenId(0),
+            id: 0,
           },
         })
 
@@ -54,7 +53,7 @@ describe("MarketStatsResolver", () => {
             generativeToken: {
               marketStats: {
                 generativeToken: {
-                  id: offsetV3TokenId(0),
+                  id: 0,
                 },
               },
             },

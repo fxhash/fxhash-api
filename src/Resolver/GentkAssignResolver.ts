@@ -1,7 +1,6 @@
 import { FieldResolver, Resolver, Root } from "type-graphql"
 import { GentkAssign } from "../Entity/GentkAssign"
 import { ObjktId } from "../Scalar/ObjktId"
-import { TokenId } from "../Scalar/TokenId"
 
 @Resolver(GentkAssign)
 export class GentkAssignResolver {

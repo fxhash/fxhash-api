@@ -7,7 +7,6 @@ import {
   OneToMany,
   PrimaryColumn,
 } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
 
@@ -33,13 +32,6 @@ export class ArticleGenerativeToken extends BaseEntity {
   @Index()
   @PrimaryColumn()
   generativeTokenId: number
-
-  @PrimaryColumn({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  generativeTokenVersion: GenerativeTokenVersion
 
   @Field({
     description:

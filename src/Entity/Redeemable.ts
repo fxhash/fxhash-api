@@ -7,7 +7,6 @@ import {
   OneToMany,
   PrimaryColumn,
 } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { Action } from "./Action"
 import { GenerativeToken } from "./GenerativeToken"
 import { Redemption } from "./Redemption"
@@ -35,13 +34,6 @@ export class Redeemable extends BaseEntity {
 
   @Column()
   tokenId: number
-
-  @Column({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
 
   @Field({
     description: "The base price to redeem an asset, **in mutez**.",

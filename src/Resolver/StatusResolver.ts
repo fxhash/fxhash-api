@@ -2,7 +2,6 @@ import { Arg, Field, Int, ObjectType, Query, Resolver } from "type-graphql"
 import { AssignationState, GentkAssign } from "../Entity/GentkAssign"
 import { IndexingCursor } from "../Entity/IndexingCursor"
 import { ObjktId } from "../Scalar/ObjktId"
-import { TokenId } from "../Scalar/TokenId"
 
 @ObjectType({
   description: "An abstraction to query different status metrics.",

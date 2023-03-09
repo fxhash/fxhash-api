@@ -33,11 +33,8 @@ import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
-import { TokenId } from "../Scalar/TokenId"
-import { searchIndexGenerative } from "../Services/Search"
 import { RequestContext } from "../types/RequestContext"
-import { processFilters, processGenerativeFilters } from "../Utils/Filters"
-import { getGenerativeTokenPrice } from "../Utils/GenerativeToken"
+import { processFilters } from "../Utils/Filters"
 import { FeatureFilter } from "./Arguments/Filter"
 import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
@@ -52,18 +49,17 @@ import {
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
-  @FieldResolver(returns => TokenId, {
-    description: "The unique identifier of the token.",
-  })
-  id(@Root() token: GenerativeToken) {
-    return new TokenId(token)
-  }
-
   @FieldResolver(returns => Codex, {
     description: "The Codex of the token.",
   })
   codex(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
-    return token.codex || ctx.genTokCodexLoader.load(new TokenId(token))
+    return (
+      token.codex ||
+      ctx.genTokCodexLoader.load({
+        id: token.id,
+        version: token.version,
+      })
+    )
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -90,7 +86,7 @@ export class GenTokenResolver {
     // we parse the feature filters
     if (token.objkts) return token.objkts
     return ctx.genTokObjktsLoader.load({
-      ...new TokenId(token),
+      id: token.id,
       filters,
       featureFilters,
       sort,
@@ -119,7 +115,7 @@ export class GenTokenResolver {
     @Ctx() ctx: RequestContext
   ) {
     if (token.objkts) return token.objkts
-    return ctx.genTokObjktsLoader.load(new TokenId(token))
+    return ctx.genTokObjktsLoader.load(token.id)
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -141,7 +137,7 @@ export class GenTokenResolver {
     }
     if (token.objkts) return token.objkts
     return ctx.genTokObjktsLoader.load({
-      ...new TokenId(token),
+      id: token.id,
       filters,
       sort,
       skip,
@@ -167,7 +163,7 @@ export class GenTokenResolver {
     }
 
     return ctx.genTokOffersLoader.load({
-      ...new TokenId(token),
+      id: token.id,
       filters: filters,
       sort: sort,
     })
@@ -189,10 +185,7 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return (
-      token.pricingFixed ||
-      ctx.gentkTokPricingFixedLoader.load(new TokenId(token))
-    )
+    return token.pricingFixed || ctx.gentkTokPricingFixedLoader.load(token.id)
   }
 
   @FieldResolver(returns => PricingDutchAuction, {
@@ -206,7 +199,7 @@ export class GenTokenResolver {
   ) {
     return (
       token.pricingDutchAuction ||
-      ctx.gentkTokPricingDutchAuctionLoader.load(new TokenId(token))
+      ctx.gentkTokPricingDutchAuctionLoader.load(token.id)
     )
   }
 
@@ -217,7 +210,7 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return ctx.gentTokSplitsPrimaryLoader.load(new TokenId(token))
+    return ctx.gentTokSplitsPrimaryLoader.load(token.id)
   }
 
   @FieldResolver(returns => [Split], {
@@ -227,7 +220,7 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return ctx.gentTokSplitsSecondaryLoader.load(new TokenId(token))
+    return ctx.gentTokSplitsSecondaryLoader.load(token.id)
   }
 
   @FieldResolver(returns => [Reserve], {
@@ -235,7 +228,7 @@ export class GenTokenResolver {
       "The reserves of the Generative Token. Artists can define reserves to control the distribution of their tokens.",
   })
   reserves(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
-    return ctx.genTokReservesLoader.load(new TokenId(token))
+    return ctx.genTokReservesLoader.load(token.id)
   }
 
   @FieldResolver(returns => Number, {
@@ -245,7 +238,7 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return ctx.genTokObjktsCountLoader.load(new TokenId(token))
+    return ctx.genTokObjktsCountLoader.load(token.id)
   }
 
   @FieldResolver(() => [Redeemable], {
@@ -257,7 +250,7 @@ export class GenTokenResolver {
     @Ctx() ctx: RequestContext
   ) {
     if (token.redeemables) return token.redeemables
-    return ctx.genTokRedeemablesLoader.load(new TokenId(token))
+    return ctx.genTokRedeemablesLoader.load(token.id)
   }
 
   @FieldResolver(returns => [Report], {
@@ -265,7 +258,7 @@ export class GenTokenResolver {
   })
   reports(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
     if (token.reports) return token.reports
-    return ctx.genTokReportsLoader.load(new TokenId(token))
+    return ctx.genTokReportsLoader.load(token.id)
   }
 
   @FieldResolver(returns => User, {
@@ -300,7 +293,7 @@ export class GenTokenResolver {
     query.where(processFilters(filters))
 
     // add the filters to target the token only
-    query.andWhere("action.tokenId = :id AND action.tokenVersion = :version", {
+    query.andWhere("action.tokenId = :id", {
       id: token.id,
       version: token.version,
     })
@@ -327,7 +320,7 @@ export class GenTokenResolver {
     @Ctx() ctx: RequestContext
   ): Promise<MarketStats> {
     if (token.marketStats) return token.marketStats
-    return ctx.genTokMarketStatsLoader.load(new TokenId(token))
+    return ctx.genTokMarketStatsLoader.load(token.id)
   }
 
   @FieldResolver(returns => [MarketStatsHistory], {
@@ -340,7 +333,7 @@ export class GenTokenResolver {
     @Arg("filters", { nullable: false }) filters: MarketStatsHistoryInput
   ) {
     return ctx.genTokMarketStatsHistoryLoader.load({
-      ...new TokenId(token),
+      id: token.id,
       from: filters.from,
       to: filters.to,
     })
@@ -352,7 +345,7 @@ export class GenTokenResolver {
       "**[HEAVY - please no abuse]** Returns a list of the different features and their possible values",
   })
   async features(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
-    return ctx.genTokObjktFeaturesLoader.load(new TokenId(token))
+    return ctx.genTokObjktFeaturesLoader.load(token.id)
   }
 
   @FieldResolver(returns => [ArticleGenerativeToken], {
@@ -362,7 +355,7 @@ export class GenTokenResolver {
     @Root() token: GenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return ctx.genTokArticleMentionsLoader.load(new TokenId(token))
+    return ctx.genTokArticleMentionsLoader.load(token.id)
   }
 
   @FieldResolver(returns => String, {
@@ -414,7 +407,7 @@ export class GenTokenResolver {
       "Get a Generative Token by its ID or SLUG. One of those 2 must be provided for the endpoint to perform a search in the DB.",
   })
   async generativeToken(
-    @Arg("id", { nullable: true }) id: TokenId,
+    @Arg("id", { nullable: true }) id: number,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<GenerativeToken | undefined> {
     if (id == null && slug == null) {
@@ -472,7 +465,7 @@ export class GenTokenResolver {
     // if the token doesn't have an inputBytesSize, it won't have mint tickets
     if (!token.inputBytesSize) return null
     if (token.mintTicketSettings) return token.mintTicketSettings
-    return ctx.genTokMintTicketSettingsLoader.load(new TokenId(token))
+    return ctx.genTokMintTicketSettingsLoader.load(token.id)
   }
 
   @FieldResolver(returns => [MintTicket], {
@@ -497,7 +490,7 @@ export class GenTokenResolver {
     ;[skip, take] = useDefaultValues([skip, take], [0, 20])
 
     return ctx.genTokMintTicketsLoader.load({
-      ...new TokenId(token),
+      id: token.id,
       filters,
       sort,
       skip,

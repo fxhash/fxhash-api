@@ -1,6 +1,5 @@
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { ObjktId } from "../Scalar/ObjktId"
-import { TokenId } from "../Scalar/TokenId"
 
 /**
  * Given a Generative Token (with loaded pricingFixed OR pricingDutchAuction),
@@ -31,45 +30,3 @@ export function getGenerativeTokenPrice(token: GenerativeToken): number {
 
   throw new Error("something definitely went wrong")
 }
-
-/**
- * Given a list of TokenIds, outputs a list of tuples of the form
- * (id, version) that can be used in a SQL query.
- */
-export const formatTokenIdTuples = (ids: readonly TokenId[]) =>
-  ids.map(({ id, version }) => `(${id}, '${version}')`)
-
-/**
- * Given a list of TokenIds, outputs a SQL query that can be used to filter
- * entities by their token ID and version.
- */
-export const matchesEntityTokenIdAndVersion = (
-  ids: readonly TokenId[],
-  entityName: string,
-  idFieldName = "token",
-  versionFieldName = idFieldName
-) =>
-  `(${entityName}.${idFieldName}Id, ${entityName}.${versionFieldName}Version) IN (${formatTokenIdTuples(
-    ids
-  )})`
-
-/**
- * Given a list of ObjktIds, outputs a list of tuples of the form
- * (id, version) that can be used in a SQL query.
- */
-export const formatObjktIdTuples = (ids: readonly ObjktId[]) =>
-  ids.map(({ id, issuerVersion }) => `(${id}, '${issuerVersion}')`)
-
-/**
- * Given a list of ObjktIds, outputs a SQL query that can be used to filter
- * entities by their objkt ID and issuerVersion.
- */
-export const matchesEntityObjktIdAndIssuerVersion = (
-  ids: readonly ObjktId[],
-  entityName: string,
-  idFieldName = "objkt",
-  versionFieldName = idFieldName
-) =>
-  `(${entityName}.${idFieldName}Id, ${entityName}.${versionFieldName}IssuerVersion) IN (${formatObjktIdTuples(
-    ids
-  )})`

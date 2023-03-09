@@ -102,13 +102,6 @@ export class Action extends BaseEntity {
   @Column()
   tokenId: number
 
-  @Column({
-    type: "enum",
-    enumName: "generative_token_version",
-    enum: GenerativeTokenVersion,
-  })
-  tokenVersion: GenerativeTokenVersion
-
   @ManyToOne(() => Objkt, token => token.actions)
   objkt?: Objkt
 
