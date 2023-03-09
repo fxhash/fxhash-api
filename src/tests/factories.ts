@@ -37,9 +37,11 @@ export const generativeTokenFactory = async (
   generativeToken.supply = config.supply || 0
   generativeToken.mintOpensAt = new Date()
   generativeToken.createdAt = new Date().toISOString()
+  generativeToken.inputBytesSize = config.inputBytesSize || 0
   generativeToken.codexId =
     config.codexId || (await codexFactory(0, { tokenVersion: version })).id
   generativeToken.authorId = config.authorId || null
+  generativeToken.labels = config.labels || []
   await generativeToken.save()
   return generativeToken
 }
