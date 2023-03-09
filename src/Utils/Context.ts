@@ -56,6 +56,7 @@ import {
   createUsersOffersReceivedLoader,
   createUsersArticlesLoader,
   createUsersArticleLedgersLoader,
+  createUsersMintTicketsLoader,
 } from "../DataLoaders/User"
 import { RequestContext } from "../types/RequestContext"
 
@@ -67,6 +68,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     // USER loaders
     usersLoader: createUsersLoader(),
     userObjktsLoader: createUsersObjktLoader(),
+    userMintTicketsLoader: createUsersMintTicketsLoader(),
     userOffersSentLoader: createUsersOffersSentLoader(),
     userOffersReceivedLoader: createUsersOffersReceivedLoader(),
     userCollabContractsLoader: createUsersCollabContractsLoader(),

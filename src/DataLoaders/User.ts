@@ -13,6 +13,7 @@ import { articleQueryFilter } from "../Query/Filters/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
 import { matchesEntityTokenIdAndVersion } from "../Utils/GenerativeToken"
 import { TokenId } from "../Scalar/TokenId"
+import { MintTicket } from "../Entity/MintTicket"
 
 /**
  * Given a list of user IDs, resolves with an array of Users matching those
@@ -92,6 +93,26 @@ const batchUsersObjkt = async userIds => {
   )
 }
 export const createUsersObjktLoader = () => new DataLoader(batchUsersObjkt)
+
+/**
+ * Given a list of users, outputs a list of the mint tickets they own
+ */
+const batchUsersMintTickets = async userIds => {
+  const mintTickets = await MintTicket.find({
+    relations: ["owner"],
+    where: {
+      ownerId: In(userIds),
+    },
+    order: {
+      id: "DESC",
+    },
+  })
+  return userIds.map((id: string) =>
+    mintTickets.filter(mintTicket => mintTicket.owner?.id === id)
+  )
+}
+export const createUsersMintTicketsLoader = () =>
+  new DataLoader(batchUsersMintTickets)
 
 /**
  * Given a list of user IDs, returns a list of offers

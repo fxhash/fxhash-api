@@ -4,6 +4,7 @@ import {
   actionFactory,
   generativeTokenFactory,
   marketStatsFactory,
+  mintTicketFactory,
   userFactory,
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
@@ -11,6 +12,7 @@ import { createConnection } from "../createConnection"
 import { createMarketStatsGenTokLoader } from "./MarketStats"
 import {
   createUsersGenerativeTokensLoader,
+  createUsersMintTicketsLoader,
   createUsersSalesLoader,
 } from "./User"
 import { TokenActionType } from "../Entity/Action"
@@ -29,6 +31,7 @@ afterAll(() => {
 })
 
 const cleanup = async () => {
+  await manager.query("DELETE FROM mint_ticket")
   await manager.query("DELETE FROM generative_token")
 }
 
@@ -133,6 +136,42 @@ describe("User dataloaders", () => {
             expect.objectContaining({
               tokenId: 0,
               tokenVersion: "PRE_V3",
+            }),
+          ],
+        ])
+      )
+    })
+  })
+
+  describe("createUsersMintTicketsLoader", () => {
+    beforeAll(async () => {
+      dataloader = createUsersMintTicketsLoader()
+
+      // create some users
+      const user = await userFactory("tz1")
+      const user2 = await userFactory("tz2")
+
+      // create a token
+      await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+      await generativeTokenFactory(1, GenerativeTokenVersion.PRE_V3)
+
+      // create some mint tickets
+      await mintTicketFactory(0, 0, { ownerId: user.id })
+      await mintTicketFactory(1, 0, { ownerId: user.id })
+      await mintTicketFactory(2, 1, { ownerId: user2.id })
+    })
+
+    it("should return the correct mint tickets", async () => {
+      const result = await dataloader.loadMany(["tz1"])
+      expect(result).toHaveLength(1)
+      expect(result).toEqual(
+        expect.arrayContaining([
+          [
+            expect.objectContaining({
+              id: 1,
+            }),
+            expect.objectContaining({
+              id: 0,
             }),
           ],
         ])
