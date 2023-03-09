@@ -163,6 +163,13 @@ export class Objkt extends BaseEntity {
   @Column({ type: "jsonb", nullable: true })
   features?: TokenFeature[]
 
+  @Field(() => String, {
+    description: "The fx(params) input bytes for the token",
+    nullable: true,
+  })
+  @Column({ type: "text", nullable: true })
+  inputBytes: string | null
+
   @Field(() => Number, {
     nullable: true,
     description:

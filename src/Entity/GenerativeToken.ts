@@ -74,7 +74,10 @@ export class GenerativeToken extends BaseEntity {
   @Filter(["in"], () => Int)
   id: number
 
-  // no need to expose the version to the API
+  @Field(() => GenerativeTokenVersion, {
+    description:
+      "The version of the Generative Token - PRE_V3 = tokens minted before the fx(params) contract upgrade.",
+  })
   @Column({
     type: "enum",
     enum: GenerativeTokenVersion,
@@ -312,6 +315,13 @@ export class GenerativeToken extends BaseEntity {
   })
   @Column()
   inputBytesSize: number = 0
+
+  @Field(() => String, {
+    description: "The fx(params) input bytes which produce the token preview",
+    nullable: true,
+  })
+  @Column({ type: "text", nullable: true })
+  previewInputBytes: string | null
 
   @OneToOne(
     () => MintTicketSettings,

@@ -2,8 +2,8 @@ import { GraphQLScalarType, Kind } from "graphql"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 
 const serializedVersionMap = {
-  FX1: GenerativeTokenVersion.PRE_V3,
-  FX2: GenerativeTokenVersion.V3,
+  FX0: GenerativeTokenVersion.PRE_V3,
+  FX1: GenerativeTokenVersion.V3,
 }
 
 /**
@@ -42,8 +42,8 @@ export class ObjktId {
    */
   serialize(): string {
     const prefix = (() => {
-      if (this.issuerVersion === GenerativeTokenVersion.PRE_V3) return "FX1-"
-      if (this.issuerVersion === GenerativeTokenVersion.V3) return "FX2-"
+      if (this.issuerVersion === GenerativeTokenVersion.PRE_V3) return "FX0-"
+      if (this.issuerVersion === GenerativeTokenVersion.V3) return "FX1-"
       throw new Error(
         `cannot serialize objkt id (version ${this.issuerVersion} not implemented)`
       )
