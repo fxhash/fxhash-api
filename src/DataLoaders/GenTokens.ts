@@ -41,7 +41,7 @@ export const createGenTokLoader = () => new DataLoader(batchGenTokens)
  */
 const batchGenTokObjkt = async genIds => {
   // extract the IDs from the params
-  const ids = genIds.map(id => id)
+  const ids = genIds.map(({ id }) => id)
 
   // extract the filters from the params
   const filters = genIds[0].filters
@@ -390,7 +390,7 @@ export const createGenTokMintTicketSettingsLoader = () =>
  */
 const batchGenTokMintTicket = async genIds => {
   // extract the IDs from the params
-  const ids = genIds.map(id => id)
+  const ids = genIds.map(({ id }) => id)
 
   // extract the filters from the params
   const filters = genIds[0].filters
