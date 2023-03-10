@@ -43,6 +43,7 @@ import { objktQueryFilter } from "../Query/Filters/Objkt"
 import { Article, ArticleFilters } from "../Entity/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
 import { MediaImage } from "../Entity/MediaImage"
+import { MintTicket } from "../Entity/MintTicket"
 
 @Resolver(User)
 export class UserResolver {
@@ -138,6 +139,13 @@ export class UserResolver {
   })
   entireCollection(@Root() user: User, @Ctx() ctx: RequestContext) {
     return ctx.userObjktsLoader.load(user.id)
+  }
+
+  @FieldResolver(returns => [MintTicket], {
+    description: "Returns mint tickets owned by the user, in token ID order",
+  })
+  mintTickets(@Root() user: User, @Ctx() ctx: RequestContext) {
+    return ctx.userMintTicketsLoader.load(user.id)
   }
 
   @FieldResolver(returns => [User], {
