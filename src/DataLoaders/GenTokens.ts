@@ -408,13 +408,7 @@ const batchGenTokMintTicket = async genIds => {
     .where("mintTicket.tokenId IN(:...ids)", { ids })
 
   // we apply the filters and the sort arguments
-  query = await mintTicketQueryFilter(
-    query,
-    {
-      general: filters,
-    },
-    sorts
-  )
+  query = await mintTicketQueryFilter(query, filters, sorts)
 
   // pagination
   if (take !== null && take !== undefined) {
