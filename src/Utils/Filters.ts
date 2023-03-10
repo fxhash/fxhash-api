@@ -129,7 +129,6 @@ export const processObjktFilters = (filters: any) => {
 
 const mintTicketFiltersDbFields: (keyof MintTicket)[] = [
   "createdAt",
-  "owner",
   "price",
   "taxationLocked",
   "taxationStart",
