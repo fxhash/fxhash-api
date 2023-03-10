@@ -172,7 +172,7 @@ describe("GenTokenResolver", () => {
             data: {
               generativeTokens: [
                 {
-                  id: offsetV3TokenId(1),
+                  id: 1,
                 },
               ],
             },
@@ -203,7 +203,7 @@ describe("GenTokenResolver", () => {
             data: {
               generativeTokens: [
                 {
-                  id: offsetV3TokenId(0),
+                  id: 0,
                 },
               ],
             },
@@ -223,7 +223,7 @@ describe("GenTokenResolver", () => {
 
         // create a token with a redeemable
         await generativeTokenFactory(1, GenerativeTokenVersion.V3)
-        await redeemableFactory(1, GenerativeTokenVersion.V3)
+        await redeemableFactory(1)
 
         result = await testServer.executeOperation({
           query:
@@ -237,7 +237,7 @@ describe("GenTokenResolver", () => {
           data: {
             generativeTokens: [
               {
-                id: offsetV3TokenId(1),
+                id: 1,
               },
             ],
           },
@@ -252,7 +252,7 @@ describe("GenTokenResolver", () => {
 
         // create a token with a redeemable
         await generativeTokenFactory(1, GenerativeTokenVersion.V3)
-        await redeemableFactory(1, GenerativeTokenVersion.V3)
+        await redeemableFactory(1)
 
         result = await testServer.executeOperation({
           query:
@@ -266,7 +266,7 @@ describe("GenTokenResolver", () => {
           data: {
             generativeTokens: [
               {
-                id: offsetV3TokenId(0),
+                id: 0,
               },
             ],
           },
@@ -303,10 +303,10 @@ describe("GenTokenResolver", () => {
         data: {
           generativeTokens: [
             {
-              id: offsetV3TokenId(3),
+              id: 3,
             },
             {
-              id: offsetV3TokenId(2),
+              id: 2,
             },
             {
               id: 1,
