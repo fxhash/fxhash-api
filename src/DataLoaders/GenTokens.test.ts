@@ -108,7 +108,7 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct objkts", async () => {
-      const result = await dataloader.loadMany([0, 1])
+      const result = await dataloader.loadMany([{ id: 0 }, { id: 1 }])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
@@ -576,7 +576,7 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct mint ticket settings", async () => {
-      const result = await dataloader.loadMany([0, 1])
+      const result = await dataloader.loadMany([{ id: 0 }, { id: 1 }])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         {

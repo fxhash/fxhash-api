@@ -1,7 +1,11 @@
 import { ApolloServer } from "apollo-server"
 import { Connection, EntityManager } from "typeorm"
 import { createTestServer } from "../tests/apollo"
-import { actionFactory, generativeTokenFactory } from "../tests/factories"
+import {
+  actionFactory,
+  generativeTokenFactory,
+  redeemableFactory,
+} from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
 
@@ -22,6 +26,7 @@ afterAll(() => {
 })
 
 const cleanup = async () => {
+  await manager.query("DELETE FROM redeemable")
   await manager.query("DELETE FROM generative_token")
   await manager.query("DELETE FROM codex")
   await manager.query("DELETE FROM action")
@@ -138,6 +143,176 @@ describe("GenTokenResolver", () => {
             ],
           },
         })
+      })
+    })
+
+    describe("filtering by fxparams", () => {
+      let result
+
+      describe("when fxparams is true", () => {
+        beforeAll(async () => {
+          // create a token without params
+          await generativeTokenFactory(0, GenerativeTokenVersion.V3, {
+            inputBytesSize: 0,
+          })
+          // create a token with params
+          await generativeTokenFactory(1, GenerativeTokenVersion.V3, {
+            inputBytesSize: 7,
+          })
+
+          result = await testServer.executeOperation({
+            query:
+              "query TestQuery { generativeTokens(filters: { fxparams_eq: true }) { id } }",
+            variables: {},
+          })
+        })
+
+        it("returns the correct generative tokens", () => {
+          expect(result).toMatchObject({
+            data: {
+              generativeTokens: [
+                {
+                  id: 1,
+                },
+              ],
+            },
+          })
+        })
+      })
+
+      describe("when fxparams is false", () => {
+        beforeAll(async () => {
+          // create a token without params
+          await generativeTokenFactory(0, GenerativeTokenVersion.V3, {
+            inputBytesSize: 0,
+          })
+          // create a token with params
+          await generativeTokenFactory(1, GenerativeTokenVersion.V3, {
+            inputBytesSize: 7,
+          })
+
+          result = await testServer.executeOperation({
+            query:
+              "query TestQuery { generativeTokens(filters: { fxparams_eq: false }) { id } }",
+            variables: {},
+          })
+        })
+
+        it("returns the correct generative tokens", () => {
+          expect(result).toMatchObject({
+            data: {
+              generativeTokens: [
+                {
+                  id: 0,
+                },
+              ],
+            },
+          })
+        })
+      })
+    })
+  })
+
+  describe("filtering by redeemable", () => {
+    let result
+
+    describe("when redeemable is true", () => {
+      beforeAll(async () => {
+        // create a normal token
+        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
+
+        // create a token with a redeemable
+        await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+        await redeemableFactory(1)
+
+        result = await testServer.executeOperation({
+          query:
+            "query TestQuery { generativeTokens(filters: { redeemable_eq: true }) { id } }",
+          variables: {},
+        })
+      })
+
+      it("returns the correct generative tokens", () => {
+        expect(result).toMatchObject({
+          data: {
+            generativeTokens: [
+              {
+                id: 1,
+              },
+            ],
+          },
+        })
+      })
+    })
+
+    describe("when redeemable is false", () => {
+      beforeAll(async () => {
+        // create a normal token
+        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
+
+        // create a token with a redeemable
+        await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+        await redeemableFactory(1)
+
+        result = await testServer.executeOperation({
+          query:
+            "query TestQuery { generativeTokens(filters: { redeemable_eq: false }) { id } }",
+          variables: {},
+        })
+      })
+
+      it("returns the correct generative tokens", () => {
+        expect(result).toMatchObject({
+          data: {
+            generativeTokens: [
+              {
+                id: 0,
+              },
+            ],
+          },
+        })
+      })
+    })
+  })
+
+  describe("filtering by labels", () => {
+    let result
+
+    beforeAll(async () => {
+      await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+      await generativeTokenFactory(1, GenerativeTokenVersion.PRE_V3, {
+        labels: [1, 2],
+      })
+      await generativeTokenFactory(2, GenerativeTokenVersion.V3, {
+        labels: [1],
+      })
+      await generativeTokenFactory(3, GenerativeTokenVersion.V3, {
+        labels: [1, 3],
+      })
+
+      result = await testServer.executeOperation({
+        query:
+          "query TestQuery($labels: [Int!]) { generativeTokens(filters: { labels_in: $labels }) { id } }",
+        variables: { labels: [1] },
+      })
+    })
+
+    it("returns the correct generative tokens", () => {
+      console.log(result)
+      expect(result).toMatchObject({
+        data: {
+          generativeTokens: [
+            {
+              id: 3,
+            },
+            {
+              id: 2,
+            },
+            {
+              id: 1,
+            },
+          ],
+        },
       })
     })
   })

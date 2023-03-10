@@ -52,14 +52,14 @@ describe("GentkAssignResolver", () => {
           query:
             "query TestQuery($id: ObjktId!) { statusGentkAssignation(id: $id) { gentkId } }",
           variables: {
-            id: "FX2-0",
+            id: "FX1-0",
           },
         })
 
         expect(result).toMatchObject({
           data: {
             statusGentkAssignation: {
-              gentkId: "FX2-0",
+              gentkId: "FX1-0",
             },
           },
         })

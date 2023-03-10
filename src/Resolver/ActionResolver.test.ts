@@ -99,7 +99,7 @@ describe("ActionResolver", () => {
             actions: [
               {
                 objkt: {
-                  id: "FX2-0",
+                  id: "FX1-0",
                 },
               },
             ],

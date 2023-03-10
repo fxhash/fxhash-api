@@ -17,6 +17,12 @@ export const mintTicketQueryFilter: TQueryFilter<
     query.andWhere(filter)
   }
 
+  if (filters?.owner_eq) {
+    query.andWhere(`mintTicket.ownerId = :ownerId`, {
+      ownerId: filters.owner_eq,
+    })
+  }
+
   // add the sort arguments
   if (sort) {
     for (const field in sort) {
