@@ -3,15 +3,11 @@ import {
   Entity,
   Column,
   PrimaryColumn,
-  UpdateDateColumn,
   BaseEntity,
   OneToOne,
   JoinColumn,
-  RelationId,
 } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { GenerativeToken } from "./GenerativeToken"
-import { DateTransformer } from "./Transformers/DateTransformer"
 
 @Entity()
 @ObjectType({
@@ -21,13 +17,6 @@ import { DateTransformer } from "./Transformers/DateTransformer"
 export class MarketStats extends BaseEntity {
   @PrimaryColumn()
   tokenId: number
-
-  @PrimaryColumn({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
 
   @OneToOne(() => GenerativeToken)
   @JoinColumn()

@@ -48,7 +48,7 @@ describe("ObjktResolver", () => {
 
         result = await testServer.executeOperation({
           query:
-            "query TestQuery($ids: [TokenId!]!) { objkts(filters: { issuer_in: $ids }) { id } }",
+            "query TestQuery($ids: [Int!]!) { objkts(filters: { issuer_in: $ids }) { id } }",
           // use mix of legacy and v3 ids
           variables: { ids: [0, 26000] },
         })

@@ -70,8 +70,8 @@ afterEach(cleanup)
 
 const seedTokens = async () => {
   await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
-  await generativeTokenFactory(0, GenerativeTokenVersion.V3)
   await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+  await generativeTokenFactory(2, GenerativeTokenVersion.V3)
 }
 
 describe("GenTokens dataloaders", () => {
@@ -84,10 +84,7 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct generative tokens", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
@@ -111,21 +108,18 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct objkts", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
           expect.arrayContaining([
             expect.objectContaining({
-              id: 0,
+              id: 1,
               issuerId: 0,
               issuerVersion: "PRE_V3",
             }),
             expect.objectContaining({
-              id: 1,
+              id: 0,
               issuerId: 0,
               issuerVersion: "PRE_V3",
             }),
@@ -155,13 +149,9 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct objkts counts", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 0, version: "V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1, 2])
       expect(result).toHaveLength(3)
-      expect(result).toEqual(expect.arrayContaining([2, 0, 1]))
+      expect(result).toEqual(expect.arrayContaining([2, 1, 0]))
     })
   })
 
@@ -178,15 +168,12 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct pricings", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ tokenId: 0, tokenVersion: "PRE_V3" }),
-          expect.objectContaining({ tokenId: 1, tokenVersion: "V3" }),
+          expect.objectContaining({ tokenId: 0 }),
+          expect.objectContaining({ tokenId: 1 }),
         ])
       )
     })
@@ -205,15 +192,12 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct pricings", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ tokenId: 0, tokenVersion: "PRE_V3" }),
-          expect.objectContaining({ tokenId: 1, tokenVersion: "V3" }),
+          expect.objectContaining({ tokenId: 0 }),
+          expect.objectContaining({ tokenId: 1 }),
         ])
       )
     })
@@ -232,23 +216,18 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct splits", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
           expect.arrayContaining([
             expect.objectContaining({
               generativeTokenPrimaryId: 0,
-              generativeTokenPrimaryVersion: "PRE_V3",
             }),
           ]),
           expect.arrayContaining([
             expect.objectContaining({
               generativeTokenPrimaryId: 1,
-              generativeTokenPrimaryVersion: "V3",
             }),
           ]),
         ])
@@ -269,23 +248,18 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct splits", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
           expect.arrayContaining([
             expect.objectContaining({
               generativeTokenSecondaryId: 0,
-              generativeTokenSecondaryVersion: "PRE_V3",
             }),
           ]),
           expect.arrayContaining([
             expect.objectContaining({
               generativeTokenSecondaryId: 1,
-              generativeTokenSecondaryVersion: "V3",
             }),
           ]),
         ])
@@ -302,15 +276,12 @@ describe("GenTokens dataloaders", () => {
       // create some article mentions
       await articleFactory(0)
       await articleMentionFactory(0, 0, GenerativeTokenVersion.PRE_V3)
-      await articleMentionFactory(0, 0, GenerativeTokenVersion.V3)
       await articleMentionFactory(0, 1, GenerativeTokenVersion.V3)
+      await articleMentionFactory(0, 2, GenerativeTokenVersion.V3)
     })
 
     it("should return the correct article mentions", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
@@ -318,14 +289,12 @@ describe("GenTokens dataloaders", () => {
             expect.objectContaining({
               articleId: 0,
               generativeTokenId: 0,
-              generativeTokenVersion: "PRE_V3",
             }),
           ]),
           expect.arrayContaining([
             expect.objectContaining({
               articleId: 0,
               generativeTokenId: 1,
-              generativeTokenVersion: "V3",
             }),
           ]),
         ])
@@ -342,36 +311,28 @@ describe("GenTokens dataloaders", () => {
       // create some reports
       await reportFactory({
         tokenId: 0,
-        tokenVersion: GenerativeTokenVersion.PRE_V3,
-      })
-      await reportFactory({
-        tokenId: 0,
-        tokenVersion: GenerativeTokenVersion.V3,
       })
       await reportFactory({
         tokenId: 1,
-        tokenVersion: GenerativeTokenVersion.V3,
+      })
+      await reportFactory({
+        tokenId: 2,
       })
     })
 
     it("should return the correct reports", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
           expect.arrayContaining([
             expect.objectContaining({
               tokenId: 0,
-              tokenVersion: "PRE_V3",
             }),
           ]),
           expect.arrayContaining([
             expect.objectContaining({
               tokenId: 1,
-              tokenVersion: "V3",
             }),
           ]),
         ])
@@ -386,26 +347,21 @@ describe("GenTokens dataloaders", () => {
       await seedTokens()
 
       // create some market stats
-      await marketStatsFactory(0, GenerativeTokenVersion.PRE_V3)
       await marketStatsFactory(0)
       await marketStatsFactory(1)
+      await marketStatsFactory(2)
     })
 
     it("should return the correct market stats", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             tokenId: 0,
-            tokenVersion: "PRE_V3",
           }),
           expect.objectContaining({
             tokenId: 1,
-            tokenVersion: "V3",
           }),
         ])
       )
@@ -425,15 +381,15 @@ describe("GenTokens dataloaders", () => {
       await seedTokens()
 
       // create some market stats
-      await marketStatsHistoryFactory(0, GenerativeTokenVersion.PRE_V3, config)
-      await marketStatsHistoryFactory(0, GenerativeTokenVersion.V3, config)
-      await marketStatsHistoryFactory(1, GenerativeTokenVersion.V3, config)
+      await marketStatsHistoryFactory(0, config)
+      await marketStatsHistoryFactory(0, config)
+      await marketStatsHistoryFactory(1, config)
     })
 
     it("should return the correct market stats histories", async () => {
       const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3", from: start, to: end },
-        { id: 1, version: "V3", from: start, to: end },
+        { id: 0, from: start, to: end },
+        { id: 1, from: start, to: end },
       ])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
@@ -441,13 +397,11 @@ describe("GenTokens dataloaders", () => {
           expect.arrayContaining([
             expect.objectContaining({
               tokenId: 0,
-              tokenVersion: "PRE_V3",
             }),
           ]),
           expect.arrayContaining([
             expect.objectContaining({
               tokenId: 1,
-              tokenVersion: "V3",
             }),
           ]),
         ])
@@ -477,10 +431,7 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct objkts", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toEqual(
         expect.arrayContaining([
@@ -525,10 +476,7 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct offers", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([{ id: 0 }, { id: 1 }])
 
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
@@ -563,28 +511,23 @@ describe("GenTokens dataloaders", () => {
       await seedTokens()
 
       // create some reserves
-      await reserveFactory(0, GenerativeTokenVersion.PRE_V3)
       await reserveFactory(0)
       await reserveFactory(1)
+      await reserveFactory(2)
     })
 
     it("should return the correct reserves", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         [
           {
             tokenId: 0,
-            tokenVersion: "PRE_V3",
           },
         ],
         [
           {
             tokenId: 1,
-            tokenVersion: "V3",
           },
         ],
       ])
@@ -598,28 +541,23 @@ describe("GenTokens dataloaders", () => {
       await seedTokens()
 
       // create some redeemables
-      await redeemableFactory(0, GenerativeTokenVersion.PRE_V3)
       await redeemableFactory(0)
       await redeemableFactory(1)
+      await redeemableFactory(2)
     })
 
     it("should return the correct redeemables", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         [
           {
             tokenId: 0,
-            tokenVersion: "PRE_V3",
           },
         ],
         [
           {
             tokenId: 1,
-            tokenVersion: "V3",
           },
         ],
       ])
@@ -638,20 +576,15 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct mint ticket settings", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         {
           tokenId: 0,
-          tokenVersion: "V3",
         },
 
         {
           tokenId: 1,
-          tokenVersion: "V3",
         },
       ])
     })
@@ -669,22 +602,17 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct mint tickets", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         [
           {
             tokenId: 0,
-            tokenVersion: "V3",
           },
         ],
         [
           {
             tokenId: 1,
-            tokenVersion: "V3",
           },
         ],
       ])

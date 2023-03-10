@@ -9,7 +9,6 @@ import {
 } from "typeorm"
 import { MintTicketMetadata } from "../types/Metadata"
 import { GenerativeToken } from "./GenerativeToken"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { MediaImage } from "./MediaImage"
 import { Field, ObjectType } from "type-graphql"
 import { GraphQLJSONObject } from "graphql-type-json"
@@ -21,14 +20,6 @@ import { GraphQLJSONObject } from "graphql-type-json"
 export class MintTicketSettings extends BaseEntity {
   @PrimaryColumn()
   tokenId: number
-
-  @Column({
-    primary: true,
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
 
   @OneToOne(() => GenerativeToken, token => token.mintTicketSettings)
   @JoinColumn()

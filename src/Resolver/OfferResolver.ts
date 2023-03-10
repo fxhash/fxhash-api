@@ -11,7 +11,6 @@ import { Objkt } from "../Entity/Objkt"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { Offer } from "../Entity/Offer"
-import { TokenId } from "../Scalar/TokenId"
 import { ObjktId } from "../Scalar/ObjktId"
 
 @Resolver(Offer)

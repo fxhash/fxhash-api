@@ -1,15 +1,5 @@
 import { Field, ObjectType } from "type-graphql"
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  EntityManager,
-  JoinColumn,
-  OneToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-} from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne } from "typeorm"
 import { GenerativeToken } from "./GenerativeToken"
 
 @Entity()
@@ -20,14 +10,6 @@ import { GenerativeToken } from "./GenerativeToken"
 export class PricingFixed extends BaseEntity {
   @Column({ primary: true })
   tokenId: number
-
-  @Column({
-    primary: true,
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
 
   @OneToOne(() => GenerativeToken, token => token.pricingFixed, {
     onDelete: "CASCADE",

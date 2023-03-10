@@ -8,7 +8,6 @@ import {
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
-import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -64,7 +63,7 @@ describe("ArticleGenerativeTokenResolver", () => {
               generativeTokenMentions: [
                 {
                   generativeToken: {
-                    id: offsetV3TokenId(0),
+                    id: 0,
                   },
                 },
               ],

@@ -8,7 +8,6 @@ import {
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
-import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -48,38 +47,35 @@ describe("GenTokenResolver", () => {
         // create some actions matching the generative token
         const action1 = await actionFactory({
           tokenId: 0,
-          tokenVersion: GenerativeTokenVersion.V3,
         })
         const action2 = await actionFactory({
           tokenId: 0,
-          tokenVersion: GenerativeTokenVersion.V3,
         })
         const action3 = await actionFactory({
           tokenId: 0,
-          tokenVersion: GenerativeTokenVersion.V3,
         })
 
         expectedIds = [action3.id, action2.id, action1.id]
 
-        // create some actions for a token with the same id but a different version
-        await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+        // create some actions for a different token
+        await generativeTokenFactory(1, GenerativeTokenVersion.PRE_V3)
         await actionFactory({
-          tokenId: 0,
+          tokenId: 1,
           tokenVersion: GenerativeTokenVersion.PRE_V3,
         })
         await actionFactory({
-          tokenId: 0,
+          tokenId: 1,
           tokenVersion: GenerativeTokenVersion.PRE_V3,
         })
 
         result = await testServer.executeOperation({
           query:
-            "query TestQuery($id: TokenId!) { generativeToken(id: $id) { actions { id } } }",
-          variables: { id: offsetV3TokenId(0) },
+            "query TestQuery($id: Float!) { generativeToken(id: $id) { actions { id } } }",
+          variables: { id: 0 },
         })
       })
 
-      it("returns the actions", () => {
+      it("returns the correct actions", () => {
         expect(result).toMatchObject({
           data: {
             generativeToken: {
@@ -92,51 +88,25 @@ describe("GenTokenResolver", () => {
   })
 
   describe("generativeToken", () => {
-    describe("when id is below v3 offset", () => {
-      let result
+    let result
 
-      beforeAll(async () => {
-        await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+    beforeAll(async () => {
+      await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
 
-        result = await testServer.executeOperation({
-          query:
-            "query TestQuery($id: TokenId!) { generativeToken(id: $id) { id } }",
-          variables: { id: 0 },
-        })
-      })
-
-      it("returns a generative token", () => {
-        expect(result).toMatchObject({
-          data: {
-            generativeToken: {
-              id: 0,
-            },
-          },
-        })
+      result = await testServer.executeOperation({
+        query:
+          "query TestQuery($id: Float!) { generativeToken(id: $id) { id } }",
+        variables: { id: 0 },
       })
     })
 
-    describe("when id is above v3 offset", () => {
-      let result
-
-      beforeAll(async () => {
-        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
-
-        result = await testServer.executeOperation({
-          query:
-            "query TestQuery($id: TokenId!) { generativeToken(id: $id) { id } }",
-          variables: { id: offsetV3TokenId(0) },
-        })
-      })
-
-      it("returns a generative token", () => {
-        expect(result).toMatchObject({
-          data: {
-            generativeToken: {
-              id: offsetV3TokenId(0),
-            },
+    it("returns a generative token", () => {
+      expect(result).toMatchObject({
+        data: {
+          generativeToken: {
+            id: 0,
           },
-        })
+        },
       })
     })
   })
@@ -147,14 +117,13 @@ describe("GenTokenResolver", () => {
 
       beforeAll(async () => {
         await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
-        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
         await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+        await generativeTokenFactory(2, GenerativeTokenVersion.V3)
 
         result = await testServer.executeOperation({
           query:
-            "query TestQuery($ids: [TokenId!]!) { generativeTokens(filters: { id_in: $ids }) { id } }",
-          // use mix of below and above v3 offset
-          variables: { ids: [0, offsetV3TokenId(0), offsetV3TokenId(1)] },
+            "query TestQuery($ids: [Int!]!) { generativeTokens(filters: { id_in: $ids }) { id } }",
+          variables: { ids: [0, 1, 2] },
         })
       })
 
@@ -163,10 +132,10 @@ describe("GenTokenResolver", () => {
           data: {
             generativeTokens: [
               {
-                id: offsetV3TokenId(1),
+                id: 2,
               },
               {
-                id: offsetV3TokenId(0),
+                id: 1,
               },
               {
                 id: 0,

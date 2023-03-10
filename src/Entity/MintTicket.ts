@@ -18,13 +18,6 @@ export class MintTicket extends BaseEntity {
   @Column()
   tokenId: number
 
-  @Column({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-    enumName: "generative_token_version",
-  })
-  tokenVersion: GenerativeTokenVersion
-
   @ManyToOne(() => GenerativeToken, token => token.mintTickets)
   token: GenerativeToken
 

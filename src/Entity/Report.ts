@@ -32,12 +32,6 @@ export class Report extends BaseEntity {
   @ManyToOne(() => GenerativeToken, token => token.actions)
   token?: GenerativeToken
 
-  @Column({
-    type: "enum",
-    enum: GenerativeTokenVersion,
-  })
-  tokenVersion: GenerativeTokenVersion
-
   @Column()
   tokenId: number
 

@@ -26,8 +26,8 @@ afterEach(cleanup)
 
 const seedTokens = async () => {
   await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
-  await generativeTokenFactory(0, GenerativeTokenVersion.V3)
   await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+  await generativeTokenFactory(2, GenerativeTokenVersion.V3)
 }
 
 describe("MarketStats dataloaders", () => {
@@ -40,15 +40,12 @@ describe("MarketStats dataloaders", () => {
       await seedTokens()
 
       // create some market stats
-      await marketStatsFactory(0, GenerativeTokenVersion.PRE_V3)
-      await marketStatsFactory(1, GenerativeTokenVersion.V3)
+      await marketStatsFactory(0)
+      await marketStatsFactory(1)
     })
 
     it("should return the correct generative tokens", async () => {
-      const result = await dataloader.loadMany([
-        { id: 0, version: "PRE_V3" },
-        { id: 1, version: "V3" },
-      ])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         {

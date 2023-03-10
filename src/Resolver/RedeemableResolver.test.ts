@@ -4,7 +4,6 @@ import { createTestServer } from "../tests/apollo"
 import { generativeTokenFactory, redeemableFactory } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
-import { offsetV3TokenId } from "../Scalar/TokenId"
 
 let testServer: ApolloServer
 
@@ -37,7 +36,7 @@ describe("RedeemableResolver", () => {
         await generativeTokenFactory(0, GenerativeTokenVersion.V3)
 
         // create a redeemable matching the generative token
-        await redeemableFactory(0, GenerativeTokenVersion.V3, {
+        await redeemableFactory(0, {
           address: "KT1",
         })
       })
@@ -55,7 +54,7 @@ describe("RedeemableResolver", () => {
           data: {
             redeemable: {
               token: {
-                id: offsetV3TokenId(0),
+                id: 0,
               },
             },
           },

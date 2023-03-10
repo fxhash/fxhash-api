@@ -10,7 +10,6 @@ import { createContext } from "./Utils/Context"
 import { routeGraphiql } from "./routes/graphiql"
 import { ApolloMetricsPlugin } from "./Plugins/MetricsPlugin"
 import { routeGetHello } from "./routes/hello"
-import { TokenId, TokenIdScalar } from "./Scalar/TokenId"
 import { createConnection } from "./createConnection"
 import { ScalarCollection } from "./Scalar/Collection"
 

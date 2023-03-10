@@ -52,10 +52,10 @@ describe("User dataloaders", () => {
       await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3, {
         authorId: user.id,
       })
-      await generativeTokenFactory(0, GenerativeTokenVersion.V3, {
+      await generativeTokenFactory(1, GenerativeTokenVersion.V3, {
         authorId: user.id,
       })
-      await generativeTokenFactory(1, GenerativeTokenVersion.V3, {
+      await generativeTokenFactory(2, GenerativeTokenVersion.V3, {
         authorId: user2.id,
       })
     })
@@ -66,18 +66,15 @@ describe("User dataloaders", () => {
       expect(result).toMatchObject([
         [
           {
-            id: 0,
-            version: "V3",
+            id: 1,
           },
           {
             id: 0,
-            version: "PRE_V3",
           },
         ],
         [
           {
-            id: 1,
-            version: "V3",
+            id: 2,
           },
         ],
       ])
@@ -96,10 +93,10 @@ describe("User dataloaders", () => {
       await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3, {
         authorId: user.id,
       })
-      await generativeTokenFactory(0, GenerativeTokenVersion.V3, {
+      await generativeTokenFactory(1, GenerativeTokenVersion.V3, {
         authorId: user.id,
       })
-      await generativeTokenFactory(1, GenerativeTokenVersion.V3, {
+      await generativeTokenFactory(2, GenerativeTokenVersion.V3, {
         authorId: user2.id,
       })
 
@@ -110,12 +107,12 @@ describe("User dataloaders", () => {
         type: TokenActionType.LISTING_V1_ACCEPTED,
       })
       await actionFactory({
-        tokenId: 0,
+        tokenId: 1,
         tokenVersion: GenerativeTokenVersion.V3,
         type: TokenActionType.LISTING_V2_ACCEPTED,
       })
       await actionFactory({
-        tokenId: 1,
+        tokenId: 2,
         tokenVersion: GenerativeTokenVersion.V3,
         type: TokenActionType.LISTING_V2_ACCEPTED,
       })
@@ -130,12 +127,10 @@ describe("User dataloaders", () => {
         expect.arrayContaining([
           [
             expect.objectContaining({
-              tokenId: 0,
-              tokenVersion: "V3",
+              tokenId: 1,
             }),
             expect.objectContaining({
               tokenId: 0,
-              tokenVersion: "PRE_V3",
             }),
           ],
         ])

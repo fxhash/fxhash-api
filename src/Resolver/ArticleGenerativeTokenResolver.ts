@@ -2,7 +2,6 @@ import { Ctx, FieldResolver, Resolver, Root } from "type-graphql"
 import { Article } from "../Entity/Article"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { GenerativeToken } from "../Entity/GenerativeToken"
-import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 
 @Resolver(ArticleGenerativeToken)
@@ -21,11 +20,6 @@ export class ArticleGenerativeTokenResolver {
     @Root() mention: ArticleGenerativeToken,
     @Ctx() ctx: RequestContext
   ) {
-    return ctx.genTokLoader.load(
-      new TokenId({
-        id: mention.generativeTokenId,
-        version: mention.generativeTokenVersion,
-      })
-    )
+    return ctx.genTokLoader.load(mention.generativeTokenId)
   }
 }

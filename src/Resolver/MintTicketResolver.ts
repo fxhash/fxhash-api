@@ -12,7 +12,6 @@ import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
 import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { User } from "../Entity/User"
 import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
-import { TokenId } from "../Scalar/TokenId"
 import { RequestContext } from "../types/RequestContext"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { MintTicketSortInput } from "./Arguments/Sort"
@@ -21,15 +20,7 @@ import { MintTicketSortInput } from "./Arguments/Sort"
 export class MintTicketResolver {
   @FieldResolver(returns => GenerativeToken)
   token(@Root() mintTicket: MintTicket, @Ctx() ctx: RequestContext) {
-    return (
-      mintTicket.token ||
-      ctx.genTokLoader.load(
-        new TokenId({
-          id: mintTicket.tokenId,
-          version: mintTicket.tokenVersion,
-        })
-      )
-    )
+    return mintTicket.token || ctx.genTokLoader.load(mintTicket.tokenId)
   }
 
   @FieldResolver(returns => User)
@@ -39,12 +30,7 @@ export class MintTicketResolver {
 
   @FieldResolver(returns => MintTicketSettings)
   settings(@Root() mintTicket: MintTicket, @Ctx() ctx: RequestContext) {
-    return ctx.genTokMintTicketSettingsLoader.load(
-      new TokenId({
-        id: mintTicket.tokenId,
-        version: mintTicket.tokenVersion,
-      })
-    )
+    return ctx.genTokMintTicketSettingsLoader.load(mintTicket.tokenId)
   }
 
   @Query(returns => MintTicket, {

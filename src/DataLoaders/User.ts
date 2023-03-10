@@ -11,8 +11,6 @@ import { offerQueryFilter } from "../Query/Filters/Offer"
 import { Article } from "../Entity/Article"
 import { articleQueryFilter } from "../Query/Filters/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
-import { matchesEntityTokenIdAndVersion } from "../Utils/GenerativeToken"
-import { TokenId } from "../Scalar/TokenId"
 import { MintTicket } from "../Entity/MintTicket"
 
 /**
@@ -318,12 +316,7 @@ const batchUsersSales = async (inputs: any) => {
             .orWhere({ type: TokenActionType.OFFER_ACCEPTED })
         )
       )
-      .andWhere(
-        matchesEntityTokenIdAndVersion(
-          tokens.map(t => new TokenId(t)),
-          "action"
-        )
-      )
+      .andWhere("action.tokenId IN (:...ids)", { ids: tokens.map(t => t.id) })
       .getMany()
   }
 
