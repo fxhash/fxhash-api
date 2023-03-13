@@ -70,6 +70,8 @@ export class UserResolver {
     ;[skip, take] = useDefaultValues([skip, take], [0, 20])
     if (!sort || Object.keys(sort).length === 0) {
       sort = {
+        // order primarily by creation date as IDs will start from 0 after V3
+        createdAt: "DESC",
         id: "DESC",
       }
     }
