@@ -384,49 +384,6 @@ const batchGenTokMintTicketSettings = async (ids: readonly number[]) => {
 export const createGenTokMintTicketSettingsLoader = () =>
   new DataLoader(batchGenTokMintTicketSettings)
 
-/**
- * Get the MintTickets of a Generative Token, with some filters and sorting options,
- * as well as a skip/take limit
- */
-const batchGenTokMintTicket = async genIds => {
-  // extract the IDs from the params
-  const ids = genIds.map(({ id }) => id)
-
-  // extract the filters from the params
-  const filters = genIds[0].filters
-  const sorts = genIds[0].sort || {}
-  const take = genIds[0].take
-  const skip = genIds[0].skip
-
-  // if there is not sort, add ID desc
-  if (Object.keys(sorts).length === 0) {
-    sorts.id = "DESC"
-  }
-
-  let query = MintTicket.createQueryBuilder("mintTicket")
-    .select()
-    .where("mintTicket.tokenId IN(:...ids)", { ids })
-
-  // we apply the filters and the sort arguments
-  query = await mintTicketQueryFilter(query, filters, sorts)
-
-  // pagination
-  if (take !== null && take !== undefined) {
-    query = query.take(take)
-  }
-  if (skip !== null && skip !== undefined) {
-    query = query.skip(skip)
-  }
-
-  const mintTickets = await query.getMany()
-
-  return ids.map(id =>
-    mintTickets.filter(mintTicket => mintTicket.tokenId === id)
-  )
-}
-export const createGenTokMintTicketsLoader = () =>
-  new DataLoader(batchGenTokMintTicket)
-
 const batchGenTokCodex = async (
   ids: readonly { id: number; version: GenerativeTokenVersion }[]
 ) => {

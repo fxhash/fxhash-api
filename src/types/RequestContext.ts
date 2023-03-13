@@ -17,7 +17,6 @@ import {
   createGenTokMarketStatsHistoryLoader,
   createGenTokMarketStatsLoader,
   createGenTokMintTicketSettingsLoader,
-  createGenTokMintTicketsLoader,
   createGenTokObjktFeaturesLoader,
   createGenTokObjktsCountLoader,
   createGenTokObjktsLoader,
@@ -105,7 +104,6 @@ export interface RequestContext extends ExpressRequest {
   genTokMintTicketSettingsLoader: ReturnType<
     typeof createGenTokMintTicketSettingsLoader
   >
-  genTokMintTicketsLoader: ReturnType<typeof createGenTokMintTicketsLoader>
   genTokCodexLoader: ReturnType<typeof createGenTokCodexLoader>
 
   // OBJKTS loaders

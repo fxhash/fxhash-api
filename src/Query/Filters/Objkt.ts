@@ -169,6 +169,11 @@ export const objktQueryFilter: TQueryFilter<
         query.addOrderBy(`objkt.${sortEntry}`, sort[sortEntry], "NULLS LAST")
       }
     }
+    /**
+     * finally, sort by id to preserve the order of the search results:
+     * https://github.com/fxhash/fxhash-api/issues/36
+     */
+    query.addOrderBy("objkt.id", "ASC")
   }
 
   return query

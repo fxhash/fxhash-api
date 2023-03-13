@@ -23,7 +23,6 @@ import {
   createGenTokReportsLoader,
   createGenTokReservesLoader,
   createGenTokMintTicketSettingsLoader,
-  createGenTokMintTicketsLoader,
   createGenTokCodexLoader,
 } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
@@ -95,7 +94,6 @@ export const createContext = (req: any, res: any): RequestContext => {
     genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
     genTokRedeemablesLoader: createGentkTokRedeemablesLoader(),
     genTokMintTicketSettingsLoader: createGenTokMintTicketSettingsLoader(),
-    genTokMintTicketsLoader: createGenTokMintTicketsLoader(),
     genTokCodexLoader: createGenTokCodexLoader(),
 
     // OBJKTS loaders

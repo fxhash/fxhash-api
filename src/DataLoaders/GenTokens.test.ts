@@ -31,7 +31,6 @@ import {
   createGenTokMarketStatsHistoryLoader,
   createGenTokMarketStatsLoader,
   createGenTokMintTicketSettingsLoader,
-  createGenTokMintTicketsLoader,
   createGenTokObjktFeaturesLoader,
   createGenTokObjktsCountLoader,
   createGenTokObjktsLoader,
@@ -586,35 +585,6 @@ describe("GenTokens dataloaders", () => {
         {
           tokenId: 1,
         },
-      ])
-    })
-  })
-
-  describe("createGenTokMintTicketsLoader", () => {
-    beforeAll(async () => {
-      dataloader = createGenTokMintTicketsLoader()
-
-      await seedTokens()
-
-      // create some mint tickets
-      await mintTicketFactory(0, 0)
-      await mintTicketFactory(1, 1)
-    })
-
-    it("should return the correct mint tickets", async () => {
-      const result = await dataloader.loadMany([0, 1])
-      expect(result).toHaveLength(2)
-      expect(result).toMatchObject([
-        [
-          {
-            tokenId: 0,
-          },
-        ],
-        [
-          {
-            tokenId: 1,
-          },
-        ],
       ])
     })
   })

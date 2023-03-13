@@ -33,6 +33,7 @@ import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
+import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { FeatureFilter } from "./Arguments/Filter"
@@ -295,7 +296,6 @@ export class GenTokenResolver {
     // add the filters to target the token only
     query.andWhere("action.tokenId = :id", {
       id: token.id,
-      version: token.version,
     })
 
     // add the sort arguments
@@ -489,12 +489,21 @@ export class GenTokenResolver {
     }
     ;[skip, take] = useDefaultValues([skip, take], [0, 20])
 
-    return ctx.genTokMintTicketsLoader.load({
+    // build the mint ticket query
+    let query = MintTicket.createQueryBuilder("mintTicket").select()
+
+    // add the filters to target the token only
+    query.andWhere("mintTicket.tokenId = :id", {
       id: token.id,
-      filters,
-      sort,
-      skip,
-      take,
     })
+
+    // we apply the filters and the sort arguments
+    query = await mintTicketQueryFilter(query, filters, sort)
+
+    // add pagination
+    query.take(take)
+    query.skip(skip)
+
+    return query.getMany()
   }
 }
