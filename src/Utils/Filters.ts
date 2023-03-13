@@ -132,6 +132,7 @@ const mintTicketFiltersDbFields: (keyof MintTicket)[] = [
   "price",
   "taxationLocked",
   "taxationStart",
+  "taxationPaidUntil",
 ]
 export const processMintTicketFilters = (filters: any) => {
   return processSelectiveFilters(filters, mintTicketFiltersDbFields)
