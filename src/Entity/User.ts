@@ -1,28 +1,38 @@
-import { GraphQLJSONObject } from 'graphql-type-json'
-import { Field, ObjectType, registerEnumType } from 'type-graphql'
-import { Filter, generateFilterType } from 'type-graphql-filter'
-import { Entity, Column, PrimaryColumn, BaseEntity, OneToMany, ManyToOne, JoinColumn } from 'typeorm'
-import { Action } from './Action'
-import { Article } from './Article'
-import { ArticleLedger } from './ArticleLedger'
-import { Collaboration } from './Collaboration'
-import { GenerativeToken } from './GenerativeToken'
-import { Listing } from './Listing'
-import { MediaImage } from './MediaImage'
-import { ModerationReason } from './ModerationReason'
-import { Objkt } from './Objkt'
-import { Offer } from './Offer'
-import { Report } from './Report'
-import { Split } from './Split'
-import { DateTransformer } from './Transformers/DateTransformer'
-
+import { GraphQLJSONObject } from "graphql-type-json"
+import { Field, ObjectType, registerEnumType } from "type-graphql"
+import { Filter, generateFilterType } from "type-graphql-filter"
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  BaseEntity,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm"
+import { Action } from "./Action"
+import { Article } from "./Article"
+import { ArticleLedger } from "./ArticleLedger"
+import { Codex } from "./Codex"
+import { Collaboration } from "./Collaboration"
+import { GenerativeToken } from "./GenerativeToken"
+import { Listing } from "./Listing"
+import { MediaImage } from "./MediaImage"
+import { MintTicket } from "./MintTicket"
+import { ModerationReason } from "./ModerationReason"
+import { Objkt } from "./Objkt"
+import { Offer } from "./Offer"
+import { Redemption } from "./Redemption"
+import { Report } from "./Report"
+import { Split } from "./Split"
+import { DateTransformer } from "./Transformers/DateTransformer"
 
 export enum UserFlag {
-  NONE          = "NONE",
-  REVIEW        = "REVIEW",
-  SUSPICIOUS    = "SUSPICIOUS",
-  MALICIOUS     = "MALICIOUS", 
-  VERIFIED      = "VERIFIED",
+  NONE = "NONE",
+  REVIEW = "REVIEW",
+  SUSPICIOUS = "SUSPICIOUS",
+  MALICIOUS = "MALICIOUS",
+  VERIFIED = "VERIFIED",
 }
 registerEnumType(UserFlag, {
   name: "UserFlag",
@@ -30,8 +40,8 @@ registerEnumType(UserFlag, {
 })
 
 export enum UserType {
-  REGULAR               = "REGULAR",
-  COLLAB_CONTRACT_V1    = "COLLAB_CONTRACT_V1"
+  REGULAR = "REGULAR",
+  COLLAB_CONTRACT_V1 = "COLLAB_CONTRACT_V1",
 }
 registerEnumType(UserType, {
   name: "UserType",
@@ -39,38 +49,41 @@ registerEnumType(UserType, {
 })
 
 export enum UserAuthorization {
-  TOKEN_MODERATION          = "TOKEN_MODERATION",
-  ARTICLE_MODERATION        = "ARTICLE_MODERATION",
-  USER_MODERATION           = "USER_MODERATION",
-  GOVERNANCE_MODERATION     = "GOVERNANCE_MODERATION",
+  TOKEN_MODERATION = "TOKEN_MODERATION",
+  ARTICLE_MODERATION = "ARTICLE_MODERATION",
+  USER_MODERATION = "USER_MODERATION",
+  GOVERNANCE_MODERATION = "GOVERNANCE_MODERATION",
 }
 registerEnumType(UserAuthorization, {
   name: "UserAuthorization",
-  description: "Some users have granular authorizations to perform certain moderation actions on the contracts."
+  description:
+    "Some users have granular authorizations to perform certain moderation actions on the contracts.",
 })
-
 
 @Entity()
 @ObjectType({
-  description: "Polymorphic entity which globally describes regular users (who had at least one interaction with fxhash contracts) or contract entities such as a collaboration contract."
+  description:
+    "Polymorphic entity which globally describes regular users (who had at least one interaction with fxhash contracts) or contract entities such as a collaboration contract.",
 })
 export class User extends BaseEntity {
   @Field({
-    description: "The unique identifier (tezos address) of the user."
+    description: "The unique identifier (tezos address) of the user.",
   })
-  @Filter([ "in" ])
+  @Filter(["in"])
   @PrimaryColumn()
   id: string
 
-  @Field({ 
+  @Field({
     nullable: true,
-    description: "The name of the user, as it was set in the fxhash user register contract by the user."
+    description:
+      "The name of the user, as it was set in the fxhash user register contract by the user.",
   })
   @Column({ nullable: true })
   name?: string
 
   @Field(() => UserType, {
-    description: "The type of account. The User entity is a polymorphic entity which both support regular users and \"contract\" users. For instance, if this field returns `COLLAB_CONTRACT_V1`, it means that the account in question is a collaboration contract controlled by the users found in the `collaborators` field."
+    description:
+      'The type of account. The User entity is a polymorphic entity which both support regular users and "contract" users. For instance, if this field returns `COLLAB_CONTRACT_V1`, it means that the account in question is a collaboration contract controlled by the users found in the `collaborators` field.',
   })
   @Column({
     type: "enum",
@@ -83,7 +96,7 @@ export class User extends BaseEntity {
   // as a COLLABORATION_CONTRACT, a User will have a list of collaborators
   @OneToMany(() => Collaboration, collab => collab.collaborator)
   collaborators: Collaboration[]
-  
+
   // as a REGULAR_USER, which is part of any number of collaboration contracts,
   // a User will have a list of collaboration contracts
   @OneToMany(() => Collaboration, collab => collab.collaborationContract)
@@ -101,55 +114,59 @@ export class User extends BaseEntity {
     default: [],
   })
   authorizations: number[]
-  
+
   @Field(() => UserFlag, {
-    description: "If any, the flag that was set by the moderation team. Verified users will have a `VERIFIED` flag."
+    description:
+      "If any, the flag that was set by the moderation team. Verified users will have a `VERIFIED` flag.",
   })
   @Column({
     type: "enum",
     enum: UserFlag,
-    default: UserFlag.NONE
+    default: UserFlag.NONE,
   })
-  @Filter([ "eq", "ne", "in" ], () => UserFlag)
+  @Filter(["eq", "ne", "in"], () => UserFlag)
   flag: UserFlag
 
-  @ManyToOne(() => ModerationReason, reason => reason.users, { 
-    nullable: true 
+  @ManyToOne(() => ModerationReason, reason => reason.users, {
+    nullable: true,
   })
   moderationReason?: ModerationReason
 
   @Column()
   moderationReasonId?: number
 
-  @Field(() => GraphQLJSONObject, { 
+  @Field(() => GraphQLJSONObject, {
     nullable: true,
-    description: "The metadata of the user in JSON, extracted from IPFS as they saved it on the fxhash user register contract. *Please use individual fields if possible as it makes cheaper responses*."
+    description:
+      "The metadata of the user in JSON, extracted from IPFS as they saved it on the fxhash user register contract. *Please use individual fields if possible as it makes cheaper responses*.",
   })
   @Column({ type: "jsonb", nullable: true })
   metadata?: Record<string, any>
 
   @Field({
     nullable: true,
-    description: "The IPFS uri pointing to the given user metadata."
+    description: "The IPFS uri pointing to the given user metadata.",
   })
   @Column({ nullable: true })
   metadataUri: string
 
   @Field({
     nullable: true,
-    description: "The description of the user, as set in the IPFS json metadata associated to the user on the fxhash user register contract."
+    description:
+      "The description of the user, as set in the IPFS json metadata associated to the user on the fxhash user register contract.",
   })
   @Column({ nullable: true })
   description: string
 
-  @Field({ 
+  @Field({
     nullable: true,
-    description: "The IPFS uri pointing to the avatar of the user as set in the json metadata associated to the user on the fxhash user register contract."
+    description:
+      "The IPFS uri pointing to the avatar of the user as set in the json metadata associated to the user on the fxhash user register contract.",
   })
   @Column({ nullable: true })
   avatarUri: string
 
-  @ManyToOne(() => MediaImage, { 
+  @ManyToOne(() => MediaImage, {
     nullable: true,
   })
   @JoinColumn({ name: "avatarMediaId", referencedColumnName: "cid" })
@@ -160,6 +177,12 @@ export class User extends BaseEntity {
 
   @OneToMany(() => GenerativeToken, token => token.author)
   generativeTokens: GenerativeToken[]
+
+  @OneToMany(() => Codex, codex => codex.author)
+  codexEntries: Codex[]
+
+  @OneToMany(() => MintTicket, mintTicket => mintTicket.owner)
+  mintTickets: MintTicket[]
 
   @OneToMany(() => Action, action => action.issuer)
   actionsAsIssuer: Action[]
@@ -185,8 +208,12 @@ export class User extends BaseEntity {
   @OneToMany(() => Split, split => split.user)
   splits: Split[]
 
+  @OneToMany(() => Redemption, redemption => redemption.redeemer)
+  redemptions: Redemption[]
+
   @Field({
-    description: "The time at which this user first interacted with one of the indexed fxhash contracts."
+    description:
+      "The time at which this user first interacted with one of the indexed fxhash contracts.",
   })
   @Column({ type: "timestamptz", transformer: DateTransformer })
   createdAt: string
@@ -194,12 +221,11 @@ export class User extends BaseEntity {
   @Column({ type: "timestamptz", transformer: DateTransformer })
   updatedAt: string
 
-
   //
   // CUSTOM FILTERS
   //
 
-  @Filter([ "eq" ], type => String)
+  @Filter(["eq"], type => String)
   searchQuery: string
 }
 

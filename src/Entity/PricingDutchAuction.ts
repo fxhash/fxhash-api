@@ -1,11 +1,11 @@
 import { Field, ObjectType } from "type-graphql"
-import { BaseEntity, Column, Entity, EntityManager, JoinColumn, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm"
+import { BaseEntity, Column, Entity, JoinColumn, OneToOne } from "typeorm"
 import { GenerativeToken } from "./GenerativeToken"
-
 
 @Entity()
 @ObjectType({
-  description: "Describes a the **Dutch Auction** pricing method which can be used by artists for their Generative Tokens."
+  description:
+    "Describes a the **Dutch Auction** pricing method which can be used by artists for their Generative Tokens.",
 })
 export class PricingDutchAuction extends BaseEntity {
   @Column({ primary: true })
@@ -18,35 +18,38 @@ export class PricingDutchAuction extends BaseEntity {
   token: GenerativeToken
 
   @Field(type => [Number], {
-    description: "A list of the different pricing levels (in **mutez**), in the right order"
+    description:
+      "A list of the different pricing levels (in **mutez**), in the right order",
   })
-  @Column({ 
+  @Column({
     type: "bigint",
-    array: true
+    array: true,
   })
   levels: number[]
 
-  @Field({ 
-    description: "Corresponds to the last level of the Dutch Auction"
+  @Field({
+    description: "Corresponds to the last level of the Dutch Auction",
   })
   @Column({ type: "bigint" })
   restingPrice: number
 
   @Field({
-    description: "The time between each level, in **seconds**"
+    description: "The time between each level, in **seconds**",
   })
   @Column({ type: "bigint" })
   decrementDuration: number
 
   @Field({
-    description: "When the dutch auction will open. This is when the first level of the list will be the active price of a token."
+    description:
+      "When the dutch auction will open. This is when the first level of the list will be the active price of a token.",
   })
   @Column({ type: "timestamptz", nullable: true })
   opensAt: Date
 
-  @Field({ 
+  @Field({
     nullable: true,
-    description: "The price of the last gentk minted during the Dutch Auction. *If null, collection is not fully minted yet*",
+    description:
+      "The price of the last gentk minted during the Dutch Auction. *If null, collection is not fully minted yet*",
   })
   @Column({ type: "bigint", nullable: true })
   finalPrice: number
