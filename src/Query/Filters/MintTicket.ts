@@ -23,6 +23,12 @@ export const mintTicketQueryFilter: TQueryFilter<
     })
   }
 
+  if (filters?.token_eq) {
+    query.andWhere(`mintTicket.tokenId = :tokenId`, {
+      tokenId: filters.token_eq,
+    })
+  }
+
   // add the sort arguments
   if (sort) {
     for (const field in sort) {
