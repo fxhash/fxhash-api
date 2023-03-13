@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from "type-graphql"
+import { Field, Float, ObjectType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
 import { Entity, Column, BaseEntity, PrimaryColumn, ManyToOne } from "typeorm"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
@@ -19,7 +19,7 @@ export class MintTicket extends BaseEntity {
   tokenId: number
 
   @ManyToOne(() => GenerativeToken, token => token.mintTickets)
-  @Filter(["eq"], () => Int)
+  @Filter(["eq"], () => Float)
   token: GenerativeToken
 
   @Column()
