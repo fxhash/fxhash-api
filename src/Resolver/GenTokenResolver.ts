@@ -461,7 +461,7 @@ export class GenTokenResolver {
   async randomTopGenerativeToken(): Promise<GenerativeToken> {
     const stats = await MarketStats.createQueryBuilder("stat")
       .leftJoinAndSelect("stat.token", "token")
-      .addOrderBy("stat.primVolumeTz7d + stat.secVolumeTz7d", "DESC")
+      .addOrderBy("stat.secVolumeTz7d", "DESC")
       .limit(20)
       .getMany()
     return stats[Math.floor(Math.random() * stats.length)].token
