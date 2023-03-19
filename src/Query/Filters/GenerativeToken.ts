@@ -33,7 +33,7 @@ export const generativeQueryFilter: TQueryFilter<
     // of the search results needs to be preserved
     if (sort?.relevance && ids.length > 1) {
       // then we manually set the order using array_position
-      const relevanceList = ids.map((id, idx) => `${id}`).join(", ")
+      const relevanceList = ids.map((id, idx) => `${id.id}`).join(", ")
       query.addOrderBy(`array_position(array[${relevanceList}], token.id)`)
     }
   }
