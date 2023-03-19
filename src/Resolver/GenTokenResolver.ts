@@ -454,6 +454,19 @@ export class GenTokenResolver {
     return token
   }
 
+  @Query(returns => GenerativeToken, {
+    description:
+      "Returns a random Generative Token among the 20 most successfull tokens on the marketplace 7 days total volume.",
+  })
+  async randomTopGenerativeToken(): Promise<GenerativeToken> {
+    const stats = await MarketStats.createQueryBuilder("stat")
+      .leftJoinAndSelect("stat.token", "token")
+      .addOrderBy("stat.secVolumeTz7d", "DESC")
+      .limit(20)
+      .getMany()
+    return stats[Math.floor(Math.random() * stats.length)].token
+  }
+
   @FieldResolver(returns => MintTicketSettings, {
     description: "The settings for the mint tickets of a Generative Token.",
     nullable: true,
