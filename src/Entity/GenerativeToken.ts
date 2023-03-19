@@ -283,15 +283,15 @@ export class GenerativeToken extends BaseEntity {
     description:
       "When will the lock of the token ends. Is defined by *createdAt* + *lockedSeconds*",
   })
-  @Column({ type: "timestamptz" })
-  lockEnd: Date
+  @Column({ type: "timestamptz", transformer: DateTransformer })
+  lockEnd: string
 
   @Field({
     description:
       "When the token will be available for minting. Is defined by max(lockEnd, pricing.opensAt)",
   })
-  @Column({ type: "timestamptz" })
-  mintOpensAt: Date
+  @Column({ type: "timestamptz", transformer: DateTransformer })
+  mintOpensAt: string
 
   @Field({
     description: "Whether the token has open editions or not.",
@@ -307,8 +307,9 @@ export class GenerativeToken extends BaseEntity {
   @Column({
     type: "timestamptz",
     nullable: true,
+    transformer: DateTransformer,
   })
-  openEditionsEndsAt: Date | null
+  openEditionsEndsAt: string | null
 
   @Field({
     description:
