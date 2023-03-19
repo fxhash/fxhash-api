@@ -22,6 +22,8 @@ import {
   createGenTokPricingFixedLoader,
   createGenTokReportsLoader,
   createGenTokReservesLoader,
+  createGenTokMintTicketSettingsLoader,
+  createGenTokCodexLoader,
 } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
@@ -30,7 +32,8 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
-  createObjktListingsLoader, createObjktMintedPriceLoader,
+  createObjktListingsLoader,
+  createObjktMintedPriceLoader,
   createObjktOffersLoader,
   createObjktRedemptionsLoader,
   createObjktRoyaltiesSplitsLoader,
@@ -52,6 +55,7 @@ import {
   createUsersOffersReceivedLoader,
   createUsersArticlesLoader,
   createUsersArticleLedgersLoader,
+  createUsersMintTicketsLoader,
 } from "../DataLoaders/User"
 import { RequestContext } from "../types/RequestContext"
 
@@ -63,6 +67,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     // USER loaders
     usersLoader: createUsersLoader(),
     userObjktsLoader: createUsersObjktLoader(),
+    userMintTicketsLoader: createUsersMintTicketsLoader(),
     userOffersSentLoader: createUsersOffersSentLoader(),
     userOffersReceivedLoader: createUsersOffersReceivedLoader(),
     userCollabContractsLoader: createUsersCollabContractsLoader(),
@@ -88,6 +93,8 @@ export const createContext = (req: any, res: any): RequestContext => {
     genTokArticleMentionsLoader: createGenTokArticleMentionsLoader(),
     genTokObjktFeaturesLoader: createGenTokObjktFeaturesLoader(),
     genTokRedeemablesLoader: createGentkTokRedeemablesLoader(),
+    genTokMintTicketSettingsLoader: createGenTokMintTicketSettingsLoader(),
+    genTokCodexLoader: createGenTokCodexLoader(),
 
     // OBJKTS loaders
     objktsLoader: createObjktsLoader(),

@@ -2,14 +2,12 @@ import { Field, ObjectType } from "type-graphql"
 import {
   Entity,
   Column,
-  PrimaryColumn,
-  UpdateDateColumn,
   BaseEntity,
   PrimaryGeneratedColumn,
-  OneToMany,
   ManyToOne,
   Index,
 } from "typeorm"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
 import { Objkt } from "./Objkt"
@@ -63,6 +61,13 @@ export class Split extends BaseEntity {
 
   @Column()
   objktId: number
+
+  @Column({
+    type: "enum",
+    enum: GenerativeTokenVersion,
+    enumName: "generative_token_version",
+  })
+  objktIssuerVersion: GenerativeTokenVersion
 
   @Index()
   @ManyToOne(() => Article, article => article.royaltiesSplit, {

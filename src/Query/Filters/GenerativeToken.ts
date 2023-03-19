@@ -22,7 +22,11 @@ export const generativeQueryFilter: TQueryFilter<
         hitsPerPage: 5000,
       }
     )
-    const ids = searchResults.hits.map(hit => hit.objectID)
+    // extract the IDs and format those to have pairs of (id, version)
+    const ids = searchResults.hits.map(hit => {
+      const [id, version] = hit.objectID.split("-")
+      return { id, version }
+    })
     query.whereInIds(ids)
 
     // if the sort option is relevance, we remove the sort arguments as the order
@@ -40,6 +44,11 @@ export const generativeQueryFilter: TQueryFilter<
   }
 
   // CUSTOM FILTERS
+
+  // filter for id/version
+  if (filters?.id_in != null) {
+    query.andWhereInIds(filters.id_in)
+  }
 
   // filter for the field author verified
   if (filters?.authorVerified_eq != null) {
@@ -97,6 +106,45 @@ export const generativeQueryFilter: TQueryFilter<
         mintOpensAt: LessThanOrEqual(new Date()),
       })
     }
+  }
+
+  // add filter for fxparams projects
+  if (filters?.fxparams_eq != null) {
+    // filter the tokens with params
+    if (filters.fxparams_eq === true) {
+      query.andWhere({
+        inputBytesSize: MoreThan(0),
+      })
+    }
+    // filter the tokens without params
+    else if (filters.fxparams_eq === false) {
+      query.andWhere({
+        inputBytesSize: 0,
+      })
+    }
+  }
+
+  // add filter for redeemable projects
+  if (filters?.redeemable_eq != null) {
+    // filter the tokens with redeemables
+    if (filters.redeemable_eq === true) {
+      query.where(
+        'EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = token.id)'
+      )
+    }
+    // filter the tokens without redeemables
+    else if (filters.redeemable_eq === false) {
+      query.where(
+        'NOT EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = token.id)'
+      )
+    }
+  }
+
+  // add filter for labels
+  if (filters?.labels_in != null) {
+    query.andWhere(
+      `token.labels @> ARRAY['{${filters.labels_in.join(", ")}}'::smallint[]]`
+    )
   }
 
   // filter for the field mint progress

@@ -1,4 +1,5 @@
 import { GenerativeToken } from "../Entity/GenerativeToken"
+import { ObjktId } from "../Scalar/ObjktId"
 
 /**
  * Given a Generative Token (with loaded pricingFixed OR pricingDutchAuction),
@@ -6,7 +7,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
  * For pricing fixed, the price will be the constant, for pricing dutch auction
  * the price will be derived from the transaction time.
  */
- export function getGenerativeTokenPrice(token: GenerativeToken): number {
+export function getGenerativeTokenPrice(token: GenerativeToken): number {
   // if the token has a pricing fixed, we can just return this value
   if (token.pricingFixed) {
     return token.pricingFixed.price
@@ -20,7 +21,7 @@ import { GenerativeToken } from "../Entity/GenerativeToken"
     // find the index of the level based on this time difference
     const index = Math.min(
       Math.floor(timeDiff / decrementDuration),
-      levels.length-1
+      levels.length - 1
     )
 
     // return corresponding level

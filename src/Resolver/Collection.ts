@@ -15,8 +15,11 @@ import { SearchResolver } from "./SearchResolver"
 import { ArticleResolver } from "./ArticleResolver"
 import { ArticleLedgerResolver } from "./ArticleLedgerResolver"
 import { ArticleGenerativeTokenResolver } from "./ArticleGenerativeTokenResolver"
-// import { RedeemableResolver } from "./RedeemableResolver"
-// import { RedemptionResolver } from "./RedemptionResolver"
+import { GentkAssignResolver } from "./GentkAssignResolver"
+import { MintTicketResolver } from "./MintTicketResolver"
+import { MintTicketSettingsResolver } from "./MintTicketSettingsResolver"
+import { RedeemableResolver } from "./RedeemableResolver"
+import { RedemptionResolver } from "./RedemptionResolver"
 
 export const ResolverCollection: NonEmptyArray<Function> = [
   UserResolver,
@@ -30,11 +33,14 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   SplitResolver,
   ReserveResolver,
   StatusResolver,
+  GentkAssignResolver,
   ModerationReasonResolver,
   SearchResolver,
   ArticleResolver,
   ArticleLedgerResolver,
   ArticleGenerativeTokenResolver,
-  // RedeemableResolver,
-  // RedemptionResolver,
+  RedeemableResolver,
+  RedemptionResolver,
+  MintTicketResolver,
+  MintTicketSettingsResolver,
 ]

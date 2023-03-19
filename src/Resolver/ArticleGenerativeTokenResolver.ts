@@ -7,17 +7,14 @@ import { RequestContext } from "../types/RequestContext"
 @Resolver(ArticleGenerativeToken)
 export class ArticleGenerativeTokenResolver {
   @FieldResolver(() => Article, {
-    description: "The article which is mentionning the Generative Token"
+    description: "The article which is mentionning the Generative Token",
   })
-  article(
-    @Root() mention: ArticleGenerativeToken,
-    @Ctx() ctx: RequestContext
-  ) {
+  article(@Root() mention: ArticleGenerativeToken, @Ctx() ctx: RequestContext) {
     return ctx.articlesLoader.load(mention.articleId)
   }
 
   @FieldResolver(() => GenerativeToken, {
-    description: "The Generative Token mentionned by the Article."
+    description: "The Generative Token mentionned by the Article.",
   })
   generativeToken(
     @Root() mention: ArticleGenerativeToken,

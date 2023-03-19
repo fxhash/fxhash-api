@@ -1,14 +1,22 @@
-import { Field, ObjectType } from 'type-graphql'
-import { Entity, Column, BaseEntity, ManyToOne, PrimaryGeneratedColumn, RelationId } from 'typeorm'
-import { GenerativeToken } from './GenerativeToken'
-import { ModerationReason } from './ModerationReason'
-import { DateTransformer } from './Transformers/DateTransformer'
-import { User } from './User'
-
+import { Field, ObjectType } from "type-graphql"
+import {
+  Entity,
+  Column,
+  BaseEntity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  RelationId,
+} from "typeorm"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import { GenerativeToken } from "./GenerativeToken"
+import { ModerationReason } from "./ModerationReason"
+import { DateTransformer } from "./Transformers/DateTransformer"
+import { User } from "./User"
 
 @Entity()
 @ObjectType({
-  description: "Any fxhash user can report any Generative Token, and such report is represented by this entity."
+  description:
+    "Any fxhash user can report any Generative Token, and such report is represented by this entity.",
 })
 export class Report extends BaseEntity {
   @Field()
@@ -19,21 +27,21 @@ export class Report extends BaseEntity {
   user?: User
 
   @Column()
-	userId: number
+  userId: number
 
   @ManyToOne(() => GenerativeToken, token => token.actions)
   token?: GenerativeToken
 
   @Column()
-	tokenId: number
+  tokenId: number
 
-  @ManyToOne(() => ModerationReason, reason => reason.reports, { 
+  @ManyToOne(() => ModerationReason, reason => reason.reports, {
     onDelete: "CASCADE",
     nullable: true,
   })
-  reason?: ModerationReason|null
+  reason?: ModerationReason | null
 
   @Field()
-  @Column({ type: 'timestamptz', transformer: DateTransformer })
+  @Column({ type: "timestamptz", transformer: DateTransformer })
   createdAt: string
 }

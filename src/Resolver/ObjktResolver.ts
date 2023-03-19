@@ -22,9 +22,17 @@ import { ObjktsSortInput, OffersSortInput } from "./Arguments/Sort"
 import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
+import { ObjktId } from "../Scalar/ObjktId"
 
 @Resolver(Objkt)
 export class ObjktResolver {
+  @FieldResolver(returns => ObjktId, {
+    description: "The unique identifier of the objkt.",
+  })
+  id(@Root() objkt: Objkt) {
+    return new ObjktId(objkt)
+  }
+
   @FieldResolver(returns => User, {
     description:
       "The current owner of this gentk. The fxhash marketplace contracts are ignored when there's a transfer of ownerhsip to their contracts.",
@@ -55,7 +63,7 @@ export class ObjktResolver {
   })
   royaltiesSplit(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.royaltiesSplit) return objkt.royaltiesSplit
-    return ctx.objktRoyaltiesSplitsLoader.load(objkt.id)
+    return ctx.objktRoyaltiesSplitsLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => [Listing], {
@@ -64,7 +72,7 @@ export class ObjktResolver {
       "All the listings for the gentk. Includes all the listings related to the gentk, even those which were cancelled / accepted.",
   })
   listings(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    return ctx.objktListingsLoader.load(objkt.id)
+    return ctx.objktListingsLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => Listing, {
@@ -72,7 +80,7 @@ export class ObjktResolver {
     description: "The Listing currently active for the gentk, if any.",
   })
   activeListing(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    return ctx.objktActiveListingsLoader.load(objkt.id)
+    return ctx.objktActiveListingsLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => MediaImage, {
@@ -104,7 +112,7 @@ export class ObjktResolver {
     }
 
     return ctx.objktOffersLoader.load({
-      id: objkt.id,
+      ...new ObjktId(objkt),
       filters: filters,
       sort: sort,
     })
@@ -116,30 +124,30 @@ export class ObjktResolver {
   })
   actions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
     if (objkt.actions) return objkt.actions
-    return ctx.objktActionsLoader.load(objkt.id)
+    return ctx.objktActionsLoader.load(new ObjktId(objkt))
   }
 
-  // @FieldResolver(returns => [Redemption], {
-  //   description:
-  //     "All the single redemption events which occured on this gentk.",
-  // })
-  // redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-  //   if (objkt.redemptions) return objkt.redemptions
-  //   return ctx.objktRedemptionsLoader.load(objkt.id)
-  // }
+  @FieldResolver(returns => [Redemption], {
+    description:
+      "All the single redemption events which occured on this gentk.",
+  })
+  redemptions(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    if (objkt.redemptions) return objkt.redemptions
+    return ctx.objktRedemptionsLoader.load(new ObjktId(objkt))
+  }
 
-  // @FieldResolver(returns => [Redeemable], {
-  //   description:
-  //     "A list of the Redeemables for which the token can be redeemed",
-  // })
-  // availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-  //   if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
-  //   return ctx.objktAvailableRedeemablesLoader.load(objkt.id)
-  // }
+  @FieldResolver(returns => [Redeemable], {
+    description:
+      "A list of the Redeemables for which the token can be redeemed",
+  })
+  availableRedeemables(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    if (objkt.issuer && objkt.issuer.redeemables?.length === 0) return []
+    return ctx.objktAvailableRedeemablesLoader.load(new ObjktId(objkt))
+  }
 
   @FieldResolver(returns => Number)
   async mintedPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
-    return ctx.objktMintedPriceLoader.load(objkt.id)
+    return ctx.objktMintedPriceLoader.load(new ObjktId(objkt))
   }
 
   @Query(returns => [Objkt], {
@@ -185,13 +193,16 @@ export class ObjktResolver {
       "Endpoint to query a single gentk, using different trivial search criteria (id, hash or slug).",
   })
   async objkt(
-    @Arg("id", { nullable: true }) id: number,
+    @Arg("id", { nullable: true }) id: ObjktId,
     @Arg("hash", { nullable: true }) hash: string,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<Objkt | undefined> {
     if (id == null && hash == null && slug == null) return undefined
     let args: Record<string, any> = {}
-    if (!(id == null)) args.id = id
+    if (!(id == null)) {
+      args.id = id.id
+      args.issuerVersion = id.issuerVersion
+    }
     if (!(hash == null)) args.generationHash = hash
     if (!(slug == null)) args.slug = slug
     return Objkt.findOne({

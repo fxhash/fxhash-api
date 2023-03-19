@@ -11,8 +11,9 @@ import { Action, FiltersAction } from "../Entity/Action"
 import { Article } from "../Entity/Article"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Objkt } from "../Entity/Objkt"
-// import { Redeemable } from "../Entity/Redeemable"
+import { Redeemable } from "../Entity/Redeemable"
 import { User } from "../Entity/User"
+import { ObjktId } from "../Scalar/ObjktId"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
@@ -61,7 +62,12 @@ export class ActionResolver {
   objkt(@Root() action: Action, @Ctx() ctx: RequestContext) {
     if (action.objktId == null) return null
     if (action.objkt) return action.objkt
-    return ctx.objktsLoader.load(action.objktId)
+    return ctx.objktsLoader.load(
+      new ObjktId({
+        id: action.objktId,
+        issuerVersion: action.objktIssuerVersion,
+      })
+    )
   }
 
   @FieldResolver(returns => Article, {
@@ -74,15 +80,15 @@ export class ActionResolver {
     return ctx.articlesLoader.load(action.articleId)
   }
 
-  // @FieldResolver(returns => Redeemable, {
-  //   nullable: true,
-  //   description: "The redeemable associated with the action, if any.",
-  // })
-  // redeemable(@Root() action: Action, @Ctx() ctx: RequestContext) {
-  //   if (action.redeemableAddress == null) return null
-  //   if (action.redeemable) return action.redeemable
-  //   return ctx.redeemableLoader.load(action.redeemableAddress)
-  // }
+  @FieldResolver(returns => Redeemable, {
+    nullable: true,
+    description: "The redeemable associated with the action, if any.",
+  })
+  redeemable(@Root() action: Action, @Ctx() ctx: RequestContext) {
+    if (action.redeemableAddress == null) return null
+    if (action.redeemable) return action.redeemable
+    return ctx.redeemableLoader.load(action.redeemableAddress)
+  }
 
   @Query(returns => [Action], {
     description: "A general purpose paginated endpoint to explore the actions.",

@@ -4,49 +4,38 @@ import {
   Arg,
   Args,
   Ctx,
-  Field,
   FieldResolver,
-  ObjectType,
   Query,
   Resolver,
   Root,
 } from "type-graphql"
-import {
-  Brackets,
-  Equal,
-  getManager,
-  In,
-  IsNull,
-  LessThanOrEqual,
-  MoreThan,
-  Not,
-} from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
+import { Codex } from "../Entity/Codex"
 import {
   GenerativeFilters,
   GenerativeToken,
-  GentkTokPricing,
   GenTokFlag,
 } from "../Entity/GenerativeToken"
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { MediaImage } from "../Entity/MediaImage"
+import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
+import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { FiltersOffer, Offer } from "../Entity/Offer"
 import { PricingDutchAuction } from "../Entity/PricingDutchAuction"
 import { PricingFixed } from "../Entity/PricingFixed"
-// import { Redeemable } from "../Entity/Redeemable"
+import { Redeemable } from "../Entity/Redeemable"
 import { Report } from "../Entity/Report"
 import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
-import { searchIndexGenerative } from "../Services/Search"
+import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
 import { RequestContext } from "../types/RequestContext"
-import { processFilters, processGenerativeFilters } from "../Utils/Filters"
-import { getGenerativeTokenPrice } from "../Utils/GenerativeToken"
+import { processFilters } from "../Utils/Filters"
 import { FeatureFilter } from "./Arguments/Filter"
 import { MarketStatsHistoryInput } from "./Arguments/MarketStats"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
@@ -54,12 +43,26 @@ import {
   ActionsSortInput,
   defaultSort,
   GenerativeSortInput,
+  MintTicketSortInput,
   ObjktsSortInput,
   OffersSortInput,
 } from "./Arguments/Sort"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
+  @FieldResolver(returns => Codex, {
+    description: "The Codex of the token.",
+  })
+  codex(@Root() token: GenerativeToken, @Ctx() ctx: RequestContext) {
+    return (
+      token.codex ||
+      ctx.genTokCodexLoader.load({
+        id: token.id,
+        version: token.version,
+      })
+    )
+  }
+
   @FieldResolver(returns => [Objkt], {
     description:
       "Get the unique iterations generated from the Generative Token. This is the go-to endpoint to get the gentks as it's the most optimized and is built to support sort and filter options.",
@@ -113,7 +116,7 @@ export class GenTokenResolver {
     @Ctx() ctx: RequestContext
   ) {
     if (token.objkts) return token.objkts
-    return ctx.genTokObjktsLoader.load({ id: token.id })
+    return ctx.genTokObjktsLoader.load(token.id)
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -239,17 +242,17 @@ export class GenTokenResolver {
     return ctx.genTokObjktsCountLoader.load(token.id)
   }
 
-  // @FieldResolver(() => [Redeemable], {
-  //   description:
-  //     "A list of Redeemable Smart Contracts associated with this token",
-  // })
-  // async redeemables(
-  //   @Root() token: GenerativeToken,
-  //   @Ctx() ctx: RequestContext
-  // ) {
-  //   if (token.redeemables) return token.redeemables
-  //   return ctx.genTokRedeemablesLoader.load(token.id)
-  // }
+  @FieldResolver(() => [Redeemable], {
+    description:
+      "A list of Redeemable Smart Contracts associated with this token",
+  })
+  async redeemables(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (token.redeemables) return token.redeemables
+    return ctx.genTokRedeemablesLoader.load(token.id)
+  }
 
   @FieldResolver(returns => [Report], {
     description: "A list of the reports made on the Generative Token",
@@ -291,7 +294,9 @@ export class GenTokenResolver {
     query.where(processFilters(filters))
 
     // add the filters to target the token only
-    query.andWhere("action.tokenId = :id", { id: token.id })
+    query.andWhere("action.tokenId = :id", {
+      id: token.id,
+    })
 
     // add the sort arguments
     for (const sort in sortArgs) {
@@ -401,7 +406,7 @@ export class GenTokenResolver {
     description:
       "Get a Generative Token by its ID or SLUG. One of those 2 must be provided for the endpoint to perform a search in the DB.",
   })
-  generativeToken(
+  async generativeToken(
     @Arg("id", { nullable: true }) id: number,
     @Arg("slug", { nullable: true }) slug: string
   ): Promise<GenerativeToken | undefined> {
@@ -439,12 +444,79 @@ export class GenTokenResolver {
           token.flag !== undefined)
       ) {
         id = (Math.random() * count) | 0
-        token = await GenerativeToken.findOne(id)
+        // figure out how to return different token versions with equal probability
+        token = await GenerativeToken.findOne({ id })
         if (++i > 6) {
           return undefined
         }
       }
     }
     return token
+  }
+
+  @Query(returns => GenerativeToken, {
+    description:
+      "Returns a random Generative Token among the 20 most successfull tokens on the marketplace 7 days total volume.",
+  })
+  async randomTopGenerativeToken(): Promise<GenerativeToken> {
+    const stats = await MarketStats.createQueryBuilder("stat")
+      .leftJoinAndSelect("stat.token", "token")
+      .addOrderBy("stat.secVolumeTz7d", "DESC")
+      .limit(20)
+      .getMany()
+    return stats[Math.floor(Math.random() * stats.length)].token
+  }
+
+  @FieldResolver(returns => MintTicketSettings, {
+    description: "The settings for the mint tickets of a Generative Token.",
+    nullable: true,
+  })
+  async mintTicketSettings(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext
+  ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return null
+    if (token.mintTicketSettings) return token.mintTicketSettings
+    return ctx.genTokMintTicketSettingsLoader.load(token.id)
+  }
+
+  @FieldResolver(returns => [MintTicket], {
+    description: "Get the unique mint tickets for a Generative Token.",
+  })
+  async mintTickets(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersMintTicket, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: MintTicketSortInput,
+    @Args() { skip, take }: PaginationArgs
+  ) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return []
+
+    // defaults
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        id: "ASC",
+      }
+    }
+    ;[skip, take] = useDefaultValues([skip, take], [0, 20])
+
+    // build the mint ticket query
+    let query = MintTicket.createQueryBuilder("mintTicket").select()
+
+    // add the filters to target the token only
+    query.andWhere("mintTicket.tokenId = :id", {
+      id: token.id,
+    })
+
+    // we apply the filters and the sort arguments
+    query = await mintTicketQueryFilter(query, filters, sort)
+
+    // add pagination
+    query.take(take)
+    query.skip(skip)
+
+    return query.getMany()
   }
 }

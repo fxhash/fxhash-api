@@ -21,7 +21,10 @@ import {
   RelationId,
   JoinColumn,
 } from "typeorm"
-import { GenMintProgressFilter } from "../types/GenerativeToken"
+import {
+  GenerativeTokenVersion,
+  GenMintProgressFilter,
+} from "../types/GenerativeToken"
 import {
   ObjktMetadata,
   TokenFeature,
@@ -45,11 +48,21 @@ import { User } from "./User"
     "Unique iterations of Generative Tokens. They are the NFT entities. Called *Objkt* in the API but is actually a **Gentk** (@ciphrd: my bad there, we're too deep now)",
 })
 export class Objkt extends BaseEntity {
-  @Field({
-    description: "Unique identifier, corresponds to the ID stored on-chain",
-  })
   @PrimaryColumn()
   id: number
+
+  /**
+   * The version of the generator that created this gentk - PRE_V3 means before
+   * the params update ~20/03/2023.
+   */
+  @Column({
+    primary: true,
+    type: "enum",
+    enum: GenerativeTokenVersion,
+    enumName: "generative_token_version",
+    default: GenerativeTokenVersion.PRE_V3,
+  })
+  issuerVersion: GenerativeTokenVersion
 
   @Field({
     nullable: true,
@@ -150,6 +163,13 @@ export class Objkt extends BaseEntity {
   @Column({ type: "jsonb", nullable: true })
   features?: TokenFeature[]
 
+  @Field(() => String, {
+    description: "The fx(params) input bytes for the token",
+    nullable: true,
+  })
+  @Column({ type: "text", nullable: true })
+  inputBytes: string | null
+
   @Field(() => Number, {
     nullable: true,
     description:
@@ -170,7 +190,7 @@ export class Objkt extends BaseEntity {
 
   @Field({
     description:
-      "The contract version on which this gentk NFT is stored. (0 = beta contract, 1 = release contract)",
+      "The contract version on which this gentk NFT is stored. (0 = beta contract, 1 = release contract, 2 = post-params contract)",
   })
   @Column({ default: 0 })
   version: number = 0
@@ -233,8 +253,7 @@ export class Objkt extends BaseEntity {
 
   @Field(() => Number, {
     nullable: true,
-    description:
-      "Price (in tezos) from the first time it has been minted",
+    description: "Price (in tezos) from the first time it has been minted",
   })
   mintedPrice: number
 

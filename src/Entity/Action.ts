@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   RelationId,
 } from "typeorm"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { HistoryMetadata } from "../types/Metadata"
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
@@ -51,6 +52,7 @@ export enum TokenActionType {
   ARTICLE_METADATA_UPDATED = "ARTICLE_METADATA_UPDATED",
   ARTICLE_METADATA_LOCKED = "ARTICLE_METADATA_LOCKED",
   ARTICLE_EDITIONS_TRANSFERED = "ARTICLE_EDITIONS_TRANSFERED",
+  CODEX_UPDATED = "CODEX_UPDATED",
 }
 registerEnumType(TokenActionType, {
   name: "ActionType",
@@ -105,6 +107,13 @@ export class Action extends BaseEntity {
 
   @Column()
   objktId: number
+
+  @Column({
+    type: "enum",
+    enumName: "generative_token_version",
+    enum: GenerativeTokenVersion,
+  })
+  objktIssuerVersion: GenerativeTokenVersion
 
   @ManyToOne(() => Redeemable, red => red.actions, {
     onDelete: "CASCADE",
