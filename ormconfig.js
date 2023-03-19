@@ -6,7 +6,7 @@ module.exports = [
     logging: process.env.TYPEORM_LOGGING === "true",
     synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
     entities: [process.env.TYPEORM_ENTITIES],
-    cache: true,
+    cache: false,
     ssl: {
       rejectUnauthorized: false,
     },
@@ -21,7 +21,7 @@ module.exports = [
     logging: process.env.TYPEORM_LOGGING === "true",
     synchronize: process.env.TYPEORM_SYNCHRONIZE === "true",
     entities: [process.env.TYPEORM_ENTITIES],
-    cache: true,
+    cache: false,
     ssl: false,
     extra: {
       rejectUnauthorized: false,
