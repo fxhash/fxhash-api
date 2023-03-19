@@ -116,7 +116,7 @@ export class GenTokenResolver {
     @Ctx() ctx: RequestContext
   ) {
     if (token.objkts) return token.objkts
-    return ctx.genTokObjktsLoader.load(token.id)
+    return ctx.genTokObjktsLoader.load({ id: token.id })
   }
 
   @FieldResolver(returns => [Objkt], {
