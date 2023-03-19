@@ -3,6 +3,7 @@ import {
   Args,
   Ctx,
   FieldResolver,
+  Int,
   Query,
   Resolver,
   Root,
@@ -31,6 +32,25 @@ export class ObjktResolver {
   })
   id(@Root() objkt: Objkt) {
     return new ObjktId(objkt)
+  }
+
+  @FieldResolver(returns => Int, {
+    description: "The on-chain id of the gentk for passing to contract calls.",
+  })
+  onChainId(@Root() objkt: Objkt) {
+    return objkt.id
+  }
+
+  @FieldResolver(returns => String, {
+    description:
+      "The address of the gentk contract that this gentk was minted on.",
+  })
+  gentkContractAddress(@Root() objkt: Objkt) {
+    return {
+      [0]: process.env.TZ_CT_ADDRESS_GENTK_V1,
+      [1]: process.env.TZ_CT_ADDRESS_GENTK_V2,
+      [2]: process.env.TZ_CT_ADDRESS_GENTK_V3,
+    }[objkt.version]
   }
 
   @FieldResolver(returns => User, {
