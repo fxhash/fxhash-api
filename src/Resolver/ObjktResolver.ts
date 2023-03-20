@@ -3,6 +3,7 @@ import {
   Args,
   Ctx,
   FieldResolver,
+  Int,
   Query,
   Resolver,
   Root,
@@ -24,6 +25,12 @@ import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
 import { ObjktId } from "../Scalar/ObjktId"
 
+const GENTK_CONTRACT_VERSION_MAP = {
+  [0]: process.env.TZ_CT_ADDRESS_GENTK_V1,
+  [1]: process.env.TZ_CT_ADDRESS_GENTK_V2,
+  [2]: process.env.TZ_CT_ADDRESS_GENTK_V3,
+}
+
 @Resolver(Objkt)
 export class ObjktResolver {
   @FieldResolver(returns => ObjktId, {
@@ -31,6 +38,21 @@ export class ObjktResolver {
   })
   id(@Root() objkt: Objkt) {
     return new ObjktId(objkt)
+  }
+
+  @FieldResolver(returns => Int, {
+    description: "The on-chain id of the gentk for passing to contract calls.",
+  })
+  onChainId(@Root() objkt: Objkt) {
+    return objkt.id
+  }
+
+  @FieldResolver(returns => String, {
+    description:
+      "The address of the gentk contract that this gentk was minted on.",
+  })
+  gentkContractAddress(@Root() objkt: Objkt) {
+    return GENTK_CONTRACT_VERSION_MAP[objkt.version]
   }
 
   @FieldResolver(returns => User, {

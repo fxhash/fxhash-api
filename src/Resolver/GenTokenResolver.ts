@@ -34,6 +34,7 @@ import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
 import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { FeatureFilter } from "./Arguments/Filter"
@@ -50,6 +51,16 @@ import {
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
+  @FieldResolver(returns => String, {
+    description:
+      "The address of the issuer contract that this token was issued from.",
+  })
+  issuerContractAddress(@Root() token: GenerativeToken) {
+    return token.version === GenerativeTokenVersion.V3
+      ? process.env.TZ_CT_ADDRESS_ISSUER_V3
+      : process.env.TZ_CT_ADDRESS_ISSUER_V2
+  }
+
   @FieldResolver(returns => Codex, {
     description: "The Codex of the token.",
   })
