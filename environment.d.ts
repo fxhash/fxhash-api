@@ -1,35 +1,41 @@
 declare global {
-	namespace NodeJS {
-		interface ProcessEnv {
-			NODE_ENV: string
-			PORT: number
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV: string
+      PORT: number
 
-			FRONT_URL: string
-			CORS_ALLOWED_ORIGINS: string
+      FRONT_URL: string
+      CORS_ALLOWED_ORIGINS: string
 
-			DATABASE_TYPE: "postgres"
-			DATABASE_URL: string
-			DATABASE_METRICS_URL: string
+      DATABASE_TYPE: "postgres"
+      DATABASE_URL: string
+      DATABASE_METRICS_URL: string
 
-			TYPEORM_SYNCHRONIZE: string
-			TYPEORM_LOGGING: string
-			TYPEORM_ENTITIES: string
-			TYPEORM_ENTITIES_METRICS: string
+      TYPEORM_SYNCHRONIZE: string
+      TYPEORM_LOGGING: string
+      TYPEORM_ENTITIES: string
+      TYPEORM_ENTITIES_METRICS: string
 
-			RECORD_METRICS: "0" | "1"
+      TZ_CT_ADDRESS_ISSUER_V2: string
+      TZ_CT_ADDRESS_ISSUER_V3: string
+      TZ_CT_ADDRESS_GENTK_V1: string
+      TZ_CT_ADDRESS_GENTK_V2: string
+      TZ_CT_ADDRESS_GENTK_V3: string
 
-			REDIS_URL?: string
+      RECORD_METRICS: "0" | "1"
 
-			ALGOLIA_APP_ID: string
-			ALGOLIA_SEARCH_KEY: string
-			ALGOLIA_INDEX_GENERATIVE: string
-			ALGOLIA_INDEX_MARKETPLACE: string
-			ALGOLIA_INDEX_USERS: string
-			ALGOLIA_INDEX_ARTICLES: string
-	}
-}
+      REDIS_URL?: string
+
+      ALGOLIA_APP_ID: string
+      ALGOLIA_SEARCH_KEY: string
+      ALGOLIA_INDEX_GENERATIVE: string
+      ALGOLIA_INDEX_MARKETPLACE: string
+      ALGOLIA_INDEX_USERS: string
+      ALGOLIA_INDEX_ARTICLES: string
+    }
+  }
 }
 
 // If this file has no import/export statements (i.e. is a script)
 // convert it into a module by adding an empty export statement.
-export { }
+export {}
