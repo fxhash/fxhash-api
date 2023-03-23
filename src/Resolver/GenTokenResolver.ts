@@ -467,12 +467,12 @@ export class GenTokenResolver {
 
   @Query(returns => GenerativeToken, {
     description:
-      "Returns a random Generative Token among the 20 most successfull tokens on the marketplace 7 days total volume.",
+      "Returns a random Generative Token among the 20 most successful tokens by tezos volume on the marketplace in the last 24h",
   })
   async randomTopGenerativeToken(): Promise<GenerativeToken> {
     const stats = await MarketStats.createQueryBuilder("stat")
       .leftJoinAndSelect("stat.token", "token")
-      .addOrderBy("stat.secVolumeTz7d", "DESC")
+      .addOrderBy("stat.secVolumeTz24", "DESC")
       .limit(20)
       .getMany()
     return stats[Math.floor(Math.random() * stats.length)].token
