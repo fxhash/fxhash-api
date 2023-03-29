@@ -74,8 +74,6 @@ describe("UserResolver", () => {
           },
         })
 
-        console.log(JSON.stringify(result))
-
         expect(result).toMatchObject({
           data: {
             user: {
