@@ -332,6 +332,7 @@ export const reserveFactory = async (
   reserve.tokenId = tokenId
   reserve.amount = config.amount || 0
   reserve.method = config.method || 0
+  reserve.data = config.data || {}
   await reserve.save()
   return reserve
 }
