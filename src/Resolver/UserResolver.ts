@@ -2,21 +2,14 @@ import {
   Arg,
   Args,
   Ctx,
-  Field,
   FieldResolver,
-  Int,
-  ObjectType,
   Query,
   Resolver,
   Root,
 } from "type-graphql"
-import { Brackets, IsNull, Not } from "typeorm"
+import { Brackets, getManager } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
-import {
-  GenerativeFilters,
-  GenerativeToken,
-  GenTokFlag,
-} from "../Entity/GenerativeToken"
+import { GenerativeFilters, GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
@@ -44,6 +37,12 @@ import { Article, ArticleFilters } from "../Entity/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
 import { MediaImage } from "../Entity/MediaImage"
 import { MintTicket } from "../Entity/MintTicket"
+import {
+  AnyOffer,
+  collectionOfferUnionFields,
+  offerUnionFields,
+} from "../types/AnyOffer"
+import { offerUnionQueryFilterRaw } from "../Query/Filters/Offer"
 
 @Resolver(User)
 export class UserResolver {
@@ -279,6 +278,34 @@ export class UserResolver {
     })
   }
 
+  @FieldResolver(returns => [AnyOffer], {
+    description:
+      "Returns all the offers and collection offers made by the user. Can be filtered.",
+  })
+  async allOffersSent(
+    @Root() user: User,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    // union not supported by typeorm - use raw query to get all offers
+    const { where, orderBy } = offerUnionQueryFilterRaw(filters, sort)
+    return getManager().query(`
+      SELECT * FROM (
+        SELECT ${offerUnionFields} FROM offer
+        UNION SELECT ${collectionOfferUnionFields} FROM collection_offer
+      ) as subq
+      WHERE "buyerId" = '${user.id}' ${where ? `AND (${where})` : ""}
+      ORDER BY ${orderBy}
+    `)
+  }
+
   @FieldResolver(returns => [Offer], {
     description:
       "Returns all the offers made by users on tokens owned by the given user.",
@@ -301,6 +328,50 @@ export class UserResolver {
       filters: filters,
       sort: sort,
     })
+  }
+
+  @FieldResolver(returns => [AnyOffer], {
+    description:
+      "Returns all the offers and collection offers received by the user. Can be filtered.",
+  })
+  async allOffersReceived(
+    @Root() user: User,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    // get all offers on objkts owned by user
+    const receivedOfferIds = `
+      SELECT offer.id FROM offer JOIN objkt
+        ON offer."objktId" = objkt.id
+        AND objkt."issuerVersion" = offer."objktIssuerVersion"
+        WHERE objkt."ownerId" = '${user.id}'
+    `
+
+    // get all collection offers on objkts owned by user
+    const receivedCollectionOfferIds = `
+      SELECT DISTINCT collection_offer.id FROM collection_offer JOIN objkt
+        ON collection_offer."tokenId" = objkt."issuerId"
+        WHERE objkt."ownerId" = '${user.id}'
+    `
+
+    // union not supported by typeorm - use raw query to get all offers
+    const { where, orderBy } = offerUnionQueryFilterRaw(filters, sort)
+    return getManager().query(`
+      SELECT * FROM (
+        SELECT ${offerUnionFields} FROM offer WHERE offer.id IN (${receivedOfferIds})
+        UNION
+        SELECT ${collectionOfferUnionFields} FROM collection_offer WHERE collection_offer.id IN (${receivedCollectionOfferIds})
+      ) as subq
+      ${where ? `WHERE ${where}` : ""}
+      ORDER BY ${orderBy}
+    `)
   }
 
   @FieldResolver(returns => [User], {
