@@ -42,14 +42,16 @@ export const offerUnionQueryFilterRaw = (
 ) => {
   const where: string[] = []
 
-  if (filters.active_eq === true) {
-    where.push(
-      `"cancelledAt" is null AND "acceptedAt" is null AND "completedAt" is null`
-    )
-  } else if (filters.active_eq === false) {
-    where.push(
-      `"cancelledAt" is not null OR "acceptedAt" is not null OR "completedAt" is not null`
-    )
+  if (filters) {
+    if (filters.active_eq === true) {
+      where.push(
+        `"cancelledAt" is null AND "acceptedAt" is null AND "completedAt" is null`
+      )
+    } else if (filters.active_eq === false) {
+      where.push(
+        `"cancelledAt" is not null OR "acceptedAt" is not null OR "completedAt" is not null`
+      )
+    }
   }
 
   const orderBy = Object.keys(sort).map(
