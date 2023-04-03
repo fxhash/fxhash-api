@@ -49,7 +49,7 @@ export class CollectionOffer extends BaseEntity {
     description: "The price proposed by the buyer",
   })
   @Column({ type: "bigint", default: "0" })
-  price: string
+  price: number
 
   @Field({
     description:
