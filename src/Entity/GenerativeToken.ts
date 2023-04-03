@@ -21,6 +21,7 @@ import { Action } from "./Action"
 import { ArticleGenerativeToken } from "./ArticleGenerativeToken"
 import { Codex } from "./Codex"
 import { CodexUpdateRequest } from "./CodexUpdateRequest"
+import { CollectionOffer } from "./CollectionOffer"
 import { MarketStats } from "./MarketStats"
 import { MarketStatsHistory } from "./MarketStatsHistory"
 import { MediaImage } from "./MediaImage"
@@ -235,6 +236,9 @@ export class GenerativeToken extends BaseEntity {
 
   @OneToMany(() => Reserve, reserve => reserve.token)
   reserves: Reserve[]
+
+  @OneToMany(() => CollectionOffer, offer => offer.token)
+  collectionOffers: CollectionOffer[]
 
   @Field({
     description:
