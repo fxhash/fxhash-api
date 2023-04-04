@@ -7,11 +7,16 @@ import { Offer } from "../Entity/Offer"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { generativeQueryFilter } from "../Query/Filters/GenerativeToken"
 import { Action, TokenActionType } from "../Entity/Action"
-import { offerQueryFilter } from "../Query/Filters/Offer"
+import {
+  collectionOfferQueryFilter,
+  offerQueryFilter,
+} from "../Query/Filters/Offer"
 import { Article } from "../Entity/Article"
 import { articleQueryFilter } from "../Query/Filters/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
 import { MintTicket } from "../Entity/MintTicket"
+import { CollectionOffer } from "../Entity/CollectionOffer"
+import { sortByProperty } from "../Utils/Sort"
 
 /**
  * Given a list of user IDs, resolves with an array of Users matching those
@@ -158,6 +163,109 @@ const batchUserOffersReceived = async (inputs: any) => {
 }
 export const createUsersOffersReceivedLoader = () =>
   new DataLoader(batchUserOffersReceived)
+
+const batchUserOffersAndCollectionOffersSent = async (inputs: any) => {
+  // we extract the ids and the filters if any
+  const ids = inputs.map(input => input.id)
+  const filters = inputs[0]?.filters
+  const sort = inputs[0]?.sort
+
+  // get sent offers
+  const sentOffersQuery = Offer.createQueryBuilder("offer")
+    .select()
+    .where("offer.buyerId IN (:...ids)", { ids })
+
+  // get sent collection offers
+  const sentCollectionOffersQuery = CollectionOffer.createQueryBuilder(
+    "collection_offer"
+  )
+    .select()
+    .where("collection_offer.buyerId IN (:...ids)", { ids })
+
+  // add filters and sorting to queries
+  offerQueryFilter(sentOffersQuery, filters, sort)
+  collectionOfferQueryFilter(sentCollectionOffersQuery, filters, sort)
+
+  // get the results in parallel
+  const [sentOffers, sentCollectionOffers] = await Promise.all([
+    sentOffersQuery.getMany(),
+    sentCollectionOffersQuery.getMany(),
+  ])
+
+  // extract the sort property and direction
+  const sortProperty = Object.keys(sort)[0]
+  const sortDirection = sort[sortProperty]
+
+  // combine and sort the results
+  const offers = [...sentOffers, ...sentCollectionOffers].sort(
+    sortByProperty(sortProperty, sortDirection)
+  )
+
+  return ids.map(id => offers.filter(offer => offer.buyerId === id))
+}
+export const createUsersOffersAndCollectionOffersSentLoader = () =>
+  new DataLoader(batchUserOffersAndCollectionOffersSent)
+
+const batchUserOffersAndCollectionOffersReceived = async (inputs: any) => {
+  // we extract the ids and the filters if any
+  const ids = inputs.map(input => input.id)
+  const filters = inputs[0]?.filters
+  const sort = inputs[0]?.sort
+
+  // get received offers
+  const receivedOffersQuery = Offer.createQueryBuilder("offer")
+    .select()
+    .leftJoinAndSelect("offer.objkt", "objkt")
+    .where("objkt.ownerId IN (:...ids)", { ids })
+
+  // get received collection offers
+  const receivedCollectionOffersQuery = CollectionOffer.createQueryBuilder(
+    "collection_offer"
+  )
+    .select()
+    .leftJoinAndMapOne(
+      "collection_offer.objkt",
+      Objkt,
+      "objkt",
+      "collection_offer.tokenId = objkt.issuerId"
+    )
+    .where("objkt.ownerId IN (:...ids)", { ids })
+
+  // add filters and sorting to queries
+  offerQueryFilter(receivedOffersQuery, filters, sort)
+  collectionOfferQueryFilter(receivedCollectionOffersQuery, filters, sort)
+
+  // get the results in parallel
+  const [receivedOffers, receivedCollectionOffers] = await Promise.all([
+    receivedOffersQuery.getMany(),
+    receivedCollectionOffersQuery.getMany(),
+  ])
+
+  // extract the sort property and direction
+  const sortProperty = Object.keys(sort)[0]
+  const sortDirection = sort[sortProperty]
+
+  // combine and sort the results
+  const offers = [...receivedOffers, ...receivedCollectionOffers].sort(
+    sortByProperty(sortProperty, sortDirection)
+  )
+
+  return ids.map(id =>
+    offers.filter(
+      offer =>
+        /**
+         * CollectionOffer.objkt is not a real relation but is returned from
+         * our query with leftJoinAndMap, so we ignore the type error
+         */
+        // @ts-expect-error
+        offer.objkt.ownerId === id &&
+        // filter out offers that the user has sent themselves
+        offer.buyerId !== id
+    )
+  )
+}
+export const createUsersOffersAndCollectionOffersReceivedLoader = () =>
+  new DataLoader(batchUserOffersAndCollectionOffersReceived)
 
 /**
  * Given a list of user ids, outputs a list of list of Generative Tokens,

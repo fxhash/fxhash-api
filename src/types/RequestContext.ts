@@ -57,6 +57,8 @@ import {
   createUsersArticlesLoader,
   createUsersArticleLedgersLoader,
   createUsersMintTicketsLoader,
+  createUsersOffersAndCollectionOffersSentLoader,
+  createUsersOffersAndCollectionOffersReceivedLoader,
 } from "../DataLoaders/User"
 
 export interface RequestContext extends ExpressRequest {
@@ -67,7 +69,13 @@ export interface RequestContext extends ExpressRequest {
   userObjktsLoader: ReturnType<typeof createUsersObjktLoader>
   userMintTicketsLoader: ReturnType<typeof createUsersMintTicketsLoader>
   userOffersSentLoader: ReturnType<typeof createUsersOffersSentLoader>
+  userOffersAndCollectionOffersSentLoader: ReturnType<
+    typeof createUsersOffersAndCollectionOffersSentLoader
+  >
   userOffersReceivedLoader: ReturnType<typeof createUsersOffersReceivedLoader>
+  userOffersAndCollectionOffersReceivedLoader: ReturnType<
+    typeof createUsersOffersAndCollectionOffersReceivedLoader
+  >
   userCollabContractsLoader: ReturnType<typeof createUsersCollabContractsLoader>
   collabCollaboratorsLoader: ReturnType<typeof createCollabCollaboratorsLoader>
   usersGenToksLoader: ReturnType<typeof createUsersGenerativeTokensLoader>

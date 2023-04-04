@@ -1,4 +1,3 @@
-
 type SortKey<T> = keyof T
 
 interface SortTableLevels<T> {
@@ -12,19 +11,34 @@ interface SortTableLevels<T> {
  * - secondary table: an object with the keys that can be run on a secondary table
  * (or with different heuristic)
  */
-export function sortTableLevels<T>(sortInput: T, primarySortKeys: SortKey<T>[]): SortTableLevels<T> {
+export function sortTableLevels<T>(
+  sortInput: T,
+  primarySortKeys: SortKey<T>[]
+): SortTableLevels<T> {
   const sortsPrimary: Partial<T> = {}
   const sortsSecondary: Partial<T> = {}
   for (const k in sortInput) {
     if (primarySortKeys.includes(k)) {
       sortsPrimary[k] = sortInput[k]
-    }
-    else {
+    } else {
       sortsSecondary[k] = sortInput[k]
     }
   }
   return {
     primaryTable: sortsPrimary,
     secondaryTable: sortsSecondary,
+  }
+}
+
+export const sortByProperty = (property: string, order: "ASC" | "DESC") => {
+  return (a: any, b: any) => {
+    const aProperty = a[property]
+    const bProperty = b[property]
+    if (aProperty < bProperty) {
+      return order === "ASC" ? -1 : 1
+    } else if (aProperty > bProperty) {
+      return order === "ASC" ? 1 : -1
+    }
+    return 0
   }
 }
