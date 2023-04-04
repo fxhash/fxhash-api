@@ -48,6 +48,7 @@ import {
   ObjktsSortInput,
   OffersSortInput,
 } from "./Arguments/Sort"
+import { AnyOffer } from "../types/AnyOffer"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -181,13 +182,36 @@ export class GenTokenResolver {
     })
   }
 
+  @FieldResolver(() => [AnyOffer], {
+    description:
+      "Returns all the offers and collection offers associated with a generative token",
+  })
+  allOffers(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    return ctx.genTokOffersAndCollectionOffersLoader.load({
+      id: token.id,
+      filters: filters,
+      sort: sort,
+    })
+  }
+
   /**
    * Pricing resolvers.
    * Generative Tokens can have different pricing strategy, each one is stored
    * in its own table and responds to its own logic. At least one of the pricing
    * fields should be defined for a token
    */
-
   @FieldResolver(returns => PricingFixed, {
     description:
       "The PricingFixed entity associated with the Generative Token. *It can be null if the Generative Token uses a different pricing strategy*.",

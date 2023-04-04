@@ -20,6 +20,7 @@ import {
   createGenTokObjktFeaturesLoader,
   createGenTokObjktsCountLoader,
   createGenTokObjktsLoader,
+  createGenTokOffersAndCollectionOffersLoader,
   createGenTokOffersLoader,
   createGenTokPricingDutchAuctionLoader,
   createGenTokPricingFixedLoader,
@@ -87,6 +88,9 @@ export interface RequestContext extends ExpressRequest {
   genTokLoader: ReturnType<typeof createGenTokLoader>
   genTokObjktsLoader: ReturnType<typeof createGenTokObjktsLoader>
   genTokOffersLoader: ReturnType<typeof createGenTokOffersLoader>
+  genTokOffersAndCollectionOffersLoader: ReturnType<
+    typeof createGenTokOffersAndCollectionOffersLoader
+  >
   gentkTokPricingFixedLoader: ReturnType<typeof createGenTokPricingFixedLoader>
   gentkTokPricingDutchAuctionLoader: ReturnType<
     typeof createGenTokPricingDutchAuctionLoader
