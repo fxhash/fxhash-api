@@ -348,6 +348,30 @@ const batchGenTokOffers = async (inputs: any) => {
 export const createGenTokOffersLoader = () => new DataLoader(batchGenTokOffers)
 
 /**
+ * Given a list of Generative Token IDs, returns a list of CollectionOffers for each
+ * Generative Token
+ */
+const batchGenTokCollectionOffers = async (inputs: any) => {
+  // we extract the ids and the filters if any
+  const ids = inputs.map(input => input.id)
+  const filters = inputs[0]?.filters
+  const sort = inputs[0]?.sort
+
+  const query = CollectionOffer.createQueryBuilder("collection_offer")
+    .select()
+    .where("collection_offer.tokenId IN (:...ids)", { ids })
+
+  // apply filter/sort options
+  collectionOfferQueryFilter(query, filters, sort)
+
+  const offers = await query.getMany()
+
+  return ids.map(id => offers.filter(offer => offer.tokenId === id))
+}
+export const createGenTokCollectionOffersLoader = () =>
+  new DataLoader(batchGenTokCollectionOffers)
+
+/**
  * Given a list of Generative Token IDs, returns a list of Offers and
  * CollectionOffers for each Generative Token
  */

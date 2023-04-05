@@ -13,6 +13,7 @@ import {
   createGentkTokSecondarySplitsLoader,
   createGenTokArticleMentionsLoader,
   createGenTokCodexLoader,
+  createGenTokCollectionOffersLoader,
   createGenTokLoader,
   createGenTokMarketStatsHistoryLoader,
   createGenTokMarketStatsLoader,
@@ -88,6 +89,9 @@ export interface RequestContext extends ExpressRequest {
   genTokLoader: ReturnType<typeof createGenTokLoader>
   genTokObjktsLoader: ReturnType<typeof createGenTokObjktsLoader>
   genTokOffersLoader: ReturnType<typeof createGenTokOffersLoader>
+  genTokCollectionOffersLoader: ReturnType<
+    typeof createGenTokCollectionOffersLoader
+  >
   genTokOffersAndCollectionOffersLoader: ReturnType<
     typeof createGenTokOffersAndCollectionOffersLoader
   >

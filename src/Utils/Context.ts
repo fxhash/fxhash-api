@@ -25,6 +25,7 @@ import {
   createGenTokMintTicketSettingsLoader,
   createGenTokCodexLoader,
   createGenTokOffersAndCollectionOffersLoader,
+  createGenTokCollectionOffersLoader,
 } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
@@ -88,6 +89,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     genTokLoader: createGenTokLoader(),
     genTokObjktsLoader: createGenTokObjktsLoader(),
     genTokOffersLoader: createGenTokOffersLoader(),
+    genTokCollectionOffersLoader: createGenTokCollectionOffersLoader(),
     genTokOffersAndCollectionOffersLoader:
       createGenTokOffersAndCollectionOffersLoader(),
     gentkTokPricingFixedLoader: createGenTokPricingFixedLoader(),

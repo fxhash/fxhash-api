@@ -49,6 +49,7 @@ import {
   OffersSortInput,
 } from "./Arguments/Sort"
 import { AnyOffer } from "../types/AnyOffer"
+import { CollectionOffer } from "../Entity/CollectionOffer"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -176,6 +177,29 @@ export class GenTokenResolver {
     }
 
     return ctx.genTokOffersLoader.load({
+      id: token.id,
+      filters: filters,
+      sort: sort,
+    })
+  }
+
+  @FieldResolver(() => [CollectionOffer], {
+    description: "Returns a list of collection offers for the token",
+  })
+  collectionOffers(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    return ctx.genTokCollectionOffersLoader.load({
       id: token.id,
       filters: filters,
       sort: sort,
