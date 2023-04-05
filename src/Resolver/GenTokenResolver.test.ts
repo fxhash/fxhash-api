@@ -298,7 +298,6 @@ describe("GenTokenResolver", () => {
     })
 
     it("returns the correct generative tokens", () => {
-      console.log(result)
       expect(result).toMatchObject({
         data: {
           generativeTokens: [
