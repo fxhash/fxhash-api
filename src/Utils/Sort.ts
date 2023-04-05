@@ -34,11 +34,7 @@ export const sortByProperty = (property: string, order: "ASC" | "DESC") => {
   return (a: any, b: any) => {
     const aProperty = a[property]
     const bProperty = b[property]
-    if (aProperty < bProperty) {
-      return order === "ASC" ? -1 : 1
-    } else if (aProperty > bProperty) {
-      return order === "ASC" ? 1 : -1
-    }
-    return 0
+
+    return order === "ASC" ? aProperty - bProperty : bProperty - aProperty
   }
 }
