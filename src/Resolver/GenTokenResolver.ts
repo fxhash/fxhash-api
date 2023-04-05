@@ -554,4 +554,23 @@ export class GenTokenResolver {
 
     return query.getMany()
   }
+
+  @FieldResolver(returns => Boolean, {
+    nullable: true,
+    description: "Whether the supplied address holds a gentk for this token.",
+  })
+  async isHolder(
+    @Root() token: GenerativeToken,
+    @Arg("userId", _type => String, { nullable: true }) userId: string
+  ) {
+    if (!userId) return null
+
+    const gentksHeldForCollectionCount = await Objkt.createQueryBuilder("objkt")
+      .select()
+      .where("objkt.issuerId = :tokenId", { tokenId: token.id })
+      .andWhere("objkt.ownerId = :userId", { userId })
+      .getCount()
+
+    return gentksHeldForCollectionCount > 0
+  }
 }
