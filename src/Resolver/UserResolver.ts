@@ -38,12 +38,7 @@ import { ArticleLedger } from "../Entity/ArticleLedger"
 import { MediaImage } from "../Entity/MediaImage"
 import { MintTicket } from "../Entity/MintTicket"
 import { Reserve } from "../Entity/Reserve"
-import {
-  AnyOffer,
-  collectionOfferUnionFields,
-  offerUnionFields,
-} from "../types/AnyOffer"
-import { offerUnionQueryFilterRaw } from "../Query/Filters/Offer"
+import { AnyOffer } from "../types/AnyOffer"
 
 @Resolver(User)
 export class UserResolver {
@@ -304,6 +299,7 @@ export class UserResolver {
   })
   async allOffersSent(
     @Root() user: User,
+    @Ctx() ctx: RequestContext,
     @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
     @Arg("sort", { nullable: true }) sort: OffersSortInput
   ) {
@@ -314,16 +310,11 @@ export class UserResolver {
       }
     }
 
-    // union not supported by typeorm - use raw query to get all offers
-    const { where, orderBy } = offerUnionQueryFilterRaw(filters, sort)
-    return getManager().query(`
-      SELECT * FROM (
-        SELECT ${offerUnionFields} FROM offer
-        UNION SELECT ${collectionOfferUnionFields} FROM collection_offer
-      ) as subq
-      WHERE "buyerId" = '${user.id}' ${where ? `AND (${where})` : ""}
-      ORDER BY ${orderBy}
-    `)
+    return ctx.userOffersAndCollectionOffersSentLoader.load({
+      id: user.id,
+      filters: filters,
+      sort: sort,
+    })
   }
 
   @FieldResolver(returns => [Offer], {
@@ -356,6 +347,7 @@ export class UserResolver {
   })
   async allOffersReceived(
     @Root() user: User,
+    @Ctx() ctx: RequestContext,
     @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
     @Arg("sort", { nullable: true }) sort: OffersSortInput
   ) {
@@ -366,32 +358,11 @@ export class UserResolver {
       }
     }
 
-    // get all offers on objkts owned by user
-    const receivedOfferIds = `
-      SELECT offer.id FROM offer JOIN objkt
-        ON offer."objktId" = objkt.id
-        AND objkt."issuerVersion" = offer."objktIssuerVersion"
-        WHERE objkt."ownerId" = '${user.id}'
-    `
-
-    // get all collection offers on objkts owned by user
-    const receivedCollectionOfferIds = `
-      SELECT DISTINCT collection_offer.id FROM collection_offer JOIN objkt
-        ON collection_offer."tokenId" = objkt."issuerId"
-        WHERE objkt."ownerId" = '${user.id}'
-    `
-
-    // union not supported by typeorm - use raw query to get all offers
-    const { where, orderBy } = offerUnionQueryFilterRaw(filters, sort)
-    return getManager().query(`
-      SELECT * FROM (
-        SELECT ${offerUnionFields} FROM offer WHERE offer.id IN (${receivedOfferIds})
-        UNION
-        SELECT ${collectionOfferUnionFields} FROM collection_offer WHERE collection_offer.id IN (${receivedCollectionOfferIds})
-      ) as subq
-      ${where ? `WHERE ${where}` : ""}
-      ORDER BY ${orderBy}
-    `)
+    return ctx.userOffersAndCollectionOffersReceivedLoader.load({
+      id: user.id,
+      filters: filters,
+      sort: sort,
+    })
   }
 
   @FieldResolver(returns => [User], {
