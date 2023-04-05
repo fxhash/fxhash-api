@@ -192,14 +192,17 @@ const batchUserOffersAndCollectionOffersSent = async (inputs: any) => {
     sentCollectionOffersQuery.getMany(),
   ])
 
-  // extract the sort property and direction
-  const sortProperty = Object.keys(sort)[0]
-  const sortDirection = sort[sortProperty]
+  // combine the results
+  let offers = [...sentOffers, ...sentCollectionOffers]
 
-  // combine and sort the results
-  const offers = [...sentOffers, ...sentCollectionOffers].sort(
-    sortByProperty(sortProperty, sortDirection)
-  )
+  if (sort) {
+    // extract the sort property and direction
+    const sortProperty = Object.keys(sort)[0]
+    const sortDirection = sort[sortProperty]
+
+    // sort the results
+    offers = offers.sort(sortByProperty(sortProperty, sortDirection))
+  }
 
   return ids.map(id => offers.filter(offer => offer.buyerId === id))
 }
@@ -241,14 +244,17 @@ const batchUserOffersAndCollectionOffersReceived = async (inputs: any) => {
     receivedCollectionOffersQuery.getMany(),
   ])
 
-  // extract the sort property and direction
-  const sortProperty = Object.keys(sort)[0]
-  const sortDirection = sort[sortProperty]
+  // combine the results
+  let offers = [...receivedOffers, ...receivedCollectionOffers]
 
-  // combine and sort the results
-  const offers = [...receivedOffers, ...receivedCollectionOffers].sort(
-    sortByProperty(sortProperty, sortDirection)
-  )
+  if (sort) {
+    // extract the sort property and direction
+    const sortProperty = Object.keys(sort)[0]
+    const sortDirection = sort[sortProperty]
+
+    // sort the results
+    offers = offers.sort(sortByProperty(sortProperty, sortDirection))
+  }
 
   return ids.map(id =>
     offers.filter(

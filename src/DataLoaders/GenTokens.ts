@@ -405,14 +405,17 @@ const batchGenTokOffersAndCollectionOffers = async (inputs: any) => {
     collectionOffersQuery.getMany(),
   ])
 
-  // extract the sort property and direction
-  const sortProperty = Object.keys(sort)[0]
-  const sortDirection = sort[sortProperty]
+  // combine the results
+  let offers = [...individualOffers, ...collectionOffers]
 
-  // combine and sort the results
-  const offers = [...individualOffers, ...collectionOffers].sort(
-    sortByProperty(sortProperty, sortDirection)
-  )
+  if (sort) {
+    // extract the sort property and direction
+    const sortProperty = Object.keys(sort)[0]
+    const sortDirection = sort[sortProperty]
+
+    // sort the results
+    offers = offers.sort(sortByProperty(sortProperty, sortDirection))
+  }
 
   return ids.map(id =>
     offers.filter((offer: AnyOffer) =>
