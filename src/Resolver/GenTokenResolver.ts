@@ -48,7 +48,7 @@ import {
   ObjktsSortInput,
   OffersSortInput,
 } from "./Arguments/Sort"
-import { AnyOffer } from "../types/AnyOffer"
+import { AnyOfferUnion } from "../types/AnyOffer"
 import { CollectionOffer } from "../Entity/CollectionOffer"
 
 @Resolver(GenerativeToken)
@@ -206,7 +206,7 @@ export class GenTokenResolver {
     })
   }
 
-  @FieldResolver(() => [AnyOffer], {
+  @FieldResolver(returns => [AnyOfferUnion], {
     description:
       "Returns all the offers and collection offers associated with a generative token",
   })

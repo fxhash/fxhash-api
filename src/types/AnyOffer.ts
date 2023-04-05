@@ -4,7 +4,7 @@ import { Offer } from "../Entity/Offer"
 
 export type AnyOffer = Offer | CollectionOffer
 
-const AnyOffer = createUnionType({
+const AnyOfferUnion = createUnionType({
   name: "AnyOffer",
   description: "Any offer, either a collection offer or a single gentk offer",
   types: () => [CollectionOffer, Offer],
@@ -23,4 +23,4 @@ const offerTypeGuard = (offer: AnyOffer): offer is Offer => {
   return (offer as Offer).objkt !== undefined
 }
 
-export { AnyOffer, offerTypeGuard }
+export { AnyOfferUnion, offerTypeGuard }

@@ -38,7 +38,7 @@ import { ArticleLedger } from "../Entity/ArticleLedger"
 import { MediaImage } from "../Entity/MediaImage"
 import { MintTicket } from "../Entity/MintTicket"
 import { Reserve } from "../Entity/Reserve"
-import { AnyOffer } from "../types/AnyOffer"
+import { AnyOfferUnion } from "../types/AnyOffer"
 
 @Resolver(User)
 export class UserResolver {
@@ -293,7 +293,7 @@ export class UserResolver {
     })
   }
 
-  @FieldResolver(returns => [AnyOffer], {
+  @FieldResolver(returns => [AnyOfferUnion], {
     description:
       "Returns all the offers and collection offers made by the user. Can be filtered.",
   })
@@ -341,7 +341,7 @@ export class UserResolver {
     })
   }
 
-  @FieldResolver(returns => [AnyOffer], {
+  @FieldResolver(returns => [AnyOfferUnion], {
     description:
       "Returns all the offers and collection offers received by the user. Can be filtered.",
   })
