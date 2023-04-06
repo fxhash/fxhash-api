@@ -403,7 +403,6 @@ describe("GenTokenResolver", () => {
       })
 
       it("returns true", () => {
-        console.log(result)
         expect(result).toMatchObject({
           data: {
             generativeToken: {
