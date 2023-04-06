@@ -571,6 +571,10 @@ describe("GenTokens dataloaders", () => {
 
       await seedTokens()
 
+      // create some floors
+      await marketStatsFactory(0, { floor: 1 })
+      await marketStatsFactory(1, { floor: 2 })
+
       // create some offers
       const objkt = await objktFactory(0, GenerativeTokenVersion.PRE_V3, {
         tokenId: 0,
@@ -740,6 +744,60 @@ describe("GenTokens dataloaders", () => {
           const result = await dataloader.loadMany([
             { id: 0, sort: { price: "DESC" } },
             { id: 1, sort: { price: "DESC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 2,
+              },
+              {
+                id: 0,
+              },
+            ],
+            [
+              {
+                id: 1,
+              },
+              {
+                id: 3,
+              },
+            ],
+          ])
+        })
+      })
+
+      describe("floorDifference", () => {
+        it("returns offers in the correct order when ASC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { floorDifference: "ASC" } },
+            { id: 1, sort: { floorDifference: "ASC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 0,
+              },
+              {
+                id: 2,
+              },
+            ],
+            [
+              {
+                id: 3,
+              },
+              {
+                id: 1,
+              },
+            ],
+          ])
+        })
+
+        it("returns offers in the correct order when DESC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { floorDifference: "DESC" } },
+            { id: 1, sort: { floorDifference: "DESC" } },
           ])
           expect(result).toHaveLength(2)
           expect(result).toMatchObject([

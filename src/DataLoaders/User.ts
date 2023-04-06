@@ -10,6 +10,7 @@ import { Action, TokenActionType } from "../Entity/Action"
 import {
   collectionOfferQueryFilter,
   offerQueryFilter,
+  sortOffersAndCollectionOffers,
 } from "../Query/Filters/Offer"
 import { Article } from "../Entity/Article"
 import { articleQueryFilter } from "../Query/Filters/Article"
@@ -193,16 +194,9 @@ const batchUserOffersAndCollectionOffersSent = async (inputs: any) => {
   ])
 
   // combine the results
-  let offers = [...sentOffers, ...sentCollectionOffers]
-
-  if (sort) {
-    // extract the sort property and direction
-    const sortProperty = Object.keys(sort)[0]
-    const sortDirection = sort[sortProperty]
-
-    // sort the results
-    offers = offers.sort(sortByProperty(sortProperty, sortDirection))
-  }
+  const offers = sort
+    ? sortOffersAndCollectionOffers(sentOffers, sentCollectionOffers, sort)
+    : [...sentOffers, ...sentCollectionOffers]
 
   return ids.map(id => offers.filter(offer => offer.buyerId === id))
 }
@@ -245,16 +239,13 @@ const batchUserOffersAndCollectionOffersReceived = async (inputs: any) => {
   ])
 
   // combine the results
-  let offers = [...receivedOffers, ...receivedCollectionOffers]
-
-  if (sort) {
-    // extract the sort property and direction
-    const sortProperty = Object.keys(sort)[0]
-    const sortDirection = sort[sortProperty]
-
-    // sort the results
-    offers = offers.sort(sortByProperty(sortProperty, sortDirection))
-  }
+  const offers = sort
+    ? sortOffersAndCollectionOffers(
+        receivedOffers,
+        receivedCollectionOffers,
+        sort
+      )
+    : [...receivedOffers, ...receivedCollectionOffers]
 
   return ids.map(id =>
     offers.filter(
