@@ -4,7 +4,9 @@ import { createTestServer } from "../tests/apollo"
 import {
   actionFactory,
   generativeTokenFactory,
+  objktFactory,
   redeemableFactory,
+  userFactory,
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
@@ -27,6 +29,7 @@ afterAll(() => {
 
 const cleanup = async () => {
   await manager.query("DELETE FROM redeemable")
+  await manager.query("DELETE FROM objkt")
   await manager.query("DELETE FROM generative_token")
   await manager.query("DELETE FROM codex")
   await manager.query("DELETE FROM action")
@@ -353,6 +356,58 @@ describe("GenTokenResolver", () => {
           data: {
             randomGenerativeToken: {
               id: expect.any(Number),
+            },
+          },
+        })
+      })
+    })
+  })
+
+  describe("isHolder", () => {
+    describe("when the user is not a holder", () => {
+      let result
+
+      beforeAll(async () => {
+        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
+
+        result = await testServer.executeOperation({
+          query: `query TestQuery { generativeToken(id: 0) { isHolder(userId: "tz1") } }`,
+        })
+      })
+
+      it("returns false", () => {
+        expect(result).toMatchObject({
+          data: {
+            generativeToken: {
+              isHolder: false,
+            },
+          },
+        })
+      })
+    })
+
+    describe("when the user is a holder", () => {
+      let result
+
+      beforeAll(async () => {
+        await generativeTokenFactory(0, GenerativeTokenVersion.V3)
+        await userFactory("tz1")
+        await objktFactory(0, GenerativeTokenVersion.V3, {
+          tokenId: 0,
+          ownerId: "tz1",
+        })
+
+        result = await testServer.executeOperation({
+          query: `query TestQuery { generativeToken(id: 0) { isHolder(userId: "tz1") } }`,
+        })
+      })
+
+      it("returns true", () => {
+        console.log(result)
+        expect(result).toMatchObject({
+          data: {
+            generativeToken: {
+              isHolder: true,
             },
           },
         })
