@@ -43,6 +43,10 @@ export class OffersSortInput {
 
   @Field(type => String, { nullable: true })
   @IsIn(["ASC", "DESC"])
+  floorDifference?: "ASC" | "DESC"
+
+  @Field(type => String, { nullable: true })
+  @IsIn(["ASC", "DESC"])
   createdAt?: "ASC" | "DESC"
 }
 

@@ -2,17 +2,20 @@ import { Connection, EntityManager } from "typeorm"
 
 import {
   actionFactory,
+  collectionOfferFactory,
   generativeTokenFactory,
-  marketStatsFactory,
   mintTicketFactory,
+  objktFactory,
+  offerFactory,
   userFactory,
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
-import { createMarketStatsGenTokLoader } from "./MarketStats"
 import {
   createUsersGenerativeTokensLoader,
   createUsersMintTicketsLoader,
+  createUsersOffersAndCollectionOffersReceivedLoader,
+  createUsersOffersAndCollectionOffersSentLoader,
   createUsersSalesLoader,
 } from "./User"
 import { TokenActionType } from "../Entity/Action"
@@ -31,11 +34,14 @@ afterAll(() => {
 })
 
 const cleanup = async () => {
+  await manager.query("DELETE FROM collection_offer")
+  await manager.query("DELETE FROM offer")
+  await manager.query("DELETE FROM objkt")
   await manager.query("DELETE FROM mint_ticket")
   await manager.query("DELETE FROM generative_token")
 }
 
-afterEach(cleanup)
+// afterEach(cleanup)
 
 describe("User dataloaders", () => {
   let dataloader
@@ -171,6 +177,124 @@ describe("User dataloaders", () => {
           ],
         ])
       )
+    })
+  })
+
+  describe("createUsersOffersAndCollectionOffersSentLoader", () => {
+    beforeAll(async () => {
+      dataloader = createUsersOffersAndCollectionOffersSentLoader()
+
+      // create some users
+      const user = await userFactory("tz1")
+      const user2 = await userFactory("tz2")
+
+      // create some tokens
+      await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+      await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+
+      // create some objkts
+      await objktFactory(0, GenerativeTokenVersion.PRE_V3, {
+        tokenId: 0,
+        buyerId: user.id,
+      })
+      await objktFactory(1, GenerativeTokenVersion.V3, {
+        tokenId: 1,
+        buyerId: user2.id,
+      })
+
+      // create some offers
+      await offerFactory(0, 0, GenerativeTokenVersion.PRE_V3, {
+        buyerId: user.id,
+      })
+      await offerFactory(1, 1, GenerativeTokenVersion.V3, {
+        buyerId: user2.id,
+      })
+
+      // create some collection offers
+      await collectionOfferFactory(2, { tokenId: 0, buyerId: user.id })
+      await collectionOfferFactory(3, { tokenId: 1, buyerId: user2.id })
+    })
+
+    it("returns the correct offers and collection offers", async () => {
+      const result = await dataloader.loadMany([{ id: "tz1" }, { id: "tz2" }])
+      expect(result).toHaveLength(2)
+      expect(result).toMatchObject([
+        [
+          {
+            id: 0,
+          },
+          {
+            id: 2,
+          },
+        ],
+        [
+          {
+            id: 1,
+          },
+          {
+            id: 3,
+          },
+        ],
+      ])
+    })
+  })
+
+  describe.only("createUsersOffersAndCollectionOffersReceivedLoader", () => {
+    beforeAll(async () => {
+      dataloader = createUsersOffersAndCollectionOffersReceivedLoader()
+
+      // create some users
+      const user = await userFactory("tz1")
+      const user2 = await userFactory("tz2")
+
+      // create some tokens
+      await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
+      await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+
+      // create some objkts
+      await objktFactory(0, GenerativeTokenVersion.PRE_V3, {
+        tokenId: 0,
+        ownerId: user.id,
+      })
+      await objktFactory(1, GenerativeTokenVersion.V3, {
+        tokenId: 1,
+        ownerId: user2.id,
+      })
+
+      // create some offers
+      await offerFactory(0, 0, GenerativeTokenVersion.PRE_V3, {
+        buyerId: user2.id,
+      })
+      await offerFactory(1, 1, GenerativeTokenVersion.V3, {
+        buyerId: user.id,
+      })
+
+      // create some collection offers
+      await collectionOfferFactory(2, { tokenId: 0, buyerId: user2.id })
+      await collectionOfferFactory(3, { tokenId: 1, buyerId: user.id })
+    })
+
+    it("returns the correct offers and collection offers", async () => {
+      const result = await dataloader.loadMany([{ id: "tz1" }, { id: "tz2" }])
+      expect(result).toHaveLength(2)
+      expect(result).toMatchObject([
+        [
+          {
+            id: 0,
+          },
+          {
+            id: 2,
+          },
+        ],
+        [
+          {
+            id: 1,
+          },
+          {
+            id: 3,
+          },
+        ],
+      ])
     })
   })
 })

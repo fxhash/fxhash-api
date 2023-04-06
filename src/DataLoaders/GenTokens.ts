@@ -19,6 +19,7 @@ import { objktQueryFilter } from "../Query/Filters/Objkt"
 import {
   collectionOfferQueryFilter,
   offerQueryFilter,
+  sortOffersAndCollectionOffers,
 } from "../Query/Filters/Offer"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { AnyOffer, offerTypeGuard } from "../types/AnyOffer"
@@ -333,7 +334,7 @@ const batchGenTokOffers = async (inputs: any) => {
   const sort = inputs[0]?.sort
 
   const query = Offer.createQueryBuilder("offer")
-    .select()
+    .select("offer")
     .leftJoinAndSelect("offer.objkt", "objkt")
     .leftJoinAndSelect("objkt.issuer", "issuer", "issuer.id IN(:...ids)")
     .where("issuer.id IN(:...ids)", { ids })
@@ -388,7 +389,7 @@ const batchGenTokOffersAndCollectionOffers = async (inputs: any) => {
     .leftJoinAndSelect("objkt.issuer", "issuer", "issuer.id IN(:...ids)")
     .where("issuer.id IN(:...ids)", { ids })
 
-  // get received collection offers
+  // get collection offers
   const collectionOffersQuery = CollectionOffer.createQueryBuilder(
     "collection_offer"
   )
@@ -405,14 +406,10 @@ const batchGenTokOffersAndCollectionOffers = async (inputs: any) => {
     collectionOffersQuery.getMany(),
   ])
 
-  // extract the sort property and direction
-  const sortProperty = Object.keys(sort)[0]
-  const sortDirection = sort[sortProperty]
-
-  // combine and sort the results
-  const offers = [...individualOffers, ...collectionOffers].sort(
-    sortByProperty(sortProperty, sortDirection)
-  )
+  // combine the results
+  const offers = sort
+    ? sortOffersAndCollectionOffers(individualOffers, collectionOffers, sort)
+    : [...individualOffers, ...collectionOffers]
 
   return ids.map(id =>
     offers.filter((offer: AnyOffer) =>
