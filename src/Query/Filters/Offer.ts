@@ -76,14 +76,11 @@ export const sortOffersAndCollectionOffers = (
   offersB: AnyOffer[],
   sort: OffersSortInput
 ) => {
-  console.log("sorting!!!!!")
-
   const sortProperty = Object.keys(sort)[0]
   const sortDirection = sort[sortProperty]
 
   // workaround for the floorDifference computed column
   if (sortProperty === "floorDifference") {
-    console.log("here we go")
     return [...offersA, ...offersB].sort((a, b) => {
       const aFloor =
         (offerTypeGuard(a)
@@ -100,20 +97,11 @@ export const sortOffersAndCollectionOffers = (
       const displayA = offerTypeGuard(a) ? a.objkt.name : a.token.name
       const displayB = offerTypeGuard(b) ? b.objkt.name : b.token.name
 
-      if (sortDirection === "ASC") {
-        if (aFloorDifference > bFloorDifference)
-          console.log(displayA, aFloorDifference)
-        if (aFloorDifference < bFloorDifference)
-          console.log(displayB, bFloorDifference)
-      }
-
       return sortDirection === "ASC"
         ? aFloorDifference - bFloorDifference
         : bFloorDifference - aFloorDifference
     })
   }
-
-  console.log("shouldnt be here........")
 
   // sort the results
   return [...offersA, ...offersB].sort(

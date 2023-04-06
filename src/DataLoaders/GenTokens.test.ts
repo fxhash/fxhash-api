@@ -718,7 +718,6 @@ describe("GenTokens dataloaders", () => {
             { id: 0, sort: { price: "ASC" } },
             { id: 1, sort: { price: "ASC" } },
           ])
-          console.log(result)
           expect(result).toHaveLength(2)
           expect(result).toMatchObject([
             [
