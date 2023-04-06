@@ -33,19 +33,21 @@ const anyOfferQueryFilter =
     if (sort) {
       for (const field in sort) {
         if (field === "floorDifference") {
+          // use fd_ as a prefix to avoid conflicts with existing table aliases
           if (table === "offer") {
-            query.leftJoinAndSelect("issuer.marketStats", "marketStats")
+            query.leftJoinAndSelect("offer.objkt", "fd_objkt")
+            query.leftJoinAndSelect("fd_objkt.issuer", "fd_token")
+            query.leftJoinAndSelect("fd_token.marketStats", "fd_stats")
             query.addSelect(
-              "offer.price * marketStats.floor / 100",
+              "(offer.price / fd_stats.floor) * 100",
               "floorDifference"
             )
-
             query.addOrderBy(`"floorDifference"`, sort[field])
           } else {
-            query.leftJoinAndSelect("collection_offer.token", "token")
-            query.leftJoinAndSelect("token.marketStats", "marketStats")
+            query.leftJoinAndSelect("collection_offer.token", "fd_token")
+            query.leftJoinAndSelect("fd_token.marketStats", "fd_stats")
             query.addOrderBy(
-              `collection_offer.price * marketStats.floor / 100`,
+              `(collection_offer.price / fd_stats.floor) * 100`,
               sort[field]
             )
           }
@@ -74,11 +76,14 @@ export const sortOffersAndCollectionOffers = (
   offersB: AnyOffer[],
   sort: OffersSortInput
 ) => {
+  console.log("sorting!!!!!")
+
   const sortProperty = Object.keys(sort)[0]
   const sortDirection = sort[sortProperty]
 
   // workaround for the floorDifference computed column
   if (sortProperty === "floorDifference") {
+    console.log("here we go")
     return [...offersA, ...offersB].sort((a, b) => {
       const aFloor =
         (offerTypeGuard(a)
@@ -89,14 +94,26 @@ export const sortOffersAndCollectionOffers = (
           ? b.objkt.issuer?.marketStats.floor
           : b.token.marketStats.floor) || 0
 
-      const aFloorDifference = (a.price * aFloor) / 100
-      const bFloorDifference = (b.price * bFloor) / 100
+      const aFloorDifference = (a.price / aFloor) * 100
+      const bFloorDifference = (b.price / bFloor) * 100
+
+      const displayA = offerTypeGuard(a) ? a.objkt.name : a.token.name
+      const displayB = offerTypeGuard(b) ? b.objkt.name : b.token.name
+
+      if (sortDirection === "ASC") {
+        if (aFloorDifference > bFloorDifference)
+          console.log(displayA, aFloorDifference)
+        if (aFloorDifference < bFloorDifference)
+          console.log(displayB, bFloorDifference)
+      }
 
       return sortDirection === "ASC"
         ? aFloorDifference - bFloorDifference
         : bFloorDifference - aFloorDifference
     })
   }
+
+  console.log("shouldnt be here........")
 
   // sort the results
   return [...offersA, ...offersB].sort(
