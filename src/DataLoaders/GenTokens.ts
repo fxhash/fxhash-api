@@ -15,10 +15,16 @@ import { Redeemable } from "../Entity/Redeemable"
 import { Report } from "../Entity/Report"
 import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
-import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
 import { objktQueryFilter } from "../Query/Filters/Objkt"
-import { offerQueryFilter } from "../Query/Filters/Offer"
+import {
+  collectionOfferQueryFilter,
+  offerQueryFilter,
+  sortOffersAndCollectionOffers,
+} from "../Query/Filters/Offer"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import { AnyOffer, offerTypeGuard } from "../types/AnyOffer"
+import { sortByProperty } from "../Utils/Sort"
+import { CollectionOffer } from "../Entity/CollectionOffer"
 
 /**
  * Given a list of Generative Token IDs, outputs the corresponding Generative
@@ -328,7 +334,7 @@ const batchGenTokOffers = async (inputs: any) => {
   const sort = inputs[0]?.sort
 
   const query = Offer.createQueryBuilder("offer")
-    .select()
+    .select("offer")
     .leftJoinAndSelect("offer.objkt", "objkt")
     .leftJoinAndSelect("objkt.issuer", "issuer", "issuer.id IN(:...ids)")
     .where("issuer.id IN(:...ids)", { ids })
@@ -341,6 +347,78 @@ const batchGenTokOffers = async (inputs: any) => {
   return ids.map(id => offers.filter(offer => offer.objkt.issuerId === id))
 }
 export const createGenTokOffersLoader = () => new DataLoader(batchGenTokOffers)
+
+/**
+ * Given a list of Generative Token IDs, returns a list of CollectionOffers for each
+ * Generative Token
+ */
+const batchGenTokCollectionOffers = async (inputs: any) => {
+  // we extract the ids and the filters if any
+  const ids = inputs.map(input => input.id)
+  const filters = inputs[0]?.filters
+  const sort = inputs[0]?.sort
+
+  const query = CollectionOffer.createQueryBuilder("collection_offer")
+    .select()
+    .where("collection_offer.tokenId IN (:...ids)", { ids })
+
+  // apply filter/sort options
+  collectionOfferQueryFilter(query, filters, sort)
+
+  const offers = await query.getMany()
+
+  return ids.map(id => offers.filter(offer => offer.tokenId === id))
+}
+export const createGenTokCollectionOffersLoader = () =>
+  new DataLoader(batchGenTokCollectionOffers)
+
+/**
+ * Given a list of Generative Token IDs, returns a list of Offers and
+ * CollectionOffers for each Generative Token
+ */
+const batchGenTokOffersAndCollectionOffers = async (inputs: any) => {
+  // we extract the ids and the filters if any
+  const ids = inputs.map(input => input.id)
+  const filters = inputs[0]?.filters
+  const sort = inputs[0]?.sort
+
+  // get individual offers
+  const individualOffersQuery = Offer.createQueryBuilder("offer")
+    .select()
+    .leftJoinAndSelect("offer.objkt", "objkt")
+    .leftJoinAndSelect("objkt.issuer", "issuer", "issuer.id IN(:...ids)")
+    .where("issuer.id IN(:...ids)", { ids })
+
+  // get collection offers
+  const collectionOffersQuery = CollectionOffer.createQueryBuilder(
+    "collection_offer"
+  )
+    .select()
+    .where("collection_offer.tokenId IN (:...ids)", { ids })
+
+  // add filters and sorting to queries
+  offerQueryFilter(individualOffersQuery, filters, sort)
+  collectionOfferQueryFilter(collectionOffersQuery, filters, sort)
+
+  // get the results in parallel
+  const [individualOffers, collectionOffers] = await Promise.all([
+    individualOffersQuery.getMany(),
+    collectionOffersQuery.getMany(),
+  ])
+
+  // combine the results
+  const offers = sort
+    ? sortOffersAndCollectionOffers(individualOffers, collectionOffers, sort)
+    : [...individualOffers, ...collectionOffers]
+
+  return ids.map(id =>
+    offers.filter((offer: AnyOffer) =>
+      offerTypeGuard(offer) ? offer.objkt.issuerId === id : offer.tokenId === id
+    )
+  )
+}
+export const createGenTokOffersAndCollectionOffersLoader = () =>
+  new DataLoader(batchGenTokOffersAndCollectionOffers)
 
 /**
  * Given a list of Generative Tokens, outputs a list of the reserves for each

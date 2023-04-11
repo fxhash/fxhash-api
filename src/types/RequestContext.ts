@@ -13,6 +13,7 @@ import {
   createGentkTokSecondarySplitsLoader,
   createGenTokArticleMentionsLoader,
   createGenTokCodexLoader,
+  createGenTokCollectionOffersLoader,
   createGenTokLoader,
   createGenTokMarketStatsHistoryLoader,
   createGenTokMarketStatsLoader,
@@ -20,6 +21,7 @@ import {
   createGenTokObjktFeaturesLoader,
   createGenTokObjktsCountLoader,
   createGenTokObjktsLoader,
+  createGenTokOffersAndCollectionOffersLoader,
   createGenTokOffersLoader,
   createGenTokPricingDutchAuctionLoader,
   createGenTokPricingFixedLoader,
@@ -57,6 +59,8 @@ import {
   createUsersArticlesLoader,
   createUsersArticleLedgersLoader,
   createUsersMintTicketsLoader,
+  createUsersOffersAndCollectionOffersSentLoader,
+  createUsersOffersAndCollectionOffersReceivedLoader,
 } from "../DataLoaders/User"
 
 export interface RequestContext extends ExpressRequest {
@@ -67,7 +71,13 @@ export interface RequestContext extends ExpressRequest {
   userObjktsLoader: ReturnType<typeof createUsersObjktLoader>
   userMintTicketsLoader: ReturnType<typeof createUsersMintTicketsLoader>
   userOffersSentLoader: ReturnType<typeof createUsersOffersSentLoader>
+  userOffersAndCollectionOffersSentLoader: ReturnType<
+    typeof createUsersOffersAndCollectionOffersSentLoader
+  >
   userOffersReceivedLoader: ReturnType<typeof createUsersOffersReceivedLoader>
+  userOffersAndCollectionOffersReceivedLoader: ReturnType<
+    typeof createUsersOffersAndCollectionOffersReceivedLoader
+  >
   userCollabContractsLoader: ReturnType<typeof createUsersCollabContractsLoader>
   collabCollaboratorsLoader: ReturnType<typeof createCollabCollaboratorsLoader>
   usersGenToksLoader: ReturnType<typeof createUsersGenerativeTokensLoader>
@@ -79,6 +89,12 @@ export interface RequestContext extends ExpressRequest {
   genTokLoader: ReturnType<typeof createGenTokLoader>
   genTokObjktsLoader: ReturnType<typeof createGenTokObjktsLoader>
   genTokOffersLoader: ReturnType<typeof createGenTokOffersLoader>
+  genTokCollectionOffersLoader: ReturnType<
+    typeof createGenTokCollectionOffersLoader
+  >
+  genTokOffersAndCollectionOffersLoader: ReturnType<
+    typeof createGenTokOffersAndCollectionOffersLoader
+  >
   gentkTokPricingFixedLoader: ReturnType<typeof createGenTokPricingFixedLoader>
   gentkTokPricingDutchAuctionLoader: ReturnType<
     typeof createGenTokPricingDutchAuctionLoader

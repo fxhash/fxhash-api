@@ -4,6 +4,7 @@ import {
   articleFactory,
   articleMentionFactory,
   codexFactory,
+  collectionOfferFactory,
   generativeTokenFactory,
   marketStatsFactory,
   marketStatsHistoryFactory,
@@ -27,6 +28,7 @@ import {
   createGentkTokSecondarySplitsLoader,
   createGenTokArticleMentionsLoader,
   createGenTokCodexLoader,
+  createGenTokCollectionOffersLoader,
   createGenTokLoader,
   createGenTokMarketStatsHistoryLoader,
   createGenTokMarketStatsLoader,
@@ -34,6 +36,7 @@ import {
   createGenTokObjktFeaturesLoader,
   createGenTokObjktsCountLoader,
   createGenTokObjktsLoader,
+  createGenTokOffersAndCollectionOffersLoader,
   createGenTokOffersLoader,
   createGenTokPricingDutchAuctionLoader,
   createGenTokPricingFixedLoader,
@@ -57,6 +60,7 @@ afterAll(() => {
 const cleanup = async () => {
   await manager.query("DELETE FROM report")
   await manager.query("DELETE FROM offer")
+  await manager.query("DELETE FROM collection_offer")
   await manager.query("DELETE FROM objkt")
   await manager.query("DELETE FROM redeemable")
   await manager.query("DELETE FROM mint_ticket_settings")
@@ -64,8 +68,6 @@ const cleanup = async () => {
   await manager.query("DELETE FROM generative_token")
   await manager.query("DELETE FROM codex")
 }
-
-afterEach(cleanup)
 
 const seedTokens = async () => {
   await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
@@ -77,6 +79,8 @@ describe("GenTokens dataloaders", () => {
   let dataloader
 
   describe("createGenTokLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokLoader()
       await seedTokens()
@@ -95,6 +99,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokObjktsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokObjktsLoader()
 
@@ -136,6 +142,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokObjktsCountLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokObjktsCountLoader()
 
@@ -155,6 +163,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokPricingFixedLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokPricingFixedLoader()
 
@@ -179,6 +189,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokPricingDutchAuctionLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokPricingDutchAuctionLoader()
 
@@ -203,6 +215,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGentkTokPrimarySplitsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGentkTokPrimarySplitsLoader()
 
@@ -235,6 +249,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGentkTokSecondarySplitsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGentkTokSecondarySplitsLoader()
 
@@ -267,6 +283,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokArticleMentionsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokArticleMentionsLoader()
 
@@ -302,6 +320,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokReportsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokReportsLoader()
 
@@ -340,6 +360,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokMarketStatsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokMarketStatsLoader()
 
@@ -373,6 +395,8 @@ describe("GenTokens dataloaders", () => {
     const end = new Date("2021-01-03")
 
     const config = { from: start, to: middle }
+
+    afterAll(cleanup)
 
     beforeAll(async () => {
       dataloader = createGenTokMarketStatsHistoryLoader()
@@ -409,6 +433,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokObjktFeaturesLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokObjktFeaturesLoader()
 
@@ -457,6 +483,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokOffersLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokOffersLoader()
 
@@ -503,7 +531,300 @@ describe("GenTokens dataloaders", () => {
     })
   })
 
+  describe("createGenTokCollectionOffersLoader", () => {
+    afterAll(cleanup)
+
+    beforeAll(async () => {
+      dataloader = createGenTokCollectionOffersLoader()
+
+      await seedTokens()
+
+      // create some collection offers
+      await collectionOfferFactory(0, { tokenId: 0 })
+      await collectionOfferFactory(1, { tokenId: 1 })
+    })
+
+    it("should return the correct collection offers", async () => {
+      const result = await dataloader.loadMany([{ id: 0 }, { id: 1 }])
+
+      expect(result).toHaveLength(2)
+      expect(result).toMatchObject([
+        [
+          {
+            tokenId: 0,
+          },
+        ],
+        [
+          {
+            tokenId: 1,
+          },
+        ],
+      ])
+    })
+  })
+
+  describe("createGenTokOffersAndCollectionOffersLoader", () => {
+    afterAll(cleanup)
+
+    beforeAll(async () => {
+      dataloader = createGenTokOffersAndCollectionOffersLoader()
+
+      await seedTokens()
+
+      // create some floors
+      await marketStatsFactory(0, { floor: 1 })
+      await marketStatsFactory(1, { floor: 2 })
+
+      // create some offers
+      const objkt = await objktFactory(0, GenerativeTokenVersion.PRE_V3, {
+        tokenId: 0,
+      })
+      await offerFactory(0, objkt.id, objkt.issuerVersion, {
+        price: 3,
+        createdAt: new Date("2023-01-02"),
+        acceptedAt: new Date("2023-01-02"),
+      })
+
+      const objkt2 = await objktFactory(1, GenerativeTokenVersion.V3, {
+        tokenId: 1,
+      })
+      await offerFactory(1, objkt2.id, objkt2.issuerVersion, {
+        price: 2,
+        createdAt: new Date("2023-01-04"),
+      })
+
+      // create some collection offers
+      await collectionOfferFactory(2, {
+        tokenId: 0,
+        price: 4,
+        createdAt: new Date("2023-01-01"),
+        completedAt: new Date("2023-01-03"),
+      })
+      await collectionOfferFactory(3, {
+        tokenId: 1,
+        price: 1,
+        createdAt: new Date("2023-01-03"),
+      })
+    })
+
+    describe("filters", () => {
+      describe("active_eq true", () => {
+        it("should return the correct offers and collection offers", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, filters: { active_eq: true } },
+            { id: 1 },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [],
+            [
+              {
+                id: 1,
+                objkt: {
+                  issuerId: 1,
+                },
+              },
+              {
+                id: 3,
+                tokenId: 1,
+              },
+            ],
+          ])
+        })
+      })
+
+      describe("active_eq false", () => {
+        it("should return the correct offers and collection offers", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, filters: { active_eq: false } },
+            { id: 1 },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 0,
+                objkt: {
+                  issuerId: 0,
+                },
+              },
+              {
+                id: 2,
+                tokenId: 0,
+              },
+            ],
+            [],
+          ])
+        })
+      })
+    })
+
+    describe("sorting", () => {
+      describe("createdAt", () => {
+        it("returns offers in the correct order when ASC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { createdAt: "ASC" } },
+            { id: 1, sort: { createdAt: "ASC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 2,
+              },
+              {
+                id: 0,
+              },
+            ],
+            [
+              {
+                id: 3,
+              },
+              {
+                id: 1,
+              },
+            ],
+          ])
+        })
+        it("returns offers in the correct order when DESC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { createdAt: "DESC" } },
+            { id: 1, sort: { createdAt: "DESC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 0,
+              },
+              {
+                id: 2,
+              },
+            ],
+            [
+              {
+                id: 1,
+              },
+              {
+                id: 3,
+              },
+            ],
+          ])
+        })
+      })
+      describe("price", () => {
+        it("returns offers in the correct order when ASC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { price: "ASC" } },
+            { id: 1, sort: { price: "ASC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 0,
+              },
+              {
+                id: 2,
+              },
+            ],
+            [
+              {
+                id: 3,
+              },
+              {
+                id: 1,
+              },
+            ],
+          ])
+        })
+
+        it("returns offers in the correct order when DESC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { price: "DESC" } },
+            { id: 1, sort: { price: "DESC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 2,
+              },
+              {
+                id: 0,
+              },
+            ],
+            [
+              {
+                id: 1,
+              },
+              {
+                id: 3,
+              },
+            ],
+          ])
+        })
+      })
+
+      describe("floorDifference", () => {
+        it("returns offers in the correct order when ASC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { floorDifference: "ASC" } },
+            { id: 1, sort: { floorDifference: "ASC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 0,
+              },
+              {
+                id: 2,
+              },
+            ],
+            [
+              {
+                id: 3,
+              },
+              {
+                id: 1,
+              },
+            ],
+          ])
+        })
+
+        it("returns offers in the correct order when DESC", async () => {
+          const result = await dataloader.loadMany([
+            { id: 0, sort: { floorDifference: "DESC" } },
+            { id: 1, sort: { floorDifference: "DESC" } },
+          ])
+          expect(result).toHaveLength(2)
+          expect(result).toMatchObject([
+            [
+              {
+                id: 2,
+              },
+              {
+                id: 0,
+              },
+            ],
+            [
+              {
+                id: 1,
+              },
+              {
+                id: 3,
+              },
+            ],
+          ])
+        })
+      })
+    })
+  })
+
   describe("createGenTokReservesLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokReservesLoader()
 
@@ -534,6 +855,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGentkTokRedeemablesLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGentkTokRedeemablesLoader()
 
@@ -564,6 +887,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokMintTicketSettingsLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokMintTicketSettingsLoader()
 
@@ -575,7 +900,7 @@ describe("GenTokens dataloaders", () => {
     })
 
     it("should return the correct mint ticket settings", async () => {
-      const result = await dataloader.loadMany([{ id: 0 }, { id: 1 }])
+      const result = await dataloader.loadMany([0, 1])
       expect(result).toHaveLength(2)
       expect(result).toMatchObject([
         {
@@ -590,6 +915,8 @@ describe("GenTokens dataloaders", () => {
   })
 
   describe("createGenTokCodexLoader", () => {
+    afterAll(cleanup)
+
     beforeAll(async () => {
       dataloader = createGenTokCodexLoader()
 

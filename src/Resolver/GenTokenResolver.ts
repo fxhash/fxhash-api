@@ -48,6 +48,8 @@ import {
   ObjktsSortInput,
   OffersSortInput,
 } from "./Arguments/Sort"
+import { AnyOfferUnion } from "../types/AnyOffer"
+import { CollectionOffer } from "../Entity/CollectionOffer"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -181,13 +183,59 @@ export class GenTokenResolver {
     })
   }
 
+  @FieldResolver(() => [CollectionOffer], {
+    description: "Returns a list of collection offers for the token",
+  })
+  collectionOffers(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    return ctx.genTokCollectionOffersLoader.load({
+      id: token.id,
+      filters: filters,
+      sort: sort,
+    })
+  }
+
+  @FieldResolver(returns => [AnyOfferUnion], {
+    description:
+      "Returns all the offers and collection offers associated with a generative token",
+  })
+  allOffers(
+    @Root() token: GenerativeToken,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    return ctx.genTokOffersAndCollectionOffersLoader.load({
+      id: token.id,
+      filters: filters,
+      sort: sort,
+    })
+  }
+
   /**
    * Pricing resolvers.
    * Generative Tokens can have different pricing strategy, each one is stored
    * in its own table and responds to its own logic. At least one of the pricing
    * fields should be defined for a token
    */
-
   @FieldResolver(returns => PricingFixed, {
     description:
       "The PricingFixed entity associated with the Generative Token. *It can be null if the Generative Token uses a different pricing strategy*.",
@@ -529,5 +577,24 @@ export class GenTokenResolver {
     query.skip(skip)
 
     return query.getMany()
+  }
+
+  @FieldResolver(returns => Boolean, {
+    nullable: true,
+    description: "Whether the supplied address holds a gentk for this token.",
+  })
+  async isHolder(
+    @Root() token: GenerativeToken,
+    @Arg("userId", _type => String, { nullable: true }) userId: string
+  ) {
+    if (!userId) return null
+
+    const gentksHeldForCollectionCount = await Objkt.createQueryBuilder("objkt")
+      .select()
+      .where("objkt.issuerId = :tokenId", { tokenId: token.id })
+      .andWhere("objkt.ownerId = :userId", { userId })
+      .getCount()
+
+    return gentksHeldForCollectionCount > 0
   }
 }
