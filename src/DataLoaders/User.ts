@@ -419,6 +419,7 @@ const batchUsersSales = async (inputs: any) => {
             .where({ type: TokenActionType.LISTING_V1_ACCEPTED })
             .orWhere({ type: TokenActionType.LISTING_V2_ACCEPTED })
             .orWhere({ type: TokenActionType.OFFER_ACCEPTED })
+            .orWhere({ type: TokenActionType.COLLECTION_OFFER_ACCEPTED })
         )
       )
       .andWhere("action.tokenId IN (:...ids)", { ids: tokens.map(t => t.id) })
