@@ -24,6 +24,8 @@ import {
   createGenTokReservesLoader,
   createGenTokMintTicketSettingsLoader,
   createGenTokCodexLoader,
+  createGenTokOffersAndCollectionOffersLoader,
+  createGenTokCollectionOffersLoader,
 } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
@@ -56,6 +58,8 @@ import {
   createUsersArticlesLoader,
   createUsersArticleLedgersLoader,
   createUsersMintTicketsLoader,
+  createUsersOffersAndCollectionOffersSentLoader,
+  createUsersOffersAndCollectionOffersReceivedLoader,
 } from "../DataLoaders/User"
 import { RequestContext } from "../types/RequestContext"
 
@@ -69,7 +73,11 @@ export const createContext = (req: any, res: any): RequestContext => {
     userObjktsLoader: createUsersObjktLoader(),
     userMintTicketsLoader: createUsersMintTicketsLoader(),
     userOffersSentLoader: createUsersOffersSentLoader(),
+    userOffersAndCollectionOffersSentLoader:
+      createUsersOffersAndCollectionOffersSentLoader(),
     userOffersReceivedLoader: createUsersOffersReceivedLoader(),
+    userOffersAndCollectionOffersReceivedLoader:
+      createUsersOffersAndCollectionOffersReceivedLoader(),
     userCollabContractsLoader: createUsersCollabContractsLoader(),
     collabCollaboratorsLoader: createCollabCollaboratorsLoader(),
     usersGenToksLoader: createUsersGenerativeTokensLoader(),
@@ -81,6 +89,9 @@ export const createContext = (req: any, res: any): RequestContext => {
     genTokLoader: createGenTokLoader(),
     genTokObjktsLoader: createGenTokObjktsLoader(),
     genTokOffersLoader: createGenTokOffersLoader(),
+    genTokCollectionOffersLoader: createGenTokCollectionOffersLoader(),
+    genTokOffersAndCollectionOffersLoader:
+      createGenTokOffersAndCollectionOffersLoader(),
     gentkTokPricingFixedLoader: createGenTokPricingFixedLoader(),
     gentkTokPricingDutchAuctionLoader: createGenTokPricingDutchAuctionLoader(),
     gentTokSplitsPrimaryLoader: createGentkTokPrimarySplitsLoader(),
