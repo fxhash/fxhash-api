@@ -61,6 +61,7 @@ import {
   createUsersMintTicketsLoader,
   createUsersOffersAndCollectionOffersSentLoader,
   createUsersOffersAndCollectionOffersReceivedLoader,
+  createUsersGentkMinLastSoldPriceLoader,
 } from "../DataLoaders/User"
 import { RequestContext } from "../types/RequestContext"
 
@@ -85,6 +86,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     usersArticlesLoader: createUsersArticlesLoader(),
     usersArticleLedgersLoader: createUsersArticleLedgersLoader(),
     usersSalesLoader: createUsersSalesLoader(),
+    usersGentkMinLastSoldPriceLoader: createUsersGentkMinLastSoldPriceLoader(),
 
     // GENERATIVE TOKEN loaders
     genTokLoader: createGenTokLoader(),

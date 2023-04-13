@@ -24,6 +24,7 @@ import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { CollectionOffer } from "../Entity/CollectionOffer"
+import { ETransationType, Transaction } from "../Entity/Transaction"
 
 export const generativeTokenFactory = async (
   id: number,
@@ -399,4 +400,23 @@ export const gentkAssignFactory = async (
   gentkAssign.gentkIssuerVersion = gentkIssuerVersion
   await gentkAssign.save()
   return gentkAssign
+}
+
+export const transactionFactory = async (
+  id: number,
+  type: ETransationType,
+  config: Partial<Transaction> = {}
+) => {
+  const transaction = new Transaction()
+  transaction.id = id
+  transaction.type = type
+  transaction.tokenId = config.tokenId || 0
+  transaction.objktId = config.objktId || 0
+  transaction.objktIssuerVersion =
+    config.objktIssuerVersion || GenerativeTokenVersion.V3
+  transaction.opHash = config.opHash || `opHash${id}`
+  transaction.price = config.price || "0"
+  transaction.createdAt = config.createdAt || new Date()
+  await transaction.save()
+  return transaction
 }

@@ -62,6 +62,7 @@ import {
   createUsersMintTicketsLoader,
   createUsersOffersAndCollectionOffersSentLoader,
   createUsersOffersAndCollectionOffersReceivedLoader,
+  createUsersGentkMinLastSoldPriceLoader,
 } from "../DataLoaders/User"
 
 export interface RequestContext extends ExpressRequest {
@@ -85,6 +86,9 @@ export interface RequestContext extends ExpressRequest {
   usersArticlesLoader: ReturnType<typeof createUsersArticlesLoader>
   usersArticleLedgersLoader: ReturnType<typeof createUsersArticleLedgersLoader>
   usersSalesLoader: ReturnType<typeof createUsersSalesLoader>
+  usersGentkMinLastSoldPriceLoader: ReturnType<
+    typeof createUsersGentkMinLastSoldPriceLoader
+  >
 
   // GENERATIVE TOKEN loaders
   genTokLoader: ReturnType<typeof createGenTokLoader>
