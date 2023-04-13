@@ -34,6 +34,7 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
+  createObjktLastSoldPriceLoader,
   createObjktListingsLoader,
   createObjktMintedPriceLoader,
   createObjktOffersLoader,
@@ -117,6 +118,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     objktRedemptionsLoader: createObjktRedemptionsLoader(),
     objktAvailableRedeemablesLoader: createObjktAvailableRedeemablesLoader(),
     objktMintedPriceLoader: createObjktMintedPriceLoader(),
+    objktLastSoldPriceLoader: createObjktLastSoldPriceLoader(),
 
     // ARTICLES loaders
     articlesLoader: createArticlesLoader(),

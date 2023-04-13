@@ -1,7 +1,6 @@
 import DataLoader from "dataloader"
-import { Brackets, In } from "typeorm"
+import { getManager } from "typeorm"
 import { Action } from "../Entity/Action"
-import { GenerativeToken } from "../Entity/GenerativeToken"
 import { Listing } from "../Entity/Listing"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
@@ -211,3 +210,33 @@ const batchObjktMintedPriceLoader = async ids => {
 }
 export const createObjktMintedPriceLoader = () =>
   new DataLoader(batchObjktMintedPriceLoader)
+
+/**
+ * Given a list of objkt IDs, outputs the last price they were sold for
+ */
+const batchObjktLastSoldPrice = async ids => {
+  /**
+   * raw query to get the last transaction for each objkt:
+   * - select all transactions that match the objktId and objktIssuerVersion
+   * - order by date
+   * - select the first (latest) one for each objktId and objktIssuerVersion
+   */
+  const transactions = await getManager().query(`
+    SELECT DISTINCT ON ("objktId", "objktIssuerVersion") "objktId", "objktIssuerVersion", price FROM 
+    (
+      SELECT * FROM transaction WHERE ${matchesEntityObjktIdAndIssuerVersion(
+        ids,
+        "transaction"
+      )} ORDER BY transaction."createdAt"
+    ) as latest_sales_query
+  `)
+
+  return ids.map(
+    ({ id, issuerVersion }: ObjktId) =>
+      transactions.find(
+        t => t.objktId === id && t.objktIssuerVersion === issuerVersion
+      )?.price
+  )
+}
+export const createObjktLastSoldPriceLoader = () =>
+  new DataLoader(batchObjktLastSoldPrice)

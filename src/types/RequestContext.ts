@@ -35,6 +35,7 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
+  createObjktLastSoldPriceLoader,
   createObjktListingsLoader,
   createObjktMintedPriceLoader,
   createObjktOffersLoader,
@@ -135,6 +136,7 @@ export interface RequestContext extends ExpressRequest {
   objktAvailableRedeemablesLoader: ReturnType<
     typeof createObjktAvailableRedeemablesLoader
   >
+  objktLastSoldPriceLoader: ReturnType<typeof createObjktLastSoldPriceLoader>
   objktMintedPriceLoader: ReturnType<typeof createObjktMintedPriceLoader>
 
   // ARTICLES loaders
