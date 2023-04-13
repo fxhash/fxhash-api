@@ -5,6 +5,7 @@ import {
   Args,
   Ctx,
   FieldResolver,
+  Int,
   Query,
   Resolver,
   Root,
@@ -596,5 +597,23 @@ export class GenTokenResolver {
       .getCount()
 
     return gentksHeldForCollectionCount > 0
+  }
+
+  @FieldResolver(returns => Int, {
+    nullable: true,
+    description:
+      "The minimum price paid by the supplied address for a gentk in this collection - secondary sales only.",
+  })
+  async minLastSoldPrice(
+    @Root() token: GenerativeToken,
+    @Arg("userId", _type => String, { nullable: true }) userId: string,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (!userId) return null
+
+    return ctx.usersGentkMinLastSoldPriceLoader.load({
+      ownerId: userId,
+      tokenId: token.id,
+    })
   }
 }
