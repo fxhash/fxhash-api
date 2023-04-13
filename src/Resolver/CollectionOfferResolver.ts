@@ -1,4 +1,4 @@
-import { Ctx, FieldResolver, Resolver, Root } from "type-graphql"
+import { Arg, Ctx, FieldResolver, Int, Resolver, Root } from "type-graphql"
 import { User } from "../Entity/User"
 import { RequestContext } from "../types/RequestContext"
 import { CollectionOffer } from "../Entity/CollectionOffer"
@@ -22,5 +22,23 @@ export class CollectionOfferResolver {
   async token(@Root() offer: CollectionOffer, @Ctx() ctx: RequestContext) {
     if (offer.token) return offer.token
     return ctx.genTokLoader.load(offer.tokenId)
+  }
+
+  @FieldResolver(returns => Int, {
+    nullable: true,
+    description:
+      "The minimum price paid by the supplied address for a gentk in this collection - secondary sales only.",
+  })
+  async minLastSoldPrice(
+    @Root() offer: CollectionOffer,
+    @Arg("userId", _type => String, { nullable: true }) userId: string,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (!userId) return null
+
+    return ctx.usersGentkMinLastSoldPriceLoader.load({
+      ownerId: userId,
+      tokenId: offer.tokenId,
+    })
   }
 }
