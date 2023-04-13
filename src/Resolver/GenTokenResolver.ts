@@ -599,6 +599,23 @@ export class GenTokenResolver {
     return gentksHeldForCollectionCount > 0
   }
 
+  @FieldResolver(returns => [Objkt], {
+    nullable: true,
+    description: "The gentks held by the supplied address for this collection.",
+  })
+  async heldGentks(
+    @Root() token: GenerativeToken,
+    @Arg("userId", _type => String, { nullable: true }) userId: string,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (!userId) return null
+
+    return ctx.usersGentksHeldForCollectionLoader.load({
+      ownerId: userId,
+      tokenId: token.id,
+    })
+  }
+
   @FieldResolver(returns => Int, {
     nullable: true,
     description:

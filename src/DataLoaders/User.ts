@@ -510,3 +510,20 @@ const batchUsersGentkMinLastSoldPrice = async (ids: any) => {
 }
 export const createUsersGentkMinLastSoldPriceLoader = () =>
   new DataLoader(batchUsersGentkMinLastSoldPrice)
+
+const batchUsersGentksHeldForCollection = async (ids: any) => {
+  const gentks = await Objkt.createQueryBuilder("objkt")
+    .select()
+    .where(
+      `("issuerId", "ownerId") IN (${ids
+        .map(({ tokenId, ownerId }: any) => `(${tokenId}, '${ownerId}')`)
+        .join(",")})`
+    )
+    .getMany()
+
+  return ids.map(({ tokenId, ownerId }) =>
+    gentks.filter(t => t.issuerId === tokenId && t.ownerId === ownerId)
+  )
+}
+export const createUsersGentksHeldForCollectionLoader = () =>
+  new DataLoader(batchUsersGentksHeldForCollection)
