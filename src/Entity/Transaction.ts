@@ -1,13 +1,20 @@
 import { ObjectType } from "type-graphql"
-import { BaseEntity, Column, Entity, Index, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm"
 import { Article } from "./Article"
 import { GenerativeToken } from "./GenerativeToken"
 import { Objkt } from "./Objkt"
-
+import { GenerativeTokenVersion } from "../types/GenerativeToken"
 
 export enum ETransationType {
-  PRIMARY       = "PRIMARY",
-  SECONDARY     = "SECONDARY",
+  PRIMARY = "PRIMARY",
+  SECONDARY = "SECONDARY",
 }
 
 /**
@@ -42,17 +49,24 @@ export class Transaction extends BaseEntity {
   @Index()
   @Column()
   tokenId: number
-  
+
   @ManyToOne(() => Objkt, objkt => objkt.transactions)
   objkt: Objkt
-  
+
   @Index()
   @Column()
   objktId: number
-  
+
+  @Column({
+    type: "enum",
+    enumName: "generative_token_version",
+    enum: GenerativeTokenVersion,
+  })
+  objktIssuerVersion: GenerativeTokenVersion
+
   @ManyToOne(() => Article, article => article.transactions)
   article: Article
-  
+
   @Index()
   @Column({ nullable: true })
   articleId: number
