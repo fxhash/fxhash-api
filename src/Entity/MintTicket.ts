@@ -8,10 +8,14 @@ import {
   ManyToOne,
   OneToMany,
 } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { GenerativeToken } from "./GenerativeToken"
 import { User } from "./User"
 import { Action } from "./Action"
+
+export enum MintTicketState {
+  MINTED = "MINTED",
+  CONSUMED = "CONSUMED",
+}
 
 @Entity()
 @ObjectType({
@@ -36,6 +40,13 @@ export class MintTicket extends BaseEntity {
   @ManyToOne(() => User, user => user.mintTickets)
   @Filter(["eq"], () => String)
   owner: User
+
+  @Column({
+    type: "enum",
+    enum: MintTicketState,
+    default: MintTicketState.MINTED,
+  })
+  state: MintTicketState
 
   @Field({
     description: "When the ticket was created",

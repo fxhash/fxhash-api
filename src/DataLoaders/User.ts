@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { Brackets, In } from "typeorm"
+import { Brackets, In, Not } from "typeorm"
 import { Objkt } from "../Entity/Objkt"
 import { User, UserType } from "../Entity/User"
 import { Collaboration } from "../Entity/Collaboration"
@@ -15,7 +15,7 @@ import {
 import { Article } from "../Entity/Article"
 import { articleQueryFilter } from "../Query/Filters/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
-import { MintTicket } from "../Entity/MintTicket"
+import { MintTicket, MintTicketState } from "../Entity/MintTicket"
 import { CollectionOffer } from "../Entity/CollectionOffer"
 import { sortByProperty } from "../Utils/Sort"
 
@@ -108,6 +108,7 @@ const batchUsersMintTickets = async userIds => {
     relations: ["owner"],
     where: {
       ownerId: In(userIds),
+      state: Not(MintTicketState.CONSUMED),
     },
     order: {
       id: "DESC",
