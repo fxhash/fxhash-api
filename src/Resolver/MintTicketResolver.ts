@@ -8,7 +8,11 @@ import {
   Root,
 } from "type-graphql"
 import { GenerativeToken } from "../Entity/GenerativeToken"
-import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
+import {
+  FiltersMintTicket,
+  MintTicket,
+  MintTicketState,
+} from "../Entity/MintTicket"
 import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { User } from "../Entity/User"
 import { mintTicketQueryFilter } from "../Query/Filters/MintTicket"
@@ -58,7 +62,9 @@ export class MintTicketResolver {
     }
     ;[skip, take] = useDefaultValues([skip, take], [0, 20])
 
-    let query = MintTicket.createQueryBuilder("mintTicket").select()
+    let query = MintTicket.createQueryBuilder("mintTicket")
+      .select()
+      .where("mintTicket.state != :state", { state: MintTicketState.CONSUMED })
 
     // apply the filters/sort
     query = await mintTicketQueryFilter(query, filters, sort)
