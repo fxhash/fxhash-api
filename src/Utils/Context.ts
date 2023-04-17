@@ -29,6 +29,7 @@ import {
 } from "../DataLoaders/GenTokens"
 import { createMarketStatsGenTokLoader } from "../DataLoaders/MarketStats"
 import { createMediaImagesLoader } from "../DataLoaders/MediaImage"
+import { createMintTicketsLoader } from "../DataLoaders/MintTicket"
 import { createModerationReasonsLoader } from "../DataLoaders/ModerationReason"
 import {
   createObjktActionsLoader,
@@ -117,6 +118,9 @@ export const createContext = (req: any, res: any): RequestContext => {
     objktRedemptionsLoader: createObjktRedemptionsLoader(),
     objktAvailableRedeemablesLoader: createObjktAvailableRedeemablesLoader(),
     objktMintedPriceLoader: createObjktMintedPriceLoader(),
+
+    // MINT TICKETS loaders
+    mintTicketsLoader: createMintTicketsLoader(),
 
     // ARTICLES loaders
     articlesLoader: createArticlesLoader(),
