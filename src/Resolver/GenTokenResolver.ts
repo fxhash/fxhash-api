@@ -20,11 +20,7 @@ import {
 import { MarketStats } from "../Entity/MarketStats"
 import { MarketStatsHistory } from "../Entity/MarketStatsHistory"
 import { MediaImage } from "../Entity/MediaImage"
-import {
-  FiltersMintTicket,
-  MintTicket,
-  MintTicketState,
-} from "../Entity/MintTicket"
+import { FiltersMintTicket, MintTicket } from "../Entity/MintTicket"
 import { MintTicketSettings } from "../Entity/MintTicketSettings"
 import { ModerationReason } from "../Entity/ModerationReason"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
@@ -566,9 +562,7 @@ export class GenTokenResolver {
     ;[skip, take] = useDefaultValues([skip, take], [0, 20])
 
     // build the mint ticket query
-    let query = MintTicket.createQueryBuilder("mintTicket")
-      .select()
-      .where("mintTicket.state != :state", { state: MintTicketState.CONSUMED })
+    let query = MintTicket.createQueryBuilder("mintTicket").select()
 
     // add the filters to target the token only
     query.andWhere("mintTicket.tokenId = :id", {

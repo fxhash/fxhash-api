@@ -71,17 +71,6 @@ export class ActionResolver {
     )
   }
 
-  @FieldResolver(returns => MintTicket, {
-    nullable: true,
-    description:
-      "The mint ticket associated with the action. Some actions, even though they are related to a mint ticket, doesn't have this field populated as it's only populated if really meaningful to store it.",
-  })
-  ticket(@Root() action: Action, @Ctx() ctx: RequestContext) {
-    if (action.ticketId == null) return null
-    if (action.ticket) return action.ticket
-    return ctx.mintTicketsLoader.load(action.ticketId)
-  }
-
   @FieldResolver(returns => Article, {
     nullable: true,
     description: "The article associated with the action, if any.",

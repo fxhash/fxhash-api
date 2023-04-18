@@ -15,7 +15,7 @@ import {
 import { Article } from "../Entity/Article"
 import { articleQueryFilter } from "../Query/Filters/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
-import { MintTicket, MintTicketState } from "../Entity/MintTicket"
+import { MintTicket } from "../Entity/MintTicket"
 import { CollectionOffer } from "../Entity/CollectionOffer"
 import { sortByProperty } from "../Utils/Sort"
 
@@ -108,7 +108,6 @@ const batchUsersMintTickets = async userIds => {
     relations: ["owner"],
     where: {
       ownerId: In(userIds),
-      state: Not(MintTicketState.CONSUMED),
     },
     order: {
       id: "DESC",

@@ -119,9 +119,6 @@ export class Action extends BaseEntity {
   })
   objktIssuerVersion: GenerativeTokenVersion
 
-  @ManyToOne(() => MintTicket, ticket => ticket.actions)
-  ticket: MintTicket
-
   @Column({ nullable: true, default: null })
   ticketId?: number | null
 
