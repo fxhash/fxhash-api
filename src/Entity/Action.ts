@@ -1,5 +1,5 @@
 import { GraphQLJSONObject } from "graphql-type-json"
-import { Field, ObjectType, registerEnumType } from "type-graphql"
+import { Field, Int, ObjectType, registerEnumType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
 import {
   Entity,
@@ -119,7 +119,8 @@ export class Action extends BaseEntity {
   })
   objktIssuerVersion: GenerativeTokenVersion
 
-  @Column({ nullable: true, default: null })
+  @Field(() => Int, { nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
   ticketId?: number | null
 
   @ManyToOne(() => Redeemable, red => red.actions, {
