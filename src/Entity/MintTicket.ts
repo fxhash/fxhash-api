@@ -10,7 +10,6 @@ import {
 } from "typeorm"
 import { GenerativeToken } from "./GenerativeToken"
 import { User } from "./User"
-import { Action } from "./Action"
 
 @Entity()
 @ObjectType({
@@ -70,6 +69,16 @@ export class MintTicket extends BaseEntity {
   @Column()
   @Filter(["gt", "lt"])
   taxationPaidUntil: Date
+
+  //
+  // FILTERS FOR THE GQL ENDPOINT
+  //
+
+  @Filter(["eq"], type => Boolean)
+  inGracePeriod: boolean
+
+  @Filter(["eq"], type => Boolean)
+  underAuction: boolean
 }
 
 // the Type for the filters of the GraphQL query for MintTicket

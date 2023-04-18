@@ -1,3 +1,4 @@
+import { LessThan, MoreThanOrEqual } from "typeorm"
 import { MintTicketSortInput } from "../../Resolver/Arguments/Sort"
 import { processMintTicketFilters } from "../../Utils/Filters"
 import { TQueryFilter } from "./QueryFilter"
@@ -27,6 +28,38 @@ export const mintTicketQueryFilter: TQueryFilter<
     query.andWhere(`mintTicket.tokenId = :tokenId`, {
       tokenId: filters.token_eq,
     })
+  }
+
+  // add filter for the grace period
+  if (filters?.inGracePeriod_eq != null) {
+    // filter the tickets outside of the grace period
+    if (filters.inGracePeriod_eq === false) {
+      query.andWhere({
+        taxationStart: LessThan(new Date()),
+      })
+    }
+    // filter only the tickets in the grace period
+    else if (filters.mintOpened_eq === true) {
+      query.andWhere({
+        taxationStart: MoreThanOrEqual(new Date()),
+      })
+    }
+  }
+
+  // add filter for under auction
+  if (filters?.underAuction_eq != null) {
+    // filter the tickets not under auction
+    if (filters.underAuction_eq === false) {
+      query.andWhere({
+        taxationPaidUntil: MoreThanOrEqual(new Date()),
+      })
+    }
+    // filter only the tickets under auction
+    else if (filters.underAuction_eq === true) {
+      query.andWhere({
+        taxationPaidUntil: LessThan(new Date()),
+      })
+    }
   }
 
   // add the sort arguments
