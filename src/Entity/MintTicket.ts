@@ -1,9 +1,16 @@
 import { Field, Float, ObjectType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
-import { Entity, Column, BaseEntity, PrimaryColumn, ManyToOne } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import {
+  Entity,
+  Column,
+  BaseEntity,
+  PrimaryColumn,
+  ManyToOne,
+  OneToMany,
+} from "typeorm"
 import { GenerativeToken } from "./GenerativeToken"
 import { User } from "./User"
+import { Action } from "./Action"
 
 @Entity()
 @ObjectType({
