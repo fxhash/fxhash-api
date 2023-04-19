@@ -645,7 +645,7 @@ export class GenTokenResolver {
   @FieldResolver(returns => Int, {
     nullable: true,
     description:
-      "The minimum price paid by the supplied address for a gentk in this collection - secondary sales only.",
+      "The minimum price paid by the supplied address for a gentk in this collection.",
   })
   async minLastSoldPrice(
     @Root() token: GenerativeToken,

@@ -56,8 +56,7 @@ export class ObjktResolver {
   }
 
   @FieldResolver(returns => Int, {
-    description:
-      "The last price this gentk was sold for - secondary sales only.",
+    description: "The last price this gentk was sold for.",
     nullable: true,
   })
   lastSoldPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
