@@ -220,7 +220,7 @@ const batchObjktLastSoldPrice = async ids => {
       SELECT * FROM transaction WHERE ${matchesEntityObjktIdAndIssuerVersion(
         ids,
         "transaction"
-      )} ORDER BY transaction."createdAt"
+      )} ORDER BY transaction."createdAt" DESC
     ) as latest_sales_query
   `)
 
