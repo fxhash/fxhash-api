@@ -17,6 +17,6 @@ export const matchesEntityObjktIdAndIssuerVersion = (
   idFieldName = "objkt",
   versionFieldName = idFieldName
 ) =>
-  `(${entityName}."${idFieldName}Id", ${entityName}."${versionFieldName}IssuerVersion") IN (${formatObjktIdTuples(
+  `("${entityName}"."${idFieldName}Id", "${entityName}"."${versionFieldName}IssuerVersion") IN (${formatObjktIdTuples(
     ids
   )})`
