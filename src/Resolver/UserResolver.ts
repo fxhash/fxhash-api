@@ -2,21 +2,14 @@ import {
   Arg,
   Args,
   Ctx,
-  Field,
   FieldResolver,
-  Int,
-  ObjectType,
   Query,
   Resolver,
   Root,
 } from "type-graphql"
-import { Brackets, IsNull, Not } from "typeorm"
+import { Brackets, getManager } from "typeorm"
 import { Action, FiltersAction } from "../Entity/Action"
-import {
-  GenerativeFilters,
-  GenerativeToken,
-  GenTokFlag,
-} from "../Entity/GenerativeToken"
+import { GenerativeFilters, GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
 import { User, UserAuthorization, UserFilters, UserType } from "../Entity/User"
@@ -44,6 +37,8 @@ import { Article, ArticleFilters } from "../Entity/Article"
 import { ArticleLedger } from "../Entity/ArticleLedger"
 import { MediaImage } from "../Entity/MediaImage"
 import { MintTicket } from "../Entity/MintTicket"
+import { Reserve } from "../Entity/Reserve"
+import { AnyOfferUnion } from "../types/AnyOffer"
 
 @Resolver(User)
 export class UserResolver {
@@ -53,6 +48,25 @@ export class UserResolver {
   })
   authorizations(@Root() user: User) {
     return mapUserAuthorizationIdsToEnum(user.authorizations)
+  }
+
+  @FieldResolver(returns => [GenerativeToken], {
+    description:
+      "Returns the list of generative tokens with reserves including the user.",
+  })
+  async reserves(@Root() user: User, @Ctx() ctx: RequestContext) {
+    // find all reserves for the user
+    const reserves = await Reserve.createQueryBuilder("reserve")
+      .select()
+      .where("method = :method", { method: 0 }) // EReserveMethod.WHITELIST = 0
+      .andWhere("data ? :id", { id: user.id })
+      .getMany()
+
+    // filter out reserves that are not active anymore
+    const activeReserves = reserves.filter(r => r.amount > 0)
+
+    // load the tokens
+    return ctx.genTokLoader.loadMany(activeReserves.map(r => r.tokenId))
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -279,6 +293,30 @@ export class UserResolver {
     })
   }
 
+  @FieldResolver(returns => [AnyOfferUnion], {
+    description:
+      "Returns all the offers and collection offers made by the user. Can be filtered.",
+  })
+  async allOffersSent(
+    @Root() user: User,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    return ctx.userOffersAndCollectionOffersSentLoader.load({
+      id: user.id,
+      filters: filters,
+      sort: sort,
+    })
+  }
+
   @FieldResolver(returns => [Offer], {
     description:
       "Returns all the offers made by users on tokens owned by the given user.",
@@ -297,6 +335,30 @@ export class UserResolver {
     }
 
     return ctx.userOffersReceivedLoader.load({
+      id: user.id,
+      filters: filters,
+      sort: sort,
+    })
+  }
+
+  @FieldResolver(returns => [AnyOfferUnion], {
+    description:
+      "Returns all the offers and collection offers received by the user. Can be filtered.",
+  })
+  async allOffersReceived(
+    @Root() user: User,
+    @Ctx() ctx: RequestContext,
+    @Arg("filters", FiltersOffer, { nullable: true }) filters: any,
+    @Arg("sort", { nullable: true }) sort: OffersSortInput
+  ) {
+    // default sort
+    if (!sort || Object.keys(sort).length === 0) {
+      sort = {
+        createdAt: "DESC",
+      }
+    }
+
+    return ctx.userOffersAndCollectionOffersReceivedLoader.load({
       id: user.id,
       filters: filters,
       sort: sort,

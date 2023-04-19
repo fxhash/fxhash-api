@@ -23,6 +23,7 @@ import { Reserve } from "../Entity/Reserve"
 import { Split } from "../Entity/Split"
 import { User } from "../Entity/User"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import { CollectionOffer } from "../Entity/CollectionOffer"
 
 export const generativeTokenFactory = async (
   id: number,
@@ -107,6 +108,7 @@ export const objktFactory = async (
   objkt.issuerVersion = tokenVersion
   objkt.issuerId = config.tokenId || 0
   objkt.features = config.features || []
+  objkt.ownerId = config.ownerId || null
   await objkt.save()
   return objkt
 }
@@ -320,8 +322,28 @@ export const offerFactory = async (
   offer.objktIssuerVersion = objktIssuerVersion
   offer.price = config.price || 0
   offer.createdAt = config.createdAt || new Date()
+  offer.acceptedAt = config.acceptedAt || null
+  offer.buyerId = config.buyerId || "tz1"
   await offer.save()
   return offer
+}
+
+export const collectionOfferFactory = async (
+  id: number,
+  config: Partial<CollectionOffer> = {}
+) => {
+  const collectionOffer = new CollectionOffer()
+  collectionOffer.id = id
+  collectionOffer.version = 1
+  collectionOffer.tokenId = config.tokenId || 0
+  collectionOffer.price = config.price || 1000000
+  collectionOffer.amount = config.amount || 1
+  collectionOffer.initialAmount = config.initialAmount || 1
+  collectionOffer.buyerId = config.buyerId || "tz1"
+  collectionOffer.createdAt = config.createdAt || new Date()
+  collectionOffer.completedAt = config.completedAt || null
+  await collectionOffer.save()
+  return collectionOffer
 }
 
 export const reserveFactory = async (
@@ -332,6 +354,7 @@ export const reserveFactory = async (
   reserve.tokenId = tokenId
   reserve.amount = config.amount || 0
   reserve.method = config.method || 0
+  reserve.data = config.data || {}
   await reserve.save()
   return reserve
 }

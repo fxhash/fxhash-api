@@ -20,6 +20,7 @@ import { MintTicketResolver } from "./MintTicketResolver"
 import { MintTicketSettingsResolver } from "./MintTicketSettingsResolver"
 import { RedeemableResolver } from "./RedeemableResolver"
 import { RedemptionResolver } from "./RedemptionResolver"
+import { CollectionOfferResolver } from "./CollectionOfferResolver"
 
 export const ResolverCollection: NonEmptyArray<Function> = [
   UserResolver,
@@ -28,6 +29,7 @@ export const ResolverCollection: NonEmptyArray<Function> = [
   ActionResolver,
   ListingResolver,
   OfferResolver,
+  CollectionOfferResolver,
   MarketStatsDataResolver,
   MarketStatsResolver,
   SplitResolver,
