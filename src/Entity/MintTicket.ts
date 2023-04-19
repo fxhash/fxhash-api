@@ -1,7 +1,13 @@
 import { Field, Float, ObjectType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
-import { Entity, Column, BaseEntity, PrimaryColumn, ManyToOne } from "typeorm"
-import { GenerativeTokenVersion } from "../types/GenerativeToken"
+import {
+  Entity,
+  Column,
+  BaseEntity,
+  PrimaryColumn,
+  ManyToOne,
+  OneToMany,
+} from "typeorm"
 import { GenerativeToken } from "./GenerativeToken"
 import { User } from "./User"
 
@@ -63,6 +69,16 @@ export class MintTicket extends BaseEntity {
   @Column()
   @Filter(["gt", "lt"])
   taxationPaidUntil: Date
+
+  //
+  // FILTERS FOR THE GQL ENDPOINT
+  //
+
+  @Filter(["eq"], type => Boolean)
+  inGracePeriod: boolean
+
+  @Filter(["eq"], type => Boolean)
+  underAuction: boolean
 }
 
 // the Type for the filters of the GraphQL query for MintTicket

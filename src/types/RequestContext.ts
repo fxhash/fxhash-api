@@ -62,6 +62,7 @@ import {
   createUsersOffersAndCollectionOffersSentLoader,
   createUsersOffersAndCollectionOffersReceivedLoader,
 } from "../DataLoaders/User"
+import { createMintTicketsLoader } from "../DataLoaders/MintTicket"
 
 export interface RequestContext extends ExpressRequest {
   req: any
@@ -136,6 +137,9 @@ export interface RequestContext extends ExpressRequest {
     typeof createObjktAvailableRedeemablesLoader
   >
   objktMintedPriceLoader: ReturnType<typeof createObjktMintedPriceLoader>
+
+  // MINT TICKETS loaders
+  mintTicketsLoader: ReturnType<typeof createMintTicketsLoader>
 
   // ARTICLES loaders
   articlesLoader: ReturnType<typeof createArticlesLoader>
