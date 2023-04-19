@@ -9,6 +9,7 @@ import {
   offerFactory,
   redeemableFactory,
   redemptionFactory,
+  transactionFactory,
 } from "../tests/factories"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { createConnection } from "../createConnection"
@@ -24,6 +25,7 @@ import {
   createObjktsLoader,
 } from "./Objkt"
 import { TokenActionType } from "../Entity/Action"
+import { ETransationType } from "../Entity/Transaction"
 
 let manager: EntityManager
 let connection: Connection
@@ -39,6 +41,7 @@ afterAll(() => {
 })
 
 const cleanup = async () => {
+  await manager.query("DELETE FROM transaction")
   await manager.query("DELETE FROM redemption")
   await manager.query("DELETE FROM redeemable")
   await manager.query("DELETE FROM listing")
@@ -467,18 +470,16 @@ describe("Objkt dataloaders", () => {
       await objktFactory(0, GenerativeTokenVersion.V3, { tokenId: 0 })
       await objktFactory(1, GenerativeTokenVersion.V3, { tokenId: 1 })
 
-      // create some minted actions
-      await actionFactory({
+      // create some primary transactions
+      await transactionFactory(0, ETransationType.PRIMARY, {
         objktId: 0,
         objktIssuerVersion: GenerativeTokenVersion.PRE_V3,
-        type: TokenActionType.MINTED_FROM,
-        numericValue: 100,
+        price: "100",
       })
-      await actionFactory({
+      await transactionFactory(0, ETransationType.PRIMARY, {
         objktId: 1,
         objktIssuerVersion: GenerativeTokenVersion.V3,
-        type: TokenActionType.MINTED_FROM,
-        numericValue: 200,
+        price: "200",
       })
     })
 
