@@ -65,6 +65,7 @@ import {
   createUsersGentkMinLastSoldPriceLoader,
   createUsersGentksHeldForCollectionLoader,
 } from "../DataLoaders/User"
+import { createMintTicketsLoader } from "../DataLoaders/MintTicket"
 
 export interface RequestContext extends ExpressRequest {
   req: any
@@ -146,6 +147,9 @@ export interface RequestContext extends ExpressRequest {
   >
   objktLastSoldPriceLoader: ReturnType<typeof createObjktLastSoldPriceLoader>
   objktMintedPriceLoader: ReturnType<typeof createObjktMintedPriceLoader>
+
+  // MINT TICKETS loaders
+  mintTicketsLoader: ReturnType<typeof createMintTicketsLoader>
 
   // ARTICLES loaders
   articlesLoader: ReturnType<typeof createArticlesLoader>

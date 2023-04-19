@@ -48,21 +48,21 @@ export class Transaction extends BaseEntity {
 
   @Index()
   @Column()
-  tokenId: number
+  tokenId?: number
 
   @ManyToOne(() => Objkt, objkt => objkt.transactions)
   objkt: Objkt
 
   @Index()
   @Column()
-  objktId: number
+  objktId?: number
 
   @Column({
     type: "enum",
     enumName: "generative_token_version",
     enum: GenerativeTokenVersion,
   })
-  objktIssuerVersion: GenerativeTokenVersion
+  objktIssuerVersion?: GenerativeTokenVersion
 
   @ManyToOne(() => Article, article => article.transactions)
   article: Article

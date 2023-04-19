@@ -4,12 +4,12 @@ import { Action } from "../Entity/Action"
 import { Listing } from "../Entity/Listing"
 import { Objkt } from "../Entity/Objkt"
 import { Offer } from "../Entity/Offer"
-import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
 import { offerQueryFilter } from "../Query/Filters/Offer"
 import { ObjktId } from "../Scalar/ObjktId"
 import { matchesEntityObjktIdAndIssuerVersion } from "../Utils/Objkt"
+import { ETransationType, Transaction } from "../Entity/Transaction"
 
 /**
  * Given a list of objkt IDs, outputs a list of Objkt entities
@@ -185,27 +185,20 @@ export const createObjktAvailableRedeemablesLoader = () =>
  * Given a list of objkt IDs, outputs their minted price
  */
 const batchObjktMintedPriceLoader = async ids => {
-  const actions = await Action.createQueryBuilder("a")
-    .select([
-      "a.id",
-      "a.objktId",
-      "a.objktIssuerVersion",
-      "a.type",
-      "a.numericValue",
-    ])
-    .addSelect('min("createdAt")', "createdAt")
-    .where(matchesEntityObjktIdAndIssuerVersion(ids, "a"))
-    .andWhere("a.type = 'MINTED_FROM'")
-    .groupBy("a.id")
-    .addGroupBy('a."objktId"')
+  const transactions = await Transaction.createQueryBuilder("t")
+    .select()
+    .where(matchesEntityObjktIdAndIssuerVersion(ids, "t"))
+    .andWhere({
+      type: ETransationType.PRIMARY,
+    })
     .getMany()
 
   return ids.map(
     ({ id, issuerVersion }: ObjktId) =>
-      actions.find(
+      transactions.find(
         action =>
           action.objktId === id && action.objktIssuerVersion === issuerVersion
-      )?.numericValue
+      )?.price
   )
 }
 export const createObjktMintedPriceLoader = () =>

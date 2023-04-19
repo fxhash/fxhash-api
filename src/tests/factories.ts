@@ -410,12 +410,12 @@ export const transactionFactory = async (
   const transaction = new Transaction()
   transaction.id = id
   transaction.type = type
-  transaction.tokenId = config.tokenId || 0
-  transaction.objktId = config.objktId || 0
-  transaction.objktIssuerVersion =
-    config.objktIssuerVersion || GenerativeTokenVersion.V3
-  transaction.opHash = config.opHash || `opHash${id}`
-  transaction.price = config.price || "0"
+  transaction.createdAt = config.createdAt || new Date()
+  transaction.opHash = config.opHash || "opHash"
+  transaction.tokenId = config.tokenId
+  transaction.objktId = config.objktId
+  transaction.objktIssuerVersion = config.objktIssuerVersion
+  transaction.price = config.price || "1000000"
   transaction.createdAt = config.createdAt || new Date()
   await transaction.save()
   return transaction

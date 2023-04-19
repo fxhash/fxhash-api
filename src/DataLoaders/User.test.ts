@@ -38,6 +38,7 @@ afterAll(() => {
 
 const cleanup = async () => {
   await manager.query("DELETE FROM transaction")
+  await manager.query("DELETE FROM action")
   await manager.query("DELETE FROM collection_offer")
   await manager.query("DELETE FROM offer")
   await manager.query("DELETE FROM objkt")

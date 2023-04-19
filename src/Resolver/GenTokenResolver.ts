@@ -51,6 +51,7 @@ import {
 } from "./Arguments/Sort"
 import { AnyOfferUnion } from "../types/AnyOffer"
 import { CollectionOffer } from "../Entity/CollectionOffer"
+import { LessThan } from "typeorm"
 
 @Resolver(GenerativeToken)
 export class GenTokenResolver {
@@ -539,6 +540,31 @@ export class GenTokenResolver {
     if (!token.inputBytesSize) return null
     if (token.mintTicketSettings) return token.mintTicketSettings
     return ctx.genTokMintTicketSettingsLoader.load(token.id)
+  }
+
+  @FieldResolver(returns => [MintTicket], {
+    description: "Get all under auction mint tickets for a Generative Token.",
+  })
+  async underAuctionMintTickets(@Root() token: GenerativeToken) {
+    // if the token doesn't have an inputBytesSize, it won't have mint tickets
+    if (!token.inputBytesSize) return []
+
+    // build the mint ticket query
+    return (
+      MintTicket.createQueryBuilder("mintTicket")
+        .select()
+        // tickets for the token
+        .where("mintTicket.tokenId = :id", {
+          id: token.id,
+        })
+        // where taxationPaidUntil is in the past
+        .andWhere({
+          taxationPaidUntil: LessThan(new Date()),
+        })
+        // sorted by how long they've been under auction
+        .orderBy("mintTicket.taxationPaidUntil", "ASC")
+        .getMany()
+    )
   }
 
   @FieldResolver(returns => [MintTicket], {

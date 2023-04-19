@@ -18,6 +18,7 @@ import { RequestContext } from "../types/RequestContext"
 import { processFilters } from "../Utils/Filters"
 import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 import { ActionsSortInput, defaultSort } from "./Arguments/Sort"
+import { MintTicket } from "../Entity/MintTicket"
 
 @Resolver(Action)
 export class ActionResolver {
