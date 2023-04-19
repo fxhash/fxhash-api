@@ -24,7 +24,6 @@ import {
   createObjktRoyaltiesSplitsLoader,
   createObjktsLoader,
 } from "./Objkt"
-import { TokenActionType } from "../Entity/Action"
 import { ETransationType } from "../Entity/Transaction"
 
 let manager: EntityManager
