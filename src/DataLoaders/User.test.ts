@@ -34,6 +34,7 @@ afterAll(() => {
 })
 
 const cleanup = async () => {
+  await manager.query("DELETE FROM action")
   await manager.query("DELETE FROM collection_offer")
   await manager.query("DELETE FROM offer")
   await manager.query("DELETE FROM objkt")
@@ -41,7 +42,7 @@ const cleanup = async () => {
   await manager.query("DELETE FROM generative_token")
 }
 
-// afterEach(cleanup)
+afterEach(cleanup)
 
 describe("User dataloaders", () => {
   let dataloader
@@ -239,7 +240,7 @@ describe("User dataloaders", () => {
     })
   })
 
-  describe.only("createUsersOffersAndCollectionOffersReceivedLoader", () => {
+  describe("createUsersOffersAndCollectionOffersReceivedLoader", () => {
     beforeAll(async () => {
       dataloader = createUsersOffersAndCollectionOffersReceivedLoader()
 

@@ -1,5 +1,5 @@
 import { GraphQLJSONObject } from "graphql-type-json"
-import { Field, ObjectType, registerEnumType } from "type-graphql"
+import { Field, Int, ObjectType, registerEnumType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
 import {
   Entity,
@@ -17,6 +17,7 @@ import { Objkt } from "./Objkt"
 import { Redeemable } from "./Redeemable"
 import { DateTransformer } from "./Transformers/DateTransformer"
 import { User } from "./User"
+import { MintTicket } from "./MintTicket"
 
 export enum TokenActionType {
   NONE = "NONE",
@@ -27,6 +28,7 @@ export enum TokenActionType {
   MINTED_FROM = "MINTED_FROM",
   TICKET_MINTED = "TICKET_MINTED",
   TICKED_CLAIMED = "TICKET_CLAIMED",
+  TICKET_PRICE_UPDATED = "TICKET_PRICE_UPDATED",
   GENTK_SIGNED = "GENTK_SIGNED",
   GENTK_REDEEMED = "GENTK_REDEEMED",
   COMPLETED = "COMPLETED",
@@ -116,6 +118,10 @@ export class Action extends BaseEntity {
     enum: GenerativeTokenVersion,
   })
   objktIssuerVersion: GenerativeTokenVersion
+
+  @Field(() => Int, { nullable: true })
+  @Column({ type: "text", nullable: true, default: null })
+  ticketId?: number | null
 
   @ManyToOne(() => Redeemable, red => red.actions, {
     onDelete: "CASCADE",
