@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { Brackets, In } from "typeorm"
+import { Brackets, In, Not } from "typeorm"
 import { Objkt } from "../Entity/Objkt"
 import { User, UserType } from "../Entity/User"
 import { Collaboration } from "../Entity/Collaboration"
