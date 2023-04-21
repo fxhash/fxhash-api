@@ -52,21 +52,22 @@ export class UserResolver {
 
   @FieldResolver(returns => [GenerativeToken], {
     description:
-      "Returns the list of generative tokens with reserves including the user.",
+      "Returns the list of generative tokens with active reserves including the user.",
   })
   async reserves(@Root() user: User, @Ctx() ctx: RequestContext) {
     // find all reserves for the user
     const reserves = await Reserve.createQueryBuilder("reserve")
       .select()
       .where("method = :method", { method: 0 }) // EReserveMethod.WHITELIST = 0
+      .andWhere("amount > 0")
       .andWhere("data ? :id", { id: user.id })
       .getMany()
 
     // filter out reserves that are not active anymore
-    const activeReserves = reserves.filter(r => r.amount > 0)
+    const activeReservesForUser = reserves.filter(r => r.data[user.id] > 0)
 
     // load the tokens
-    return ctx.genTokLoader.loadMany(activeReserves.map(r => r.tokenId))
+    return ctx.genTokLoader.loadMany(activeReservesForUser.map(r => r.tokenId))
   }
 
   @FieldResolver(returns => [Objkt], {
