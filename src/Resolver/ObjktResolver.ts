@@ -55,6 +55,14 @@ export class ObjktResolver {
     return GENTK_CONTRACT_VERSION_MAP[objkt.version]
   }
 
+  @FieldResolver(returns => Int, {
+    description: "The last price this gentk was sold for.",
+    nullable: true,
+  })
+  lastSoldPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    return ctx.objktLastSoldPriceLoader.load(new ObjktId(objkt))
+  }
+
   @FieldResolver(returns => User, {
     description:
       "The current owner of this gentk. The fxhash marketplace contracts are ignored when there's a transfer of ownerhsip to their contracts.",

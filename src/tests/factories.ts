@@ -416,6 +416,7 @@ export const transactionFactory = async (
   transaction.objktId = config.objktId
   transaction.objktIssuerVersion = config.objktIssuerVersion
   transaction.price = config.price || "1000000"
+  transaction.createdAt = config.createdAt || new Date()
   await transaction.save()
   return transaction
 }
