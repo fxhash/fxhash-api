@@ -24,6 +24,12 @@ export const mintTicketQueryFilter: TQueryFilter<
     })
   }
 
+  if (filters?.owner_ne) {
+    query.andWhere(`mintTicket.ownerId != :ownerId`, {
+      ownerId: filters.owner_ne,
+    })
+  }
+
   if (filters?.token_eq) {
     query.andWhere(`mintTicket.tokenId = :tokenId`, {
       tokenId: filters.token_eq,
