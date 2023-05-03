@@ -162,7 +162,7 @@ const batchObjktAvailableRedeemables = async ids => {
     .leftJoinAndSelect("O.issuer", "G")
     .leftJoinAndSelect("G.redeemables", "Ra")
     .leftJoinAndSelect("O.redemptions", "Re")
-    .where(matchesEntityObjktIdAndIssuerVersion(ids, "Re"))
+    .whereInIds(ids)
     .getMany()
 
   return ids.map(({ id, issuerVersion }: ObjktId) => {
