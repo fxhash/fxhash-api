@@ -169,7 +169,7 @@ const batchObjktAvailableRedeemables = async ids => {
     const objkt = objkts.find(
       o => o.id === id && o.issuerVersion === issuerVersion
     )
-    if (!objkt) return null
+    if (!objkt) return []
     return objkt.issuer!.redeemables.filter(
       redeemable =>
         objkt.redemptions.filter(
