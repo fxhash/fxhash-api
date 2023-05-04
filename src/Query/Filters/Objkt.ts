@@ -99,6 +99,11 @@ export const objktQueryFilter: TQueryFilter<
 
   // custom filters
   if (filters) {
+    // filter for id
+    if (filters?.id_in != null) {
+      query.andWhereInIds(filters.id_in)
+    }
+
     // all the filters related to the author
     if (filters.author_in != null || filters.authorVerified_eq != null) {
       // we need the author so we join it (can select, almost always requested)

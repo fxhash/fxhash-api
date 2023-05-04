@@ -41,6 +41,7 @@ import { Split } from "./Split"
 import { Transaction } from "./Transaction"
 import { DateTransformer } from "./Transformers/DateTransformer"
 import { User } from "./User"
+import { ObjktId } from "../Scalar/ObjktId"
 
 @Entity()
 @ObjectType({
@@ -49,6 +50,7 @@ import { User } from "./User"
 })
 export class Objkt extends BaseEntity {
   @PrimaryColumn()
+  @Filter(["in"], type => ObjktId)
   id: number
 
   /**
