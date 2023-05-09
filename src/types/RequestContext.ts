@@ -35,6 +35,7 @@ import {
   createObjktActionsLoader,
   createObjktActiveListingsLoader,
   createObjktAvailableRedeemablesLoader,
+  createObjktLastSoldPriceLoader,
   createObjktListingsLoader,
   createObjktMintedPriceLoader,
   createObjktOffersLoader,
@@ -61,6 +62,8 @@ import {
   createUsersMintTicketsLoader,
   createUsersOffersAndCollectionOffersSentLoader,
   createUsersOffersAndCollectionOffersReceivedLoader,
+  createUsersGentkMinLastSoldPriceLoader,
+  createUsersGentksHeldForCollectionLoader,
 } from "../DataLoaders/User"
 import { createMintTicketsLoader } from "../DataLoaders/MintTicket"
 
@@ -85,6 +88,12 @@ export interface RequestContext extends ExpressRequest {
   usersArticlesLoader: ReturnType<typeof createUsersArticlesLoader>
   usersArticleLedgersLoader: ReturnType<typeof createUsersArticleLedgersLoader>
   usersSalesLoader: ReturnType<typeof createUsersSalesLoader>
+  usersGentkMinLastSoldPriceLoader: ReturnType<
+    typeof createUsersGentkMinLastSoldPriceLoader
+  >
+  usersGentksHeldForCollectionLoader: ReturnType<
+    typeof createUsersGentksHeldForCollectionLoader
+  >
 
   // GENERATIVE TOKEN loaders
   genTokLoader: ReturnType<typeof createGenTokLoader>
@@ -136,6 +145,7 @@ export interface RequestContext extends ExpressRequest {
   objktAvailableRedeemablesLoader: ReturnType<
     typeof createObjktAvailableRedeemablesLoader
   >
+  objktLastSoldPriceLoader: ReturnType<typeof createObjktLastSoldPriceLoader>
   objktMintedPriceLoader: ReturnType<typeof createObjktMintedPriceLoader>
 
   // MINT TICKETS loaders

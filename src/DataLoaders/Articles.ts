@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { In } from "typeorm"
+import { In, MoreThan } from "typeorm"
 import { Article } from "../Entity/Article"
 import { ArticleGenerativeToken } from "../Entity/ArticleGenerativeToken"
 import { ArticleLedger } from "../Entity/ArticleLedger"
@@ -27,7 +27,8 @@ export const createArticlesLoader = () => new DataLoader(batchArticles)
 const batchArticlesLedgers = async (ids): Promise<ArticleLedger[][]> => {
   const ledgers = await ArticleLedger.find({
     where: {
-      articleId: In(ids)
+      articleId: In(ids),
+      amount: MoreThan(0)
     }
   })
   return ids.map(
