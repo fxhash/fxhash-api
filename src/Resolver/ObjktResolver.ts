@@ -8,6 +8,7 @@ import {
   Resolver,
   Root,
 } from "type-graphql"
+import { ApolloError } from "apollo-server-express"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
@@ -258,5 +259,23 @@ export class ObjktResolver {
       where: args,
       // cache: 10000
     })
+  }
+
+  @Query(returns => String, {
+    description:
+      "Endpoint to reveal the seed of a gentk from the hash of the mint transaction.",
+  })
+  async reveal(@Arg("hash") hash: string): Promise<string> {
+    try {
+      const { finalSeedBase58check } = await fetchRetry(
+        `${process.env.SEED_AUTHORITY_API}/seed/${hash}`
+      )
+      return finalSeedBase58check
+    } catch (err: any) {
+      console.error(err)
+      throw new ApolloError(
+        `Failed to fetch the seed. Error: ${err?.message ?? "Unknown"}`
+      )
+    }
   }
 }
