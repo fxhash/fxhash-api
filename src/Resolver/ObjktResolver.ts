@@ -8,6 +8,7 @@ import {
   Resolver,
   Root,
 } from "type-graphql"
+import { ApolloError } from "apollo-server-express"
 import { Action } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
@@ -24,6 +25,7 @@ import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
 import { ObjktId } from "../Scalar/ObjktId"
+import { fetchRetry } from "../Utils/Fetch"
 
 const GENTK_CONTRACT_VERSION_MAP = {
   [0]: process.env.TZ_CT_ADDRESS_GENTK_V1,
@@ -45,6 +47,24 @@ export class ObjktResolver {
   })
   onChainId(@Root() objkt: Objkt) {
     return objkt.id
+  }
+
+  @FieldResolver(returns => String, {
+    description:
+      "The hash which represents the seed used by the Generative Token to generate the unique output",
+    nullable: true,
+  })
+  async generationHash(@Root() objkt: Objkt) {
+    if (objkt.generationHash) return objkt.generationHash
+    try {
+      const { finalSeedBase58check } = await fetchRetry(
+        `${process.env.SEED_AUTHORITY_API}/seed/gentk/${objkt.version}/${objkt.id}`
+      )
+      return finalSeedBase58check
+    } catch (_) {
+      // we shouldn't reach this, but if we do we have no generation hash to return
+      return null
+    }
   }
 
   @FieldResolver(returns => String, {
@@ -239,5 +259,23 @@ export class ObjktResolver {
       where: args,
       // cache: 10000
     })
+  }
+
+  @Query(returns => String, {
+    description:
+      "Endpoint to reveal the seed of a gentk from the hash of the mint transaction.",
+  })
+  async reveal(@Arg("hash") hash: string): Promise<string> {
+    try {
+      const { finalSeedBase58check } = await fetchRetry(
+        `${process.env.SEED_AUTHORITY_API}/seed/${hash}`
+      )
+      return finalSeedBase58check
+    } catch (err: any) {
+      console.error(err)
+      throw new ApolloError(
+        `Failed to fetch the seed. Error: ${err?.message ?? "Unknown"}`
+      )
+    }
   }
 }
