@@ -262,7 +262,8 @@ export class GenerativeToken extends BaseEntity {
   @Column({ default: 0 })
   balance: number = 0
 
-  @Field({
+  @Field(() => Int, {
+    nullable: true,
     description:
       "The number of iterations minted from the Generative Token - defined for V3 tokens only.",
   })
