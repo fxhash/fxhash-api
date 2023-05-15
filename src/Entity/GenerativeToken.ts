@@ -264,6 +264,13 @@ export class GenerativeToken extends BaseEntity {
 
   @Field({
     description:
+      "The number of iterations minted from the Generative Token - defined for V3 tokens only.",
+  })
+  @Column({ type: "int", nullable: true })
+  iterationsCount: number | null
+
+  @Field({
+    description:
       "If the minting of the Generative Token is enabled or not. Can be changed by artist(s) only onchain.",
   })
   @Column({ default: false })
