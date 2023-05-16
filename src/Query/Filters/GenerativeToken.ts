@@ -155,13 +155,19 @@ export const generativeQueryFilter: TQueryFilter<
     }
     // if we want to filter all the ongoing collections
     else if (filters.mintProgress_eq === "ONGOING") {
+      query.leftJoin("token.reserves", "reserves")
       query.andWhere("token.balance > 0")
+      query.groupBy("token.id")
+      query.having("token.balance - COALESCE(SUM(reserves.amount), 0) > 0")
     }
     // if we want to filter all the collections close to be finished
     else if (filters.mintProgress_eq === "ALMOST") {
+      query.leftJoin("token.reserves", "reserves")
       query.andWhere(
         "token.balance::decimal / token.supply < 0.1 AND token.balance > 0"
       )
+      query.groupBy("token.id")
+      query.having("token.balance - COALESCE(SUM(reserves.amount), 0) > 0")
     }
   }
 
