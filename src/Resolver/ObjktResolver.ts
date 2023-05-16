@@ -267,10 +267,10 @@ export class ObjktResolver {
   })
   async reveal(@Arg("hash") hash: string): Promise<string> {
     try {
-      const { finalSeedBase58check } = await fetchRetry(
+      const response = await fetchRetry(
         `${process.env.SEED_AUTHORITY_API}/seed/${hash}`
       )
-      return finalSeedBase58check
+      return response.finalSeed.b58
     } catch (err: any) {
       console.error(err)
       throw new ApolloError(
