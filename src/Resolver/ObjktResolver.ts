@@ -9,7 +9,7 @@ import {
   Root,
 } from "type-graphql"
 import { ApolloError } from "apollo-server-express"
-import { Action } from "../Entity/Action"
+import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
@@ -26,6 +26,8 @@ import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
 import { ObjktId } from "../Scalar/ObjktId"
 import { fetchRetry } from "../Utils/Fetch"
+
+const VERSION_TICKET_ID = "1000"
 
 const GENTK_CONTRACT_VERSION_MAP = {
   [0]: process.env.TZ_CT_ADDRESS_GENTK_V1,
@@ -57,6 +59,35 @@ export class ObjktResolver {
   async generationHash(@Root() objkt: Objkt) {
     if (objkt.generationHash) return objkt.generationHash
     try {
+      const usesParams = !!objkt.inputBytes
+
+      // if the objkt uses params, we need to get the seed from the ticketId
+      if (usesParams) {
+        // find the MINTED_FROM action for this objkt to get the related ticketId
+        const mintedFrom = await Action.findOneOrFail({
+          type: TokenActionType.MINTED_FROM,
+          objktId: objkt.id,
+          objktIssuerVersion: objkt.issuerVersion,
+        })
+
+        // ensure we have a ticketId
+        if (!mintedFrom.ticketId)
+          throw new Error(
+            "No ticketId found for objkt: " +
+              JSON.stringify({
+                id: objkt.id,
+                issuerVersion: objkt.issuerVersion,
+              })
+          )
+
+        // fetch the seed using the ticketId
+        const { finalSeedBase58check } = await fetchRetry(
+          `${process.env.SEED_AUTHORITY_API}/seed/gentk/${VERSION_TICKET_ID}/${mintedFrom.ticketId}`
+        )
+        return finalSeedBase58check
+      }
+
+      // otherwise, we can use the objkt's version/id to get the seed
       const { finalSeedBase58check } = await fetchRetry(
         `${process.env.SEED_AUTHORITY_API}/seed/gentk/${objkt.version}/${objkt.id}`
       )
