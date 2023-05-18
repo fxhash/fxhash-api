@@ -65,6 +65,16 @@ export class GenTokenResolver {
       : process.env.TZ_CT_ADDRESS_ISSUER_V2
   }
 
+  @FieldResolver(returns => String, {
+    description:
+      "The address of the gentk contract that this token will mint iterations on.",
+  })
+  gentkContractAddress(@Root() token: GenerativeToken) {
+    return token.version === GenerativeTokenVersion.V3
+      ? process.env.TZ_CT_ADDRESS_GENTK_V3
+      : process.env.TZ_CT_ADDRESS_GENTK_V2
+  }
+
   @FieldResolver(returns => Codex, {
     description: "The Codex of the token.",
   })
