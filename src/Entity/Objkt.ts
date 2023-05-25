@@ -279,6 +279,9 @@ export class Objkt extends BaseEntity {
   activeListing: boolean
 
   @Filter(["eq"], type => Boolean)
+  redeemable: boolean
+
+  @Filter(["eq"], type => Boolean)
   redeemed: boolean
 }
 
