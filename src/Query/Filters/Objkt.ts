@@ -142,6 +142,31 @@ export const objktQueryFilter: TQueryFilter<
       }
     }
 
+    // add filter for redeemed objkts
+    if (filters?.redeemed_eq != null) {
+      // filter the objkts with redemptions
+      if (filters.redeemed_eq === true) {
+        query.where(
+          `EXISTS (
+            SELECT 1 FROM redemption
+            WHERE redemption."objktId" = objkt.id
+            AND redemption."objktIssuerVersion" = objkt."issuerVersion"
+          )`
+        )
+      }
+      // filter the redeemable objkts without redemptions
+      else if (filters.redeemed_eq === false) {
+        query.where(
+          `EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = issuer.id)
+            AND NOT EXISTS (
+            SELECT 1 FROM redemption
+            WHERE redemption."objktId" = objkt.id
+            AND redemption."objktIssuerVersion" = objkt."issuerVersion"
+          )`
+        )
+      }
+    }
+
     // filter for some issuers only
     if (filters.issuer_in != null) {
       query.andWhere("issuer.id IN (:...issuerIdFilters)", {
