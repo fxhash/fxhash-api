@@ -61,7 +61,10 @@ export class ObjktResolver {
     try {
       const usesParams = !!objkt.inputBytes
 
-      // if the objkt uses params, we need to get the seed from the ticketId
+      /**
+       *  if the objkt uses params and was minted with a ticket, we need to get
+       *  the seed from the ticketId instead of the objktId
+       */
       if (usesParams) {
         // find the MINTED_FROM action for this objkt to get the related ticketId
         const mintedFrom = await Action.findOneOrFail({
@@ -70,21 +73,13 @@ export class ObjktResolver {
           objktIssuerVersion: objkt.issuerVersion,
         })
 
-        // ensure we have a ticketId
-        if (!mintedFrom.ticketId)
-          throw new Error(
-            "No ticketId found for objkt: " +
-              JSON.stringify({
-                id: objkt.id,
-                issuerVersion: objkt.issuerVersion,
-              })
+        // if the mintedFrom action has a ticketId, we can use that to get the seed
+        if (mintedFrom.ticketId) {
+          const { finalSeedBase58check } = await fetchRetry(
+            `${process.env.SEED_AUTHORITY_API}/seed/gentk/${VERSION_TICKET_ID}/${mintedFrom.ticketId}`
           )
-
-        // fetch the seed using the ticketId
-        const { finalSeedBase58check } = await fetchRetry(
-          `${process.env.SEED_AUTHORITY_API}/seed/gentk/${VERSION_TICKET_ID}/${mintedFrom.ticketId}`
-        )
-        return finalSeedBase58check
+          return finalSeedBase58check
+        }
       }
 
       // otherwise, we can use the objkt's version/id to get the seed
