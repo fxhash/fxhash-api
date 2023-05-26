@@ -27,7 +27,7 @@ import { Redeemable } from "../Entity/Redeemable"
 import { ObjktId } from "../Scalar/ObjktId"
 import { fetchRetry } from "../Utils/Fetch"
 
-const VERSION_TICKET_ID = "1000"
+const VERSION_TICKET_ID = "10000"
 
 const GENTK_CONTRACT_VERSION_MAP = {
   [0]: process.env.TZ_CT_ADDRESS_GENTK_V1,
