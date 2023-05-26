@@ -144,10 +144,15 @@ export const objktQueryFilter: TQueryFilter<
 
     // add filter for redeemable objkts
     if (filters?.redeemable_eq != null) {
-      // filter the objkts with redeemables
+      // filter the redeemable objkts without redemptions
       if (filters.redeemable_eq === true) {
         query.where(
-          'EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = issuer.id)'
+          `EXISTS (SELECT 1 FROM redeemable WHERE redeemable."tokenId" = issuer.id)
+            AND NOT EXISTS (
+            SELECT 1 FROM redemption
+            WHERE redemption."objktId" = objkt.id
+            AND redemption."objktIssuerVersion" = objkt."issuerVersion"
+          )`
         )
       }
       // filter the objkts without redeemables
