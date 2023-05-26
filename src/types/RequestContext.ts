@@ -45,6 +45,7 @@ import {
 } from "../DataLoaders/Objkt"
 import {
   createRedeemableLoader,
+  createRedeemableRedeemedPercentageLoader,
   createRedeemableRedemptionsLoader,
   createRedeemableSplitsLoader,
 } from "../DataLoaders/Redeemable"
@@ -179,5 +180,8 @@ export interface RequestContext extends ExpressRequest {
   reedemableSplitsLoader: ReturnType<typeof createRedeemableSplitsLoader>
   reedemableRedemptionsLoader: ReturnType<
     typeof createRedeemableRedemptionsLoader
+  >
+  redeemableRedeemedPercentageLoader: ReturnType<
+    typeof createRedeemableRedeemedPercentageLoader
   >
 }

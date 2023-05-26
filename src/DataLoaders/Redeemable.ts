@@ -2,6 +2,7 @@ import DataLoader from "dataloader"
 import { Redeemable } from "../Entity/Redeemable"
 import { Redemption } from "../Entity/Redemption"
 import { Split } from "../Entity/Split"
+import { getManager } from "typeorm"
 
 /**
  * Given a list of Redeemable addresses, output a list of Redeemable
@@ -42,3 +43,36 @@ const batchRedeemableRedemptions = async ids => {
 }
 export const createRedeemableRedemptionsLoader = () =>
   new DataLoader(batchRedeemableRedemptions)
+
+/**
+ * Given a list of Redeemable addresses, outputs the redeemed percentage of each
+ * redeemable.
+ */
+
+const batchRedeemableRedeemedPercentage = async addresses => {
+  const percentages = await getManager().query(`
+    SELECT 
+      g.id AS "tokenId",
+      d.address,
+      COUNT(r.id) AS actualRedemptions,
+      g.supply * d."maxConsumptionsPerToken" AS totalPossibleRedemptions,
+      (COUNT(r.id) * 1.0 / (g.supply * d."maxConsumptionsPerToken")) * 100 AS "redeemedPercentage"
+    FROM 
+      generative_token g
+    INNER JOIN 
+      redeemable d ON g.id = d."tokenId"
+    LEFT JOIN 
+      redemption r ON d.address = r."redeemableAddress"
+    WHERE
+      d.address IN (${addresses.map(a => `'${a}'`).join(", ")})
+    GROUP BY 
+      g.id, d.address, d."maxConsumptionsPerToken"
+  `)
+
+  return addresses.map(
+    address =>
+      percentages.find(p => p.address === address)?.redeemedPercentage ?? 0
+  )
+}
+export const createRedeemableRedeemedPercentageLoader = () =>
+  new DataLoader(batchRedeemableRedeemedPercentage)
