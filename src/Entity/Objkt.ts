@@ -277,6 +277,12 @@ export class Objkt extends BaseEntity {
 
   @Filter(["exist"], type => Boolean)
   activeListing: boolean
+
+  @Filter(["eq"], type => Boolean)
+  redeemable: boolean
+
+  @Filter(["eq"], type => Boolean)
+  redeemed: boolean
 }
 
 // the Type for the filters of the GraphQL query for Objkt

@@ -45,6 +45,7 @@ import {
 } from "../DataLoaders/Objkt"
 import {
   createRedeemableLoader,
+  createRedeemableRedeemedPercentageLoader,
   createRedeemableRedemptionsLoader,
   createRedeemableSplitsLoader,
 } from "../DataLoaders/Redeemable"
@@ -150,5 +151,7 @@ export const createContext = (req: any, res: any): RequestContext => {
     redeemableLoader: createRedeemableLoader(),
     reedemableSplitsLoader: createRedeemableSplitsLoader(),
     reedemableRedemptionsLoader: createRedeemableRedemptionsLoader(),
+    redeemableRedeemedPercentageLoader:
+      createRedeemableRedeemedPercentageLoader(),
   }
 }
