@@ -3,6 +3,8 @@ import {
   Args,
   Ctx,
   FieldResolver,
+  Float,
+  Int,
   Query,
   Resolver,
   Root,
@@ -16,28 +18,14 @@ import { PaginationArgs, useDefaultValues } from "./Arguments/Pagination"
 
 @Resolver(Redeemable)
 export class RedeemableResolver {
-  @Query(() => Redeemable, {
-    description: "Returns a Redeemable entity, identified by its address",
-    nullable: true,
+  @FieldResolver(() => Float, {
+    description: "What percentage of the total supply has been redeemed",
   })
-  async redeemable(
-    @Arg("address") address: string
-  ): Promise<Redeemable | undefined> {
-    return Redeemable.findOne({ address })
-  }
-
-  @Query(() => [Redeemable], {
-    description:
-      "Returns a list of Redeemable entities, sorted by creation time",
-  })
-  async redeemables(
-    @Args() { skip, take }: PaginationArgs
-  ): Promise<Redeemable[]> {
-    ;[skip, take] = useDefaultValues([skip, take], [0, 20])
-    return Redeemable.find({
-      skip,
-      take,
-    })
+  async redeemedPercentage(
+    @Root() redeemable: Redeemable,
+    @Ctx() ctx: RequestContext
+  ) {
+    return ctx.redeemableRedeemedPercentageLoader.load(redeemable.address)
   }
 
   @FieldResolver(() => [Split], {
@@ -66,5 +54,29 @@ export class RedeemableResolver {
     @Ctx() ctx: RequestContext
   ) {
     return ctx.reedemableRedemptionsLoader.load(redeemable.address)
+  }
+
+  @Query(() => Redeemable, {
+    description: "Returns a Redeemable entity, identified by its address",
+    nullable: true,
+  })
+  async redeemable(
+    @Arg("address") address: string
+  ): Promise<Redeemable | undefined> {
+    return Redeemable.findOne({ address })
+  }
+
+  @Query(() => [Redeemable], {
+    description:
+      "Returns a list of Redeemable entities, sorted by creation time",
+  })
+  async redeemables(
+    @Args() { skip, take }: PaginationArgs
+  ): Promise<Redeemable[]> {
+    ;[skip, take] = useDefaultValues([skip, take], [0, 20])
+    return Redeemable.find({
+      skip,
+      take,
+    })
   }
 }

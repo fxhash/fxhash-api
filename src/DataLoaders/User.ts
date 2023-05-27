@@ -1,5 +1,5 @@
 import DataLoader from "dataloader"
-import { Brackets, In, Not } from "typeorm"
+import { Brackets, In, getManager } from "typeorm"
 import { Objkt } from "../Entity/Objkt"
 import { User, UserType } from "../Entity/User"
 import { Collaboration } from "../Entity/Collaboration"
@@ -475,3 +475,55 @@ const batchUsersArticleLedgers = async ids => {
 }
 export const createUsersArticleLedgersLoader = () =>
   new DataLoader(batchUsersArticleLedgers)
+
+const batchUsersGentkMinLastSoldPrice = async (ids: any) => {
+  /**
+   * raw query to select the most recent gentk transaction for each collection
+   * and owner:
+   * - select all transactions that match the (collection, owner) tuple
+   * - order by date
+   * - select the first (latest) transaction for each gentk
+   */
+  const transactions = await getManager().query(`
+    SELECT DISTINCT ON ("objktId", "objktIssuerVersion") "objktId", "objktIssuerVersion", price, "tokenId", "ownerId" FROM
+    (
+      SELECT * FROM transaction 
+      LEFT JOIN objkt ON
+        transaction."objktId" = objkt.id
+        AND transaction."objktIssuerVersion" = objkt."issuerVersion" 
+      WHERE ("issuerId", "ownerId") IN (
+        ${ids
+          .map(({ tokenId, ownerId }: any) => `(${tokenId}, '${ownerId}')`)
+          .join(",")}
+      ) ORDER BY transaction."createdAt" DESC
+    ) as latest_sales_query 
+  `)
+
+  // sort all gentk transactions by price
+  const sorted = transactions.sort(sortByProperty("price", "ASC"))
+
+  // find the min gentk price for each (collection, owner) tuple
+  return ids.map(
+    ({ tokenId, ownerId }) =>
+      sorted.find(t => t.tokenId === tokenId && t.ownerId === ownerId)?.price
+  )
+}
+export const createUsersGentkMinLastSoldPriceLoader = () =>
+  new DataLoader(batchUsersGentkMinLastSoldPrice)
+
+const batchUsersGentksHeldForCollection = async (ids: any) => {
+  const gentks = await Objkt.createQueryBuilder("objkt")
+    .select()
+    .where(
+      `("issuerId", "ownerId") IN (${ids
+        .map(({ tokenId, ownerId }: any) => `(${tokenId}, '${ownerId}')`)
+        .join(",")})`
+    )
+    .getMany()
+
+  return ids.map(({ tokenId, ownerId }) =>
+    gentks.filter(t => t.issuerId === tokenId && t.ownerId === ownerId)
+  )
+}
+export const createUsersGentksHeldForCollectionLoader = () =>
+  new DataLoader(batchUsersGentksHeldForCollection)

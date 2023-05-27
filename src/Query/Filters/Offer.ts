@@ -46,10 +46,11 @@ const anyOfferQueryFilter =
           } else {
             query.leftJoinAndSelect("collection_offer.token", "fd_token")
             query.leftJoinAndSelect("fd_token.marketStats", "fd_stats")
-            query.addOrderBy(
-              `(collection_offer.price / fd_stats.floor) * 100`,
-              sort[field]
+            query.addSelect(
+              "(collection_offer.price / fd_stats.floor) * 100",
+              "floorDifference"
             )
+            query.addOrderBy(`"floorDifference"`, sort[field])
           }
           continue
         }
@@ -84,18 +85,15 @@ export const sortOffersAndCollectionOffers = (
     return [...offersA, ...offersB].sort((a, b) => {
       const aFloor =
         (offerTypeGuard(a)
-          ? a.objkt.issuer?.marketStats.floor
-          : a.token.marketStats.floor) || 0
+          ? a.objkt.issuer?.marketStats?.floor
+          : a.token.marketStats?.floor) || 0
       const bFloor =
         (offerTypeGuard(b)
-          ? b.objkt.issuer?.marketStats.floor
-          : b.token.marketStats.floor) || 0
+          ? b.objkt.issuer?.marketStats?.floor
+          : b.token.marketStats?.floor) || 0
 
       const aFloorDifference = (a.price / aFloor) * 100
       const bFloorDifference = (b.price / bFloor) * 100
-
-      const displayA = offerTypeGuard(a) ? a.objkt.name : a.token.name
-      const displayB = offerTypeGuard(b) ? b.objkt.name : b.token.name
 
       return sortDirection === "ASC"
         ? aFloorDifference - bFloorDifference

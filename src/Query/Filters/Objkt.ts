@@ -99,6 +99,11 @@ export const objktQueryFilter: TQueryFilter<
 
   // custom filters
   if (filters) {
+    // filter for id
+    if (filters?.id_in != null) {
+      query.andWhereInIds(filters.id_in)
+    }
+
     // all the filters related to the author
     if (filters.author_in != null || filters.authorVerified_eq != null) {
       // we need the author so we join it (can select, almost always requested)
@@ -135,6 +140,43 @@ export const objktQueryFilter: TQueryFilter<
           "issuer.balance::decimal / issuer.supply < 0.1 AND issuer.balance > 0"
         )
       }
+    }
+
+    // add filter for redeemable objkts
+    if (filters?.redeemable_eq != null) {
+      // filter the redeemable objkts without redemptions
+      if (filters.redeemable_eq === true) {
+        query
+          .innerJoin("redeemable", "r", "r.tokenId = issuer.id")
+          .leftJoin(
+            "redemption",
+            "red",
+            "r.address = red.redeemableAddress AND red.objktId = objkt.id AND red.objktIssuerVersion = objkt.issuerVersion"
+          )
+          .andWhere("red.id IS NULL")
+      }
+      // filter the objkts without redeemables
+      else if (filters.redeemable_eq === false) {
+        query
+          .leftJoin("redeemable", "r", "r.tokenId = issuer.id")
+          .where("r.tokenId IS NULL")
+      }
+    }
+
+    // add filter for redeemed objkts
+    if (filters?.redeemed_eq != null) {
+      query
+        .innerJoin("redeemable", "r", "r.tokenId = issuer.id")
+        .leftJoin(
+          "redemption",
+          "red",
+          "r.address = red.redeemableAddress AND red.objktId = objkt.id AND red.objktIssuerVersion = objkt.issuerVersion"
+        )
+
+      // filter the objkts with redemptions
+      if (filters.redeemed_eq === true) query.andWhere("red.id IS NOT NULL")
+      // filter the redeemable objkts without redemptions
+      else if (filters.redeemed_eq === false) query.andWhere("red.id IS NULL")
     }
 
     // filter for some issuers only

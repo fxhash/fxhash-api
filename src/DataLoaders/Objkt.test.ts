@@ -54,8 +54,8 @@ afterEach(cleanup)
 
 const seedTokens = async () => {
   await generativeTokenFactory(0, GenerativeTokenVersion.PRE_V3)
-  await generativeTokenFactory(0, GenerativeTokenVersion.V3)
   await generativeTokenFactory(1, GenerativeTokenVersion.V3)
+  await generativeTokenFactory(2, GenerativeTokenVersion.V3)
 }
 
 describe("Objkt dataloaders", () => {
@@ -405,8 +405,8 @@ describe("Objkt dataloaders", () => {
 
       // create some objkts
       await objktFactory(0, GenerativeTokenVersion.PRE_V3, { tokenId: 0 })
-      await objktFactory(0, GenerativeTokenVersion.V3, { tokenId: 0 })
-      await objktFactory(1, GenerativeTokenVersion.V3, { tokenId: 1 })
+      await objktFactory(0, GenerativeTokenVersion.V3, { tokenId: 1 })
+      await objktFactory(1, GenerativeTokenVersion.V3, { tokenId: 2 })
 
       // create some redeemables with defined max consumptions
       const redeemable = await redeemableFactory(0, {
@@ -448,12 +448,12 @@ describe("Objkt dataloaders", () => {
             address: "KT1",
           },
         ],
-        null,
         [
           {
             address: "KT2",
           },
         ],
+        [],
       ])
     })
   })

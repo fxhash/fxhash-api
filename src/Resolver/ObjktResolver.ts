@@ -8,7 +8,8 @@ import {
   Resolver,
   Root,
 } from "type-graphql"
-import { Action } from "../Entity/Action"
+import { ApolloError } from "apollo-server-express"
+import { Action, TokenActionType } from "../Entity/Action"
 import { GenerativeToken } from "../Entity/GenerativeToken"
 import { FiltersObjkt, Objkt } from "../Entity/Objkt"
 import { Listing } from "../Entity/Listing"
@@ -24,6 +25,9 @@ import { MediaImage } from "../Entity/MediaImage"
 import { Redemption } from "../Entity/Redemption"
 import { Redeemable } from "../Entity/Redeemable"
 import { ObjktId } from "../Scalar/ObjktId"
+import { fetchRetry } from "../Utils/Fetch"
+
+const VERSION_TICKET_ID = "10000"
 
 const GENTK_CONTRACT_VERSION_MAP = {
   [0]: process.env.TZ_CT_ADDRESS_GENTK_V1,
@@ -49,10 +53,60 @@ export class ObjktResolver {
 
   @FieldResolver(returns => String, {
     description:
+      "The hash which represents the seed used by the Generative Token to generate the unique output",
+    nullable: true,
+  })
+  async generationHash(@Root() objkt: Objkt) {
+    if (objkt.generationHash) return objkt.generationHash
+    try {
+      const usesParams = !!objkt.inputBytes
+
+      /**
+       *  if the objkt uses params and was minted with a ticket, we need to get
+       *  the seed from the ticketId instead of the objktId
+       */
+      if (usesParams) {
+        // find the MINTED_FROM action for this objkt to get the related ticketId
+        const mintedFrom = await Action.findOneOrFail({
+          type: TokenActionType.MINTED_FROM,
+          objktId: objkt.id,
+          objktIssuerVersion: objkt.issuerVersion,
+        })
+
+        // if the mintedFrom action has a ticketId, we can use that to get the seed
+        if (mintedFrom.ticketId) {
+          const { finalSeedBase58check } = await fetchRetry(
+            `${process.env.SEED_AUTHORITY_API}/seed/gentk/${VERSION_TICKET_ID}/${mintedFrom.ticketId}`
+          )
+          return finalSeedBase58check
+        }
+      }
+
+      // otherwise, we can use the objkt's version/id to get the seed
+      const { finalSeedBase58check } = await fetchRetry(
+        `${process.env.SEED_AUTHORITY_API}/seed/gentk/${objkt.version}/${objkt.id}`
+      )
+      return finalSeedBase58check
+    } catch (_) {
+      // we shouldn't reach this, but if we do we have no generation hash to return
+      return null
+    }
+  }
+
+  @FieldResolver(returns => String, {
+    description:
       "The address of the gentk contract that this gentk was minted on.",
   })
   gentkContractAddress(@Root() objkt: Objkt) {
     return GENTK_CONTRACT_VERSION_MAP[objkt.version]
+  }
+
+  @FieldResolver(returns => Int, {
+    description: "The last price this gentk was sold for.",
+    nullable: true,
+  })
+  lastSoldPrice(@Root() objkt: Objkt, @Ctx() ctx: RequestContext) {
+    return ctx.objktLastSoldPriceLoader.load(new ObjktId(objkt))
   }
 
   @FieldResolver(returns => User, {
@@ -231,5 +285,23 @@ export class ObjktResolver {
       where: args,
       // cache: 10000
     })
+  }
+
+  @Query(returns => String, {
+    description:
+      "Endpoint to reveal the seed of a gentk from the hash of the mint transaction.",
+  })
+  async reveal(@Arg("hash") hash: string): Promise<string> {
+    try {
+      const response = await fetchRetry(
+        `${process.env.SEED_AUTHORITY_API}/seed/${hash}`
+      )
+      return response.finalSeed.b58
+    } catch (err: any) {
+      console.error(err)
+      throw new ApolloError(
+        `Failed to fetch the seed. Error: ${err?.message ?? "Unknown"}`
+      )
+    }
   }
 }

@@ -767,12 +767,59 @@ describe("GenTokens dataloaders", () => {
       })
 
       describe("floorDifference", () => {
+        beforeAll(async () => {
+          // add more extensive data to test floorDifferencey
+          await generativeTokenFactory(2, GenerativeTokenVersion.V3)
+          await marketStatsFactory(2, { floor: 3 })
+
+          const objkt3 = await objktFactory(2, GenerativeTokenVersion.V3, {
+            tokenId: 2,
+          })
+
+          await offerFactory(11, objkt3.id, objkt3.issuerVersion, {
+            price: 1,
+          })
+          await collectionOfferFactory(12, {
+            tokenId: 2,
+            price: 2,
+          })
+          await offerFactory(13, objkt3.id, objkt3.issuerVersion, {
+            price: 3,
+          })
+          await collectionOfferFactory(14, {
+            tokenId: 2,
+            price: 4,
+          })
+          await offerFactory(15, objkt3.id, objkt3.issuerVersion, {
+            price: 5,
+          })
+          await collectionOfferFactory(16, {
+            tokenId: 2,
+            price: 6,
+          })
+          await offerFactory(17, objkt3.id, objkt3.issuerVersion, {
+            price: 7,
+          })
+          await collectionOfferFactory(18, {
+            tokenId: 2,
+            price: 8,
+          })
+          await offerFactory(19, objkt3.id, objkt3.issuerVersion, {
+            price: 9,
+          })
+          await collectionOfferFactory(20, {
+            tokenId: 2,
+            price: 10,
+          })
+        })
+
         it("returns offers in the correct order when ASC", async () => {
           const result = await dataloader.loadMany([
             { id: 0, sort: { floorDifference: "ASC" } },
             { id: 1, sort: { floorDifference: "ASC" } },
+            { id: 2, sort: { floorDifference: "ASC" } },
           ])
-          expect(result).toHaveLength(2)
+          expect(result).toHaveLength(3)
           expect(result).toMatchObject([
             [
               {
@@ -788,6 +835,38 @@ describe("GenTokens dataloaders", () => {
               },
               {
                 id: 1,
+              },
+            ],
+            [
+              {
+                id: 11,
+              },
+              {
+                id: 12,
+              },
+              {
+                id: 13,
+              },
+              {
+                id: 14,
+              },
+              {
+                id: 15,
+              },
+              {
+                id: 16,
+              },
+              {
+                id: 17,
+              },
+              {
+                id: 18,
+              },
+              {
+                id: 19,
+              },
+              {
+                id: 20,
               },
             ],
           ])
@@ -795,10 +874,17 @@ describe("GenTokens dataloaders", () => {
 
         it("returns offers in the correct order when DESC", async () => {
           const result = await dataloader.loadMany([
-            { id: 0, sort: { floorDifference: "DESC" } },
+            {
+              id: 0,
+              sort: { floorDifference: "DESC" },
+            },
             { id: 1, sort: { floorDifference: "DESC" } },
+            {
+              id: 2,
+              sort: { floorDifference: "DESC" },
+            },
           ])
-          expect(result).toHaveLength(2)
+          expect(result).toHaveLength(3)
           expect(result).toMatchObject([
             [
               {
@@ -814,6 +900,38 @@ describe("GenTokens dataloaders", () => {
               },
               {
                 id: 3,
+              },
+            ],
+            [
+              {
+                id: 20,
+              },
+              {
+                id: 19,
+              },
+              {
+                id: 18,
+              },
+              {
+                id: 17,
+              },
+              {
+                id: 16,
+              },
+              {
+                id: 15,
+              },
+              {
+                id: 14,
+              },
+              {
+                id: 13,
+              },
+              {
+                id: 12,
+              },
+              {
+                id: 11,
               },
             ],
           ])
