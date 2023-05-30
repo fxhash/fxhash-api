@@ -1,5 +1,5 @@
 import { Brackets, LessThanOrEqual, MoreThan } from "typeorm"
-import { GentkTokPricing } from "../../Entity/GenerativeToken"
+import { GenerativeToken, GentkTokPricing } from "../../Entity/GenerativeToken"
 import { GenerativeSortInput } from "../../Resolver/Arguments/Sort"
 import { searchIndexGenerative } from "../../Services/Search"
 import { processGenerativeFilters } from "../../Utils/Filters"
@@ -152,22 +152,42 @@ export const generativeQueryFilter: TQueryFilter<
     // if we want to filter all completed collections
     if (filters.mintProgress_eq === "COMPLETED") {
       query.andWhere("token.balance = 0")
-    }
-    // if we want to filter all the ongoing collections
-    else if (filters.mintProgress_eq === "ONGOING") {
-      query.leftJoin("token.reserves", "reserves")
-      query.andWhere("token.balance > 0")
-      query.groupBy("token.id")
-      query.having("token.balance - COALESCE(SUM(reserves.amount), 0) > 0")
-    }
-    // if we want to filter all the collections close to be finished
-    else if (filters.mintProgress_eq === "ALMOST") {
-      query.leftJoin("token.reserves", "reserves")
-      query.andWhere(
-        "token.balance::decimal / token.supply < 0.1 AND token.balance > 0"
-      )
-      query.groupBy("token.id")
-      query.having("token.balance - COALESCE(SUM(reserves.amount), 0) > 0")
+    } else {
+      /**
+       * We want to exclude reserves from the balance of tokens for filters in
+       * this block, e.g. we consider collections ONGOING if they are able to
+       * mint without needing a reserve.
+       *
+       * N.B. Due to typeorm limitations, we can't do this in a single query
+       * without conflicting with the other filters because of the GROUP BY
+       * clause. Instead, we first get the id of tokens that are still mintable
+       * and then include them in the query.
+       */
+
+      // get the tokens where balance (minus the reserves) exceeds 0
+      const result = await GenerativeToken.createQueryBuilder("token")
+        .select("token.id")
+        .leftJoin("token.reserves", "reserves")
+        .having("token.balance - COALESCE(SUM(reserves.amount), 0) > 0")
+        .groupBy("token.id")
+        .getRawMany()
+
+      // extract the ids
+      const ids = result.map(r => r.token_id)
+
+      // if we want to filter all the ongoing collections
+      if (filters.mintProgress_eq === "ONGOING") {
+        query.andWhereInIds(ids)
+      }
+      // if we want to filter all the collections close to be finished
+      else if (filters.mintProgress_eq === "ALMOST") {
+        query
+          .andWhereInIds(ids)
+          // filter the tokens with less than 10% of the supply left
+          .andWhere(
+            "token.balance::decimal / token.supply < 0.1 AND token.balance > 0"
+          )
+      }
     }
   }
 
