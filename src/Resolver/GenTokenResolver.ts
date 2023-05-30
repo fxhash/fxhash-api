@@ -5,6 +5,7 @@ import {
   Args,
   Ctx,
   FieldResolver,
+  Int,
   Query,
   Resolver,
   Root,
@@ -62,6 +63,16 @@ export class GenTokenResolver {
     return token.version === GenerativeTokenVersion.V3
       ? process.env.TZ_CT_ADDRESS_ISSUER_V3
       : process.env.TZ_CT_ADDRESS_ISSUER_V2
+  }
+
+  @FieldResolver(returns => String, {
+    description:
+      "The address of the gentk contract that this token will mint iterations on.",
+  })
+  gentkContractAddress(@Root() token: GenerativeToken) {
+    return token.version === GenerativeTokenVersion.V3
+      ? process.env.TZ_CT_ADDRESS_GENTK_V3
+      : process.env.TZ_CT_ADDRESS_GENTK_V2
   }
 
   @FieldResolver(returns => Codex, {
@@ -622,5 +633,40 @@ export class GenTokenResolver {
       .getCount()
 
     return gentksHeldForCollectionCount > 0
+  }
+
+  @FieldResolver(returns => [Objkt], {
+    nullable: true,
+    description: "The gentks held by the supplied address for this collection.",
+  })
+  async heldGentks(
+    @Root() token: GenerativeToken,
+    @Arg("userId", _type => String, { nullable: true }) userId: string,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (!userId) return null
+
+    return ctx.usersGentksHeldForCollectionLoader.load({
+      ownerId: userId,
+      tokenId: token.id,
+    })
+  }
+
+  @FieldResolver(returns => Int, {
+    nullable: true,
+    description:
+      "The minimum price paid by the supplied address for a gentk in this collection.",
+  })
+  async minLastSoldPrice(
+    @Root() token: GenerativeToken,
+    @Arg("userId", _type => String, { nullable: true }) userId: string,
+    @Ctx() ctx: RequestContext
+  ) {
+    if (!userId) return null
+
+    return ctx.usersGentkMinLastSoldPriceLoader.load({
+      ownerId: userId,
+      tokenId: token.id,
+    })
   }
 }

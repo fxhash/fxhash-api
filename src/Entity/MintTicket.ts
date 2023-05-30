@@ -32,7 +32,7 @@ export class MintTicket extends BaseEntity {
   ownerId: string
 
   @ManyToOne(() => User, user => user.mintTickets)
-  @Filter(["eq"], () => String)
+  @Filter(["eq", "ne"], () => String)
   owner: User
 
   @Field({

@@ -39,6 +39,7 @@ import { MediaImage } from "../Entity/MediaImage"
 import { MintTicket } from "../Entity/MintTicket"
 import { Reserve } from "../Entity/Reserve"
 import { AnyOfferUnion } from "../types/AnyOffer"
+import { UserStats } from "../Entity/UserStats"
 
 @Resolver(User)
 export class UserResolver {
@@ -52,21 +53,22 @@ export class UserResolver {
 
   @FieldResolver(returns => [GenerativeToken], {
     description:
-      "Returns the list of generative tokens with reserves including the user.",
+      "Returns the list of generative tokens with active reserves including the user.",
   })
   async reserves(@Root() user: User, @Ctx() ctx: RequestContext) {
     // find all reserves for the user
     const reserves = await Reserve.createQueryBuilder("reserve")
       .select()
       .where("method = :method", { method: 0 }) // EReserveMethod.WHITELIST = 0
+      .andWhere("amount > 0")
       .andWhere("data ? :id", { id: user.id })
       .getMany()
 
     // filter out reserves that are not active anymore
-    const activeReserves = reserves.filter(r => r.amount > 0)
+    const activeReservesForUser = reserves.filter(r => r.data[user.id] > 0)
 
     // load the tokens
-    return ctx.genTokLoader.loadMany(activeReserves.map(r => r.tokenId))
+    return ctx.genTokLoader.loadMany(activeReservesForUser.map(r => r.tokenId))
   }
 
   @FieldResolver(returns => [Objkt], {
@@ -538,5 +540,46 @@ export class UserResolver {
         // cache: 10000
       })
     return user
+  }
+
+  @Query(() => [User], {
+    description:
+      "Returns a selection of the top collectors by primary and secondary purchases in number or volume in the last week",
+  })
+  async randomTopCollectors(
+    @Arg("count", { nullable: true, defaultValue: 3 })
+    count: number = 3
+  ): Promise<User[]> {
+    // get the top collectors by number and volume
+    const statsQueries = [
+      { orderField: "stat.primVolumeNb7d", orderDirection: "DESC" },
+      { orderField: "stat.primVolumeTz7d", orderDirection: "DESC" },
+      { orderField: "stat.secVolumeNb7d", orderDirection: "DESC" },
+      { orderField: "stat.secVolumeTz7d", orderDirection: "DESC" },
+    ] as const
+
+    const topCollectorsQueries = statsQueries.map(
+      ({ orderField, orderDirection }) =>
+        UserStats.createQueryBuilder("stat")
+          .leftJoinAndSelect("stat.user", "user")
+          .addOrderBy(orderField, orderDirection)
+          // select 10 to make sure we have some variety
+          .limit(10)
+          .getMany()
+    )
+
+    const topCollectorsByCategory = await Promise.all(topCollectorsQueries)
+    const allTopCollectors = topCollectorsByCategory.flat()
+    const randomTopCollectors: User[] = []
+
+    // get a random selection of the top collectors
+    for (let i = 0; i < count; i++) {
+      const randomIndex = Math.floor(Math.random() * allTopCollectors.length)
+      randomTopCollectors.push(allTopCollectors[randomIndex].user)
+      // remove the user from the list so we don't get duplicates
+      allTopCollectors.splice(randomIndex, 1)
+    }
+
+    return randomTopCollectors
   }
 }
