@@ -82,6 +82,7 @@ export class Objkt extends BaseEntity {
   issuerId: number
 
   @ManyToOne(() => User, user => user.objkts)
+  @Filter(["in"], type => String)
   owner?: User | null
 
   @Column({ nullable: true })

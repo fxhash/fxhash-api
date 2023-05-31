@@ -124,6 +124,12 @@ export const objktQueryFilter: TQueryFilter<
       }
     }
 
+    if (filters.owner_in != null) {
+      query.andWhere("objkt.ownerId IN (:...ownerId)", {
+        ownerId: filters.owner_in,
+      })
+    }
+
     // the mint progress
     if (filters.mintProgress_eq != null) {
       // if we want to filter all completed collections
