@@ -53,10 +53,22 @@ export const generativeQueryFilter: TQueryFilter<
   // filter for the field author verified
   if (filters?.authorVerified_eq != null) {
     query.leftJoin("token.author", "author")
+    // join authors from collaborations
+    query.leftJoin(
+      "Collaboration",
+      "collaboration",
+      "author.id = collaboration.collaborationContractId"
+    )
+    query.leftJoin("collaboration.collaborator", "collaborator")
+
     if (filters.authorVerified_eq === true) {
-      query.andWhere("author.flag = 'VERIFIED'")
+      query.andWhere(
+        "(author.flag = 'VERIFIED' OR collaborator.flag = 'VERIFIED')"
+      )
     } else {
-      query.andWhere("author.flag != 'VERIFIED'")
+      query.andWhere(
+        "(author.flag != 'VERIFIED' AND collaborator.flag != 'VERIFIED')"
+      )
     }
   }
 
