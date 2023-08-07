@@ -392,6 +392,7 @@ const batchUsersSales = async (inputs: any) => {
       new Brackets(qb =>
         qb
           .where({ type: TokenActionType.OFFER_ACCEPTED })
+          .orWhere({ type: TokenActionType.COLLECTION_OFFER_ACCEPTED })
           .andWhere("action.issuerId = :id", { id })
       )
     )
