@@ -387,13 +387,18 @@ const batchUsersSales = async (inputs: any) => {
           .andWhere("action.targetId = :id", { id })
       )
     )
-    // find the offers where user is seller
+     // find the offers where user is seller
     .orWhere(
       new Brackets(qb =>
         qb
-          .where({ type: TokenActionType.OFFER_ACCEPTED })
-          // .orWhere({ type: TokenActionType.COLLECTION_OFFER_ACCEPTED })
-          .andWhere("action.issuerId = :id", { id })
+          .where(
+            new Brackets(qb =>
+              qb
+                .where({ type: TokenActionType.OFFER_ACCEPTED })
+                .orWhere({ type: TokenActionType.COLLECTION_OFFER_ACCEPTED })
+            )
+          )
+          .andWhere("action.targetId = :id", { id })
       )
     )
     .getMany()
