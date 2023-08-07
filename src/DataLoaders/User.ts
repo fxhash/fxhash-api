@@ -398,7 +398,7 @@ const batchUsersSales = async (inputs: any) => {
                 .orWhere({ type: TokenActionType.COLLECTION_OFFER_ACCEPTED })
             )
           )
-          .andWhere("action.targetId = :id", { id })
+          .andWhere("action.issuerId = :id", { id })
       )
     )
     .getMany()
