@@ -3,6 +3,7 @@ import { OffersSortInput } from "../../Resolver/Arguments/Sort"
 import { TQueryFilter } from "./QueryFilter"
 import { AnyOffer, offerTypeGuard } from "../../types/AnyOffer"
 import { sortByProperty } from "../../Utils/Sort"
+import { OfferStatus } from "../../Entity/Offer"
 
 type OfferFilters = Record<string, any>
 
@@ -26,6 +27,15 @@ const anyOfferQueryFilter =
             qb.orWhere(`${table}.${fulfilledField} is not null`)
           })
         )
+      }
+
+      if (filters.status_eq === OfferStatus.ACCEPTED) {
+        query.andWhere(`${table}.${fulfilledField} is not null`)
+      } else if (filters.status_eq === OfferStatus.CANCELLED) {
+        query.andWhere(`${table}.cancelledAt is not null`)
+      } else if (filters.status_eq === OfferStatus.ACTIVE) {
+        query.andWhere(`${table}.cancelledAt is null`)
+        query.andWhere(`${table}.${fulfilledField} is null`)
       }
     }
 

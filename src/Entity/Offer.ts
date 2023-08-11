@@ -1,9 +1,20 @@
-import { Field, ObjectType } from "type-graphql"
+import { Field, ObjectType, registerEnumType } from "type-graphql"
 import { Filter, generateFilterType } from "type-graphql-filter"
 import { Entity, Column, PrimaryColumn, BaseEntity, ManyToOne } from "typeorm"
 import { GenerativeTokenVersion } from "../types/GenerativeToken"
 import { Objkt } from "./Objkt"
 import { User } from "./User"
+
+export enum OfferStatus {
+  ACTIVE = "ACTIVE",
+  CANCELLED = "CANCELLED",
+  ACCEPTED = "ACCEPTED",
+}
+
+registerEnumType(OfferStatus, {
+  name: "OfferStatus",
+  description: "The status of the offer",
+})
 
 @Entity()
 @ObjectType({
@@ -80,6 +91,9 @@ export class Offer extends BaseEntity {
   // is the offer active ?
   @Filter(["eq"], () => Boolean)
   active: boolean
+
+  @Filter(["eq"], () => OfferStatus)
+  status: OfferStatus
 }
 
 // the Type for the filters of the GraphQL query for Offer
