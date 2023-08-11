@@ -19,7 +19,7 @@ interface ObjktFilters {
 export const objktQueryFilter: TQueryFilter<
   ObjktFilters,
   ObjktsSortInput
-> = async (query, filtersObj, sort) => {
+> = async (query, filtersObj = {}, sort) => {
   // extract
   const { featureFilters, general: filters } = filtersObj
 
