@@ -6,6 +6,7 @@ import {
   processObjktFilters,
 } from "../../Utils/Filters"
 import { TQueryFilter } from "./QueryFilter"
+import { TokenActionType } from "../../Entity/Action"
 
 interface ObjktFilters {
   general?: Record<string, any>
@@ -222,7 +223,16 @@ export const objktQueryFilter: TQueryFilter<
         query.leftJoin(
           "objkt.actions",
           "action",
-          "action.objktId = objkt.id AND action.type = 'OFFER_ACCEPTED'"
+          "action.objktId = objkt.id AND action.type IN (:...actionType)",
+          {
+            actionType: [
+              TokenActionType.MINTED_FROM,
+              TokenActionType.LISTING_V1_ACCEPTED,
+              TokenActionType.LISTING_V2_ACCEPTED,
+              TokenActionType.OFFER_ACCEPTED,
+              TokenActionType.COLLECTION_OFFER_ACCEPTED,
+            ],
+          }
         )
         query.addOrderBy("action.createdAt", sort[sortEntry], "NULLS LAST")
       } else {
