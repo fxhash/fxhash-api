@@ -220,21 +220,26 @@ export const objktQueryFilter: TQueryFilter<
       } else if (sortEntry === "listingCreatedAt") {
         query.addOrderBy("listing.createdAt", sort[sortEntry], "NULLS LAST")
       } else if (sortEntry === "collectedAt") {
-        query.leftJoin(
-          "objkt.actions",
-          "action",
-          "action.objktId = objkt.id AND action.type IN (:...actionType)",
-          {
-            actionType: [
-              TokenActionType.MINTED_FROM,
-              TokenActionType.LISTING_V1_ACCEPTED,
-              TokenActionType.LISTING_V2_ACCEPTED,
-              TokenActionType.OFFER_ACCEPTED,
-              TokenActionType.COLLECTION_OFFER_ACCEPTED,
-            ],
-          }
-        )
-        query.addOrderBy("action.createdAt", sort[sortEntry], "NULLS LAST")
+        query
+          .leftJoinAndSelect("objkt.actions", "action")
+          .andWhere(
+            `action.createdAt = (
+                SELECT MAX(action.createdAt)
+                FROM action
+                WHERE action.objktId = objkt.id
+                AND action.type IN (:...actionTypes)
+            )`,
+            {
+              actionTypes: [
+                TokenActionType.MINTED_FROM,
+                TokenActionType.LISTING_V1_ACCEPTED,
+                TokenActionType.LISTING_V2_ACCEPTED,
+                TokenActionType.OFFER_ACCEPTED,
+                TokenActionType.COLLECTION_OFFER_ACCEPTED,
+              ],
+            }
+          )
+          .addOrderBy("action.createdAt", sort[sortEntry], "NULLS LAST")
       } else {
         query.addOrderBy(`objkt.${sortEntry}`, sort[sortEntry], "NULLS LAST")
       }
